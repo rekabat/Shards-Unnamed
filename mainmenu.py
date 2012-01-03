@@ -4,8 +4,8 @@ from pygame.locals import *
 
 pygame.init()
 
-import display
-import text
+import source.display as display
+import source.text as text
 
 screen = display.Display()
 screen.createDisplay()
