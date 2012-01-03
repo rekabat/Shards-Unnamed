@@ -1,0 +1,13 @@
+~Tile Source
+art/floors.png
+~Tile Size (x/y)
+32
+32
+~Map Size in Tiles (x/y)
+2
+2
+~Setup (Map col:row/Tile col:row)
+0:0/1:1
+0:1/2:1
+1:0/0:0
+1:1/0:0
