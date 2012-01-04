@@ -95,3 +95,8 @@ class Player(Moveable):
 			self.lastGoodPixel = (self.lastGoodPixel[0], self.position[1])
 		else:
 			self.moveFrame(self.lastGoodPixel)
+	
+	def place(self, position):
+		if Moveable.place(self, position):
+			self.map.hasEvent(position)
+		
