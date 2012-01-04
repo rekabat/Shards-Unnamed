@@ -61,6 +61,3 @@ class Map:
 	
 	def getTileSize(self):
 		return self.tileSize
-			
-			
-			
