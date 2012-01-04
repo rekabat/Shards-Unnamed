@@ -11,13 +11,17 @@ import source.mapParser as mapParser
 screen = display.Display()
 screen.createDisplay()
 
-
-
-myMap = mapParser.Map('maps/demo.map')
+myMap = mapParser.Map('maps/large_map.map')
 
 screen.get().blit(myMap.get(), (0,0))
 
 pygame.display.flip()
 
-while 1:
-	pygame.time.Clock().tick(1000)
+running = True
+while running:
+		for event in pygame.event.get():
+				if event.type == pygame.QUIT:
+						running = False
+						break
+		
+		pygame.time.Clock().tick(20)

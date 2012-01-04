@@ -4,7 +4,6 @@ TILE_RESOLUTION = 32
 
 def tilePos(tileCoord, squareSize): #return topleft pixel
 	return (tileCoord[0]*squareSize[0], tileCoord[1]*squareSize[1])
-	
 
 def tileOntoMap(surfaceFrom, surfaceTo, topLeftFrom, topLeftTo, squareSize):
 	# fromRect = pygame.Rect(topLeftFrom[0], topLeftFrom[1], squareSize[0], squareSize[1])
@@ -18,9 +17,7 @@ def tileOntoMap(surfaceFrom, surfaceTo, topLeftFrom, topLeftTo, squareSize):
 	# surfaceTo.blit(fromTile, toRect)
 
 def parse(file):
-	theMap = open(file, 'r')
-	theMap = theMap.readlines()
-	theMap = [each[:-1] for each in theMap] #remove newline characters
+	theMap = [line.strip() for line in open(file).readlines()]
 	
 	tileSource = theMap[1]
 	tileSize = [int(theMap[3]), int(theMap[4])]
@@ -46,9 +43,4 @@ class Map:
 			tileOntoMap(self.tileFile, self.img, tilePos(self.setup[1][i], self.tileSize), tilePos(self.setup[0][i], self.tileSize), self.tileSize)
 			
 	def get(self):
-		return self.img
-			
-			
-			
-			
-			
+		return self.img			
