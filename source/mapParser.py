@@ -1,16 +1,25 @@
-import pygame
+import pygame as pg
+from itertools import count
 
 TILE_RESOLUTION = 32
 
+def tileRect((x, y), squareSize):
+	return pg.Rect((x * squareSize[0], y * squareSize[1]), squareSize)
+
+###
 def tilePos(tileCoord, squareSize): #return topleft pixel
 	return (tileCoord[0]*squareSize[0], tileCoord[1]*squareSize[1])
-	
 
+###
 def tileOntoMap(surfaceFrom, surfaceTo, topLeftFrom, topLeftTo, squareSize):
-	fromRect = pygame.Rect(topLeftFrom[0], topLeftFrom[1], squareSize[0], squareSize[1])
-	toRect = pygame.Rect(topLeftTo[0], topLeftTo[1], squareSize[0], squareSize[1])
+	fromRect = pg.Rect((topLeftFrom[0], topLeftFrom[1]), squareSize)
+	toRect = pg.Rect(topLeftTo[0], topLeftTo[1], squareSize[0], squareSize[1])
 	fromTile = surfaceFrom.subsurface(fromRect)
 	surfaceTo.blit(fromTile, toRect)
+
+def tileToMap(mapSurface, tileCoordsTo, tileSubsurface, squaresize):
+	toRect = tileRect(tileCoordsTo, squaresize)
+	mapSurface.blit(tileSubsurface, toRect)
 
 def parseMapLine(line):
 	pos, tile = line.split("/")
@@ -37,7 +46,7 @@ def parseMapLine(line):
 def parse(file):
 	theMap = [line.strip() for line in open(file, 'r').readlines()]
 	
-	tileSource = theMap[1]
+	tileFile = theMap[1]
 	tileSize = [int(theMap[3]), int(theMap[4])]
 	mapSize = [int(theMap[6]), int(theMap[7])]
 	
@@ -48,7 +57,7 @@ def parse(file):
 		# print first, second
 		pos, tile = parseMapLine(line)
 		setup[pos] = tile
-	return tileSource, tileSize, mapSize, setup
+	return tileFile, tileSize, mapSize, setup
 
 class Tile:
 	def __init__(self, type, blocked, events):
@@ -65,16 +74,47 @@ class Tile:
 	def events(self):
 		return self.Events
 
+class TileMap:
+	def __init__(self, tileFile, squareSize):
+		print "Tilemap: " + tileFile
+		self.tileFile = tileFile
+		self.tileImg = pg.image.load(self.tileFile).convert()
+		self.tileDict = self.genSubsurfaces(squareSize)
+	
+	def get(self, coords):
+		return self.tileDict[coords]
+	
+	def genSubsurfaces(self, squareSize):
+		tileDict = {}
+		imgRect = self.tileImg.get_rect()
+		x, y = 0, 0
+		morey = True
+		while morey:
+			while True:
+				tile = tileRect((x, y), squareSize)
+				if imgRect.contains(tile):
+					tileDict[(x, y)] = self.tileImg.subsurface(tile)
+					x += 1
+				else:
+					if x == 0:
+						morey = False
+					else:
+						x = 0
+					break
+			y += 1
+		return tileDict
+
+
 class Map:
 	def __init__(self, file):
 		self.file = file
-		self.tileSource, self.tileSize, self.mapSize, self.setup = parse(self.file)
-		self.img = pygame.Surface((self.mapSize[0]*self.tileSize[0], self.mapSize[1]*self.tileSize[1]))
-		
-		self.tileFile = pygame.image.load(self.tileSource).convert()
+		self.tileFile, self.tileSize, self.mapSize, self.setup = parse(self.file)
+		print self.tileFile
+		self.img = pg.Surface((self.mapSize[0]*self.tileSize[0], self.mapSize[1]*self.tileSize[1]))
 
+		tm = TileMap(self.tileFile, self.tileSize)
 		for pos in self.setup.keys():
-			tileOntoMap(self.tileFile, self.img, tilePos(self.setup[pos].type(), self.tileSize), tilePos(pos, self.tileSize), self.tileSize)			
+			tileToMap(self.img, pos, tm.get(self.setup[pos].type()), self.tileSize)
 		
 			
 	def get(self):
