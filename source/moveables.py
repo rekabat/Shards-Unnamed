@@ -1,7 +1,7 @@
 import pygame as pg
 import mapParser
 
-PX_STEP = 2
+PX_STEP = 1
 
 class Moveable:
 	def __init__(self, map, position, size, art):
@@ -37,14 +37,21 @@ class Moveable:
 			return False
 	
 	def move(self, direction):
-		if direction == "U":
-			self.place((self.position[0], self.position[1]-PX_STEP))
-		if direction == "D":
-			self.place((self.position[0], self.position[1]+PX_STEP))
-		if direction == "L":
-			self.place((self.position[0]-PX_STEP, self.position[1]))
-		if direction == "R":
-			self.place((self.position[0]+PX_STEP, self.position[1]))
+		xmove = 0
+		ymove = 0
+		
+		if "U" in direction:
+			ymove-=PX_STEP
+		if "D" in direction:
+			ymove+=PX_STEP
+		if "L" in direction:
+			xmove-=PX_STEP
+		if "R" in direction:
+			xmove+=PX_STEP
+		
+		newPos = (self.position[0]+xmove, self.position[1]+ymove)
+		if not self.map.blocked(newPos):
+			self.place(newPos)
 
 class Player(Moveable):
 	def __init__(self, map, position, screen):
@@ -69,14 +76,6 @@ class Player(Moveable):
 		
 	
 	def move(self, direction):
-		# if direction == "U":
-		# 	self.place((self.position[0], self.position[1]-1))
-		# if direction == "D":
-		# 	self.place((self.position[0], self.position[1]+1))
-		# if direction == "L":
-		# 	self.place((self.position[0]-1, self.position[1]))
-		# if direction == "R":
-		# 	self.place((self.position[0]+1, self.position[1]))
 		Moveable.move(self, direction)
 
 		if self.moveFrame(self.position):

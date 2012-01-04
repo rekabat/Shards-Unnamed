@@ -53,14 +53,18 @@ while running:
 				left = False
 			if event.dict['key'] == 100:
 				right = False
-	if up:
-		player.move("U")
-	if down:
-		player.move("D")
-	if left:
-		player.move("L")
-	if right:
-		player.move("R")
+	
+	mv = ""
+	if up or down or left or right:
+		if up:
+			mv += "U"
+		if down:
+			mv += "D"
+		if left:
+			mv += "L"
+		if right:
+			mv += "R"
+		player.move(mv)
 		
 	pygame.time.Clock().tick()
 	

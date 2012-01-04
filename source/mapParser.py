@@ -98,12 +98,12 @@ class Map:
 	
 	def getTile(self, coords, pixel=True): #false means tile
 		if pixel:
-			return self.setup(pix2tile(coords))
+			return self.setup[self.pix2tile(coords)]
 		else:
-			return self.setup(coords)
+			return self.setup[coords]
 	
 	def blocked(self, coords, pixel=True): #false means tile
 		if pixel:
-			return self.setup(pix2tile(coords)).blocked()
+			return self.setup[self.pix2tile(coords)].blocked()
 		else:
-			return self.setup(coords).blocked()
+			return self.setup[coords].blocked()
