@@ -1,5 +1,5 @@
-x=25
-y=20
+x=200
+y=200
 
 tilefile = 'art/floors.png'
 pos = "1:0"
