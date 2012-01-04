@@ -1,6 +1,6 @@
 ON: 0:0
 BLOCKED: 1
-EVENT_TYPE: 1
+EVENT_ID: 1
 ONE_TIME: 0
 ART: 'art/items1.png'
 ART_TILE: 1:0
