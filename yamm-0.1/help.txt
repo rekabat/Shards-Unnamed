@@ -1,0 +1,23 @@
+F1 : this help
+
+F2 : config size
+
+F3 : open file or ctrl+o
+    
+
+F7 or ctrl+s : save file
+  save the map
+
+F8 or ctrl+o : load file
+  load a tileset for a new map or load a saved map
+  the Tileset file must be in the same directory than the saved map
+
+[ESC] : quit without saving
+
+how to use :
+
+start with map.py
+
+Click on a the tileset to choose a tile, the left click on the map to draw the tile, right click to cover the entire map with the tile.
+
+The tileset given is not in public domain, but found on the net. If you have a tileset under a free licence and want to add it to Yamm, feel free to send it to me.

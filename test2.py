@@ -8,7 +8,6 @@ pygame.init()
 import source.display as display
 import source.text as text
 import source.mapParser as mapParser
-import source.frame as frame
 import source.moveables as moveables
 
 screen = display.Display()
@@ -18,9 +17,9 @@ myMap = mapParser.Map('maps/mapgen_map.map')
 
 
 currentPix = myMap.tile2pix((12,10))
-player = moveables.Moveable(myMap, (24,0), (1,1), 'art/player.png')
+player = moveables.Player(myMap, (12,10), screen)
 
-frm = frame.Frame(myMap.get(), currentPix, screen)
+# frm = frame.Frame(myMap.get(), currentPix, screen)
 
 up = False
 down = False
@@ -55,32 +54,12 @@ while running:
 			if event.dict['key'] == 100:
 				right = False
 	if up:
-		newPix = (currentPix[0], currentPix[1]-1)
-		if frm.updateFrame(newPix):
-			currentPix=newPix
+		player.move("U")
 	if down:
-		newPix = (currentPix[0], currentPix[1]+1)
-		if frm.updateFrame(newPix):
-			currentPix=newPix
+		player.move("D")
 	if left:
-		newPix = (currentPix[0]-1, currentPix[1])
-		if frm.updateFrame(newPix):
-			currentPix=newPix
-		frm.updateFrame(currentPix)
 		player.move("L")
 	if right:
-		newPix = (currentPix[0]+1, currentPix[1])
-		if frm.updateFrame(newPix):
-			currentPix=newPix
-		frm.updateFrame(currentPix)
 		player.move("R")
 	pygame.time.Clock().tick(1000)
 
-running = True
-while running:
-		for event in pygame.event.get():
-				if event.type == pygame.QUIT:
-						running = False
-						break
-		
-		pygame.time.Clock().tick(20)
