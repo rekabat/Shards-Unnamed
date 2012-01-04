@@ -11,6 +11,27 @@ def tileOntoMap(surfaceFrom, surfaceTo, topLeftFrom, topLeftTo, squareSize):
 	toRect = pygame.Rect(topLeftTo[0], topLeftTo[1], squareSize[0], squareSize[1])
 	fromTile = surfaceFrom.subsurface(fromRect)
 	surfaceTo.blit(fromTile, toRect)
+
+def parseMapLine(line):
+	pos, tile = line.split("/")
+
+	# construct map position x,y coords
+	pos = tuple([int(i) for i in pos.split(":")])
+
+	# tile source position (type)
+	tile = tile.split("(")
+	type = tuple([int(i) for i in tile[0].split(":")])
+	tile = tile[1]
+
+	# blocked = cannot be walked on (1 is blocked)
+	tile = tile.split(")[")
+	blocked = True if tile[0] == "1" else False
+	tile = tile[1][:-1]
+
+	# events attached to a tile
+	events = [int(i) for i in tile.split(",")]
+
+	return pos, Tile(type, blocked, events)
 	
 
 def parse(file):
@@ -20,15 +41,29 @@ def parse(file):
 	tileSize = [int(theMap[3]), int(theMap[4])]
 	mapSize = [int(theMap[6]), int(theMap[7])]
 	
-	setup = [[],[]]
-	for each in theMap[9:]:
+	# setup = [[],[]]
+	setup = {}
+	for line in theMap[9:]:
 		# first, second = each.split("/")
 		# print first, second
-		setup[0].append((int(each[:each.find(':')]), int(each[each.find(':')+1:each.find('/')])))
-		secondpart = each[each.find('/')+1:] 
-		setup[1].append((int(secondpart[:secondpart.find(':')]), int(secondpart[secondpart.find(':')+1:])))
-		
+		pos, tile = parseMapLine(line)
+		setup[pos] = tile
 	return tileSource, tileSize, mapSize, setup
+
+class Tile:
+	def __init__(self, type, blocked, events):
+		self.Type = type
+		self.Blocked = blocked
+		self.Events = events
+	
+	def type(self):
+		return self.Type
+	
+	def blocked(self):
+		return self.Blocked
+
+	def events(self):
+		return self.Events
 
 class Map:
 	def __init__(self, file):
@@ -37,10 +72,9 @@ class Map:
 		self.img = pygame.Surface((self.mapSize[0]*self.tileSize[0], self.mapSize[1]*self.tileSize[1]))
 		
 		self.tileFile = pygame.image.load(self.tileSource).convert()
-		
-		for i in range(len(self.setup[0])):
-			tileOntoMap(self.tileFile, self.img, tilePos(self.setup[1][i], self.tileSize), tilePos(self.setup[0][i], self.tileSize), self.tileSize)
-			
+
+		for pos in self.setup.keys():
+			tileOntoMap(self.tileFile, self.img, tilePos(self.setup[pos].type(), self.tileSize), tilePos(pos, self.tileSize), self.tileSize)			
 		
 			
 	def get(self):
@@ -61,3 +95,15 @@ class Map:
 	
 	def getTileSize(self):
 		return self.tileSize
+	
+	def getTile(self, coords, pixel=True): #false means tile
+		if pixel:
+			return self.setup(pix2tile(coords))
+		else:
+			return self.setup(coords)
+	
+	def blocked(self, coords, pixel=True): #false means tile
+		if pixel:
+			return self.setup(pix2tile(coords)).blocked()
+		else:
+			return self.setup(coords).blocked()
