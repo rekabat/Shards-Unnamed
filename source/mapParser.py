@@ -55,6 +55,7 @@ class Tile:
 		self.Blocked = blocked
 		self.Events = events
 		self.WorldEvents = []
+		self.under = None
 	
 	def type(self):
 		return self.Type
@@ -65,11 +66,13 @@ class Tile:
 	def events(self):
 		return self.Events
 	
-	def addEvent(self, event):
+	def addEvents(self, event, mapSubsurface):
+		self.under = mapSubsurface.copy()
 		self.WorldEvents.extend(event)
 
 	def hasEvent(self):
-		print self.WorldEvents
+		if len(self.WorldEvents) > 0:
+			print self.WorldEvents
 
 class TileMap:
 	def __init__(self, tileFile, squareSize):
@@ -116,7 +119,9 @@ class Map:
 		for pos in self.setup.keys():
 			tileToMap(self.img, pos, tm.get(self.setup[pos].type()), self.tileSize)
 			if pos in we:
-				self.setup[pos].addEvent(we[pos])
+				mapSubsurface = self.img.subsurface(tileRect(pos, self.tileSize))
+				self.setup[pos].addEvents(we[pos], mapSubsurface)
+				
 
 	def get(self):
 		return self.img
