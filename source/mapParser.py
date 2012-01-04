@@ -133,7 +133,7 @@ class Map:
 		if x > self.mapSize[0] or y > self.mapSize[1] or x < 0 or y < 0:
 			print "out of bounds"
 			raise KeyboardInterrupt
-		print (x+.5), self.tileSize[0], (y+.5), self.tileSize[1], int((x+.5)*self.tileSize[0]), int((y+.5)*self.tileSize[1])
+		# print (x+.5), self.tileSize[0], (y+.5), self.tileSize[1], int((x+.5)*self.tileSize[0]), int((y+.5)*self.tileSize[1])
 		return (int((x+.5)*self.tileSize[0]), int((y+.5)*self.tileSize[1]))
 	
 	def pix2tile(self,(x,y)):
