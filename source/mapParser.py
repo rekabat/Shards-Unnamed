@@ -1,21 +1,11 @@
 import pygame as pg
-from itertools import count
+
+import worldEvents
 
 TILE_RESOLUTION = 32
 
 def tileRect((x, y), squareSize):
 	return pg.Rect((x * squareSize[0], y * squareSize[1]), squareSize)
-
-###
-def tilePos(tileCoord, squareSize): #return topleft pixel
-	return (tileCoord[0]*squareSize[0], tileCoord[1]*squareSize[1])
-
-###
-def tileOntoMap(surfaceFrom, surfaceTo, topLeftFrom, topLeftTo, squareSize):
-	fromRect = pg.Rect((topLeftFrom[0], topLeftFrom[1]), squareSize)
-	toRect = pg.Rect(topLeftTo[0], topLeftTo[1], squareSize[0], squareSize[1])
-	fromTile = surfaceFrom.subsurface(fromRect)
-	surfaceTo.blit(fromTile, toRect)
 
 def tileToMap(mapSurface, tileCoordsTo, tileSubsurface, squaresize):
 	toRect = tileRect(tileCoordsTo, squaresize)
@@ -64,6 +54,7 @@ class Tile:
 		self.Type = type
 		self.Blocked = blocked
 		self.Events = events
+		self.WorldEvents = []
 	
 	def type(self):
 		return self.Type
@@ -73,10 +64,15 @@ class Tile:
 
 	def events(self):
 		return self.Events
+	
+	def addEvent(self, event):
+		self.WorldEvents.extend(event)
+
+	def hasEvent(self):
+		print self.WorldEvents
 
 class TileMap:
 	def __init__(self, tileFile, squareSize):
-		print "Tilemap: " + tileFile
 		self.tileFile = tileFile
 		self.tileImg = pg.image.load(self.tileFile).convert()
 		self.tileDict = self.genSubsurfaces(squareSize)
@@ -107,16 +103,21 @@ class TileMap:
 
 class Map:
 	def __init__(self, file):
-		self.file = file
+		self.file = file + ".map"
+		self.evtFile = file + ".evt"
+
 		self.tileFile, self.tileSize, self.mapSize, self.setup = parse(self.file)
-		print self.tileFile
+
 		self.img = pg.Surface((self.mapSize[0]*self.tileSize[0], self.mapSize[1]*self.tileSize[1]))
 
 		tm = TileMap(self.tileFile, self.tileSize)
+		we = worldEvents.parse(self.evtFile)
+
 		for pos in self.setup.keys():
 			tileToMap(self.img, pos, tm.get(self.setup[pos].type()), self.tileSize)
-		
-			
+			if pos in we:
+				self.setup[pos].addEvent(we[pos])
+
 	def get(self):
 		return self.img
 	
@@ -147,3 +148,9 @@ class Map:
 			return self.setup[self.pix2tile(coords)].blocked()
 		else:
 			return self.setup[coords].blocked()
+	
+	def hasEvent(self, coords, pixel=True): # false means tile
+		if pixel:
+			return self.setup[self.pix2tile(coords)].hasEvent()
+		else:
+			return self.setup[coords].hasEvent()

@@ -13,7 +13,7 @@ import source.moveables as moveables
 screen = display.Display()
 screen.createDisplay()
 
-myMap = mapParser.Map('maps/mapgen_map.map')
+myMap = mapParser.Map('maps/mapgen_map')
 
 
 currentPix = myMap.tile2pix((12,10))

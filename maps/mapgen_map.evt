@@ -1,0 +1,10 @@
+ON: 0:0
+BLOCKED: 1
+EVENT_TYPE: 1
+ART: 'art/items1.png'
+ART_TILE: 1:0
+> Dialog
+NPC: I am a sword
+You: Holy fuck, a talking sword
+NPC: Indeed.
+>>>
