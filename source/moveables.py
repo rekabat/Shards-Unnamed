@@ -49,11 +49,12 @@ class Player(Moveable):
 		Moveable.__init__(self, map, position, (1,1), 'art/player.png')
 		self.screen = screen
 		self.surface = self.map.get()
+		self.lastGoodPixel = self.position
 		
-		self.updateFrame(self.position)
+		self.moveFrame(self.position)
 		
 	
-	def updateFrame(self, pixel):
+	def moveFrame(self, pixel):
 		wh = self.screen.getWH()
 		placing=pg.Rect(pixel[0]-wh[0]*.5, pixel[1]-wh[1]*.5, wh[0], wh[1])
 		# print pixel[0]+wh[0]*.5, pixel[1]+wh[1]*.5
@@ -63,17 +64,23 @@ class Player(Moveable):
 			pg.display.flip()
 			return True
 		return False
+		
 	
 	def move(self, direction):
 		if direction == "U":
-			if self.place((self.position[0], self.position[1]-1)):
-				self.updateFrame(self.position)
+			self.place((self.position[0], self.position[1]-1))
 		if direction == "D":
-			if self.place((self.position[0], self.position[1]+1)):
-				self.updateFrame(self.position)
+			self.place((self.position[0], self.position[1]+1))
 		if direction == "L":
-			if self.place((self.position[0]-1, self.position[1])):
-				self.updateFrame(self.position)
+			self.place((self.position[0]-1, self.position[1]))
 		if direction == "R":
-			if self.place((self.position[0]+1, self.position[1])):
-				self.updateFrame(self.position)
+			self.place((self.position[0]+1, self.position[1]))
+		
+		if self.moveFrame(self.position):
+			self.lastGoodPixel = self.position
+		elif self.moveFrame((self.position[0], self.lastGoodPixel[1])):
+			self.lastGoodPixel = (self.position[0], self.lastGoodPixel[1])
+		elif self.moveFrame((self.lastGoodPixel[0], self.position[1])):
+			self.lastGoodPixel = (self.lastGoodPixel[0], self.position[1])
+		else:
+			self.moveFrame(self.lastGoodPixel)

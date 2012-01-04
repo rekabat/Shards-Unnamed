@@ -4,6 +4,7 @@ TILE_RESOLUTION = 32
 
 def tilePos(tileCoord, squareSize): #return topleft pixel
 	return (tileCoord[0]*squareSize[0], tileCoord[1]*squareSize[1])
+	
 
 def tileOntoMap(surfaceFrom, surfaceTo, topLeftFrom, topLeftTo, squareSize):
 	fromRect = pygame.Rect(topLeftFrom[0], topLeftFrom[1], squareSize[0], squareSize[1])
@@ -43,9 +44,6 @@ class Map:
 		
 			
 	def get(self):
-<<<<<<< HEAD
-		return self.img			
-=======
 		return self.img
 	
 	def get_rect(self):
@@ -66,4 +64,3 @@ class Map:
 			
 			
 			
->>>>>>> b6ddd729d43a5b100108960193da78b906624a92

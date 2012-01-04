@@ -61,5 +61,9 @@ while running:
 		player.move("L")
 	if right:
 		player.move("R")
+		
+	
+	
 	pygame.time.Clock().tick(1000)
+	
 
