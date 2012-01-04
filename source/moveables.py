@@ -50,8 +50,17 @@ class Moveable:
 			xmove+=PX_STEP
 		
 		newPos = (self.position[0]+xmove, self.position[1]+ymove)
-		if not self.map.blocked(newPos):
+		
+		canMove = False
+		if self.map.blocked(newPos):
+			if len(direction)>1:
+				for each in direction:
+					canMove = self.move(each)
+		else:
 			self.place(newPos)
+			canMove = True
+		
+		return canMove
 
 class Player(Moveable):
 	def __init__(self, map, position, screen):
