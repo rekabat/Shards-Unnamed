@@ -43,9 +43,6 @@ class Map:
 		
 			
 	def get(self):
-<<<<<<< HEAD
-		return self.img			
-=======
 		return self.img
 	
 	def get_rect(self):
@@ -66,4 +63,3 @@ class Map:
 			
 			
 			
->>>>>>> b6ddd729d43a5b100108960193da78b906624a92
