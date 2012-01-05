@@ -51,8 +51,14 @@ class Moveable:
 		
 		newPos = (self.position[0]+xmove, self.position[1]+ymove)
 		
+		#########################################
+		#########################################
+		# implement sliding along borders
+		#########################################
+		#########################################
+	
 		canMove = False
-		if self.map.blocked(newPos):
+		if self.cornersBlocked(newPos):
 			if len(direction)>1:
 				for each in direction:
 					canMove = self.move(each)
@@ -61,6 +67,23 @@ class Moveable:
 			canMove = True
 		
 		return canMove
+	
+	#########################################
+	#########################################
+	# Maybe change back to .5 and implement sliding towards passages
+	#########################################
+	#########################################
+	def fourCorners(self, pos):
+		return (
+			(pos[0]-self.size[0]*.45, pos[1]-self.size[1]*.45), #top left
+			(pos[0]+self.size[0]*.45, pos[1]-self.size[1]*.45), #top right
+			(pos[0]-self.size[0]*.45, pos[1]+self.size[1]*.45), #bottom left
+			(pos[0]+self.size[0]*.45, pos[1]+self.size[1]*.45)  #bottom right
+			)
+	
+	def cornersBlocked(self, pos):
+		fc = self.fourCorners(pos)
+		return self.map.blocked(fc[0]) or self.map.blocked(fc[1]) or self.map.blocked(fc[2]) or self.map.blocked(fc[3])
 
 class Player(Moveable):
 	def __init__(self, map, position, screen):

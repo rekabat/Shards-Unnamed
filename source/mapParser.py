@@ -23,14 +23,9 @@ def parseMapLine(line):
 	tile = tile[1]
 
 	# blocked = cannot be walked on (1 is blocked)
-	tile = tile.split(")[")
-	blocked = True if tile[0] == "1" else False
-	tile = tile[1][:-1]
+	blocked = True if tile[:-1] == "1" else False
 
-	# events attached to a tile
-	events = [int(i) for i in tile.split(",")]
-
-	return pos, Tile(type, blocked, events)
+	return pos, Tile(type, blocked)
 	
 
 def parse(file):
@@ -50,32 +45,58 @@ def parse(file):
 	return tileFile, tileSize, mapSize, setup
 
 class Tile:
-	def __init__(self, type, blocked, events):
+	def __init__(self, type, blocked):
 		self.Type = type
 		self.Blocked = blocked
-		self.Events = events
-		self.WorldEvents = []
+		self.Events = []
 		self.under = None
+		self.mapSubsurface = None
 	
 	def type(self):
 		return self.Type
 	
 	def blocked(self):
 		return self.Blocked
-
-	def events(self):
-		return self.Events
 	
 	def addEvents(self, event, mapSubsurface):
+		self.Events.extend(event)
+		self.genEvent(mapSubsurface)
+		
+		
+		# for each in self.Events:
+			
+	def genEvent(self, mapSubsurface):
+		evt = self.Events[0]
+		
+		#get the art
+		artfile, arttile = evt.imageInfo()
+		artfile = pg.image.load(artfile).convert_alpha()
+		
+		#place it on map
 		self.under = mapSubsurface.copy()
-		self.WorldEvents.extend(event)
-
+		self.mapSubsurface = mapSubsurface
+		arttile = tileRect(arttile, (32,32))
+		mapSubsurface.blit(artfile.subsurface(arttile), (0,0))
+		
+		#change tile info (such as blocked)
+	
+	def removeEvent(self):
+		del(self.Events[0])
+		
+		#replace old tile
+		self.mapSubsurface.blit(self.under, (0,0))
+		
+		#call genEvent on next event if there is one
+		if len(self.Events) >0:
+			self.genEvent(self.mapSubsurface)
+	
 	def hasEvent(self):
 		# if len(self.WorldEvents) > 0:
 			# print self.WorldEvents
 		# print self.WorldEvents
-		for each in self.WorldEvents:
-			each.get()
+		for each in self.Events:
+			each.execute()
+			self.removeEvent()
 
 class TileMap:
 	def __init__(self, tileFile, squareSize):
@@ -121,6 +142,10 @@ class Map:
 
 		for pos in self.setup.keys():
 			tileToMap(self.img, pos, tm.get(self.setup[pos].type()), self.tileSize)
+		
+		self.img_eventless = self.img.copy()
+		
+		for pos in self.setup.keys():
 			if pos in we:
 				mapSubsurface = self.img.subsurface(tileRect(pos, self.tileSize))
 				self.setup[pos].addEvents(we[pos], mapSubsurface)
@@ -128,6 +153,9 @@ class Map:
 
 	def get(self):
 		return self.img
+	
+	def get_eventless(self):
+		return self.img_eventless
 	
 	def get_rect(self):
 		return self.img.get_rect()

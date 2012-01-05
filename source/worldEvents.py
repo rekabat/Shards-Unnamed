@@ -57,17 +57,16 @@ class WorldEvent:
 		self.art_tile = art_tile
 		self.extra = extra
 
-		print 'yes'
-
-	def get(self):
-		print 'success1'
+	def execute(self):
 		return EVENT_IDS[self.event_id](self.extra)
+	
+	def imageInfo(self):
+		return self.art, self.art_tile
 
 
-class TwoWayDialog(WorldEvent):
-	def __init__(self, text):
-		print 'success'
+def twoWayDialog(extra):
+	print 'success'
 
-EVENT_IDS = { 1: TwoWayDialog } #,
+EVENT_IDS = { 1: twoWayDialog } #,
 	  # 2: PickUpItem,
 	  # 3: DeathByBurning }
