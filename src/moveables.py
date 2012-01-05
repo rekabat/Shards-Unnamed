@@ -11,7 +11,7 @@ class Moveable:
 		#the map it's on's surface
 		self.mapSurface = map.get()
 		#the map it's on's surface without events
-		self.mapSurface_eventless = map.get_eventless()
+		# self.mapSurface_eventless = map.get_eventless()
 		
 		#make a rect for where it is
 		size = (size[0]*map.getTileSize()[0], size[1]*map.getTileSize()[1]) #given in tile size, convert to pixel size 

@@ -14,22 +14,21 @@ def tileToMap(mapSurface, tileCoordsTo, tileSubsurface, squaresize):
 
 def genMap(file_base):
 	file = file_base + '.map'
-	evtFile = file_base + '.evt'
 
 	tileFile, tileSize, mapSize, setup = parse(file)
 	img =  pg.Surface((mapSize[0]*tileSize[0], mapSize[1]*tileSize[1]))
 
 	tm = TileMap(tileFile, tileSize)
-	we = worldEventsParser.parse(evtFile)
+	# we = worldEventsParser.parse(evtFile)
 
 	for pos in setup.keys():
 		tileToMap(img, pos, tm.get(setup[pos].type()), tileSize)
 		
-	img_eventless = img.copy()
-	for pos in setup.keys():
-		if pos in we:
-			mapSubsurface = img.subsurface(tileRect(pos, tileSize))
-			setup[pos].addEvents(we[pos], mapSubsurface)
+	# img_eventless = img.copy()
+	# for pos in setup.keys():
+	# 	if pos in we:
+	# 		mapSubsurface = img.subsurface(tileRect(pos, tileSize))
+	# 		setup[pos].addEvents(we[pos], mapSubsurface)
 			
 	if tileSize != TILE_RES:
 		print tileSize, TILE_RES
@@ -37,7 +36,7 @@ def genMap(file_base):
 		raise KeyboardInterrupt
 
 	return {'img':img, 'tileFile':tileFile, 'tileSize':tileSize, 
-			'mapSize':mapSize, 'setup':setup, 'img_eventless':img_eventless}
+			'mapSize':mapSize, 'setup':setup}
 
 def parseMapLine(line):
 	pos, tile = line.split("/")

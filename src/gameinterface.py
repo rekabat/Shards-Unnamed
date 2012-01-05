@@ -4,6 +4,7 @@ from pygame.locals import *
 import display
 import map
 import moveables
+import worldEvents
 
 TILE_RES = (32,32)
 
@@ -17,10 +18,11 @@ class GameInterface:
         if state == "main-menu":
             print "Not quite there yet"
         elif state == "play":
-            self.createWorld()
+            self.createWorld('maps/mapgen_map')
         
-    def createWorld(self):
-        self.map = map.Map('maps/mapgen_map')
+    def createWorld(self, mapfile):
+        self.map = map.Map(mapfile)
+        self.eventForeground = worldEvents.EventForeground(mapfile)
         self.player = moveables.Player(self.map, (12, 10), self.display)
 
     
@@ -68,3 +70,5 @@ class GameInterface:
         elif self.state == "pause":
             pass
     
+    def renderWorld(self):
+        pass

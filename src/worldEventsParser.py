@@ -1,7 +1,9 @@
 import pygame as pg
 from pygame.locals import *
 
-from worldEvents import EVENT_IDS
+from mapParser import tileRect
+
+TILE_RES = (32, 32)
 
 def getDict(pos, evtList):
     retDict = {'on': pos}
@@ -35,26 +37,31 @@ def getDict(pos, evtList):
 
     return retDict
 
-def parse(evtfile):
+def parse(evtfile, EVENT_IDS):
     eventDict = {}
     file = [line.strip() for line in open(evtfile, 'r').readlines()]
 
-    temp = []
+    mapInTiles = file[0]
+    file = file[2:]
+
+    eventInfo = []
     for line in file:
         if not line.startswith(">>>"):
-            temp.append(line)
+            eventInfo.append(line)
         else:
-            pos = temp.pop(0).split(" ")[1]
+            pos = eventInfo.pop(0).split(" ")[1]
             pos = tuple([int(i) for i in pos.split(":")])
             
             if pos not in eventDict.keys():
                 eventDict[pos] = []
-            
 
-            ret = getDict(pos,temp)
+            ret = getDict(pos, eventInfo)
             eventObj = EVENT_IDS[ret['event_id']]
             eventDict[pos].append(eventObj(**ret))
             
-            temp = []
+            eventInfo = []
     
-    return eventDict
+    mapInTiles = mapInTiles.split(" ")[1].split(":")
+    mapInTiles = tuple([int(i) for i in mapInTiles])
+    
+    return eventDict, mapInTiles

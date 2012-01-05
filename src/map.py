@@ -18,13 +18,9 @@ class Map:
         self.mapSize = mapData['mapSize']
         self.setup = mapData['setup']
         self.img = mapData['img']
-        self.img_eventless = mapData['img_eventless']
 
     def get(self):
         return self.img
-    
-    def get_eventless(self):
-        return self.img_eventless
     
     def get_rect(self):
         return self.img.get_rect()
