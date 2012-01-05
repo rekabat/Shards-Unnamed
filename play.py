@@ -5,10 +5,10 @@ import pygame as pg
 from pygame.locals import *
 pg.init()
 
-import src.display      as display
-import src.text         as text
-import src.mapParser    as mapParser
-import src.moveables    as moveables
+import source.display      as display
+import source.text         as text
+import source.mapParser    as mapParser
+import source.moveables    as moveables
 
 def main():
     screen = display.Display()

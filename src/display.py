@@ -4,10 +4,10 @@ class Display:
 	def __init__(self):
 		self.width = 640
 		self.height = 480
-		
 		self.isFull=False
-		
 		self.screen = None
+
+		self.createDisplay()
 		
 	def createDisplay(self):
 		self.screen = pygame.display.set_mode((self.width, self.height))

@@ -98,8 +98,9 @@ class Player(Moveable):
 		Moveable.__init__(self, map, position, (1,1), 'art/player.png')
 		self.screen = screen
 		self.lastGoodPixel = self.rect.center
-		
 		self.moveFrame(self.lastGoodPixel)
+
+		self.udlr = [False, False, False, False]
 		
 	
 	def moveFrame(self, pixel):
