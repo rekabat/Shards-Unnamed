@@ -69,11 +69,9 @@ class WorldEvent:
 		self.art_tile = art_tile
 		self.extra = extra
 
-	# def execute(self, GI):
-	# 	return EVENT_IDS[self.event_id](self.extra, GI)
-	
 	def imageInfo(self):
 		return self.art, self.art_tile
+		
 
 class TwoWayDialog(WorldEvent):
 	def __init__(self, **kwargs):
@@ -83,9 +81,9 @@ class TwoWayDialog(WorldEvent):
 		print 'success', self
 		new = text.Text("SUCCESS", 50)
 		new.place(pg.display.get_surface(), (0,0), center=False)
-		pg.display.flip()
+		# pg.display.flip()
 		time.sleep(1)
-		GI.map.setup[GI.map.pix2tile(GI.player.rect.center)].removeEvent()
+		GI.map.setup[self.on].removeEvent()
 
 
 EVENT_IDS = { 1: TwoWayDialog } #,

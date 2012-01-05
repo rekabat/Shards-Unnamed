@@ -76,6 +76,7 @@ class Tile:
 	def __init__(self, type, blocked):
 		self.Type = type
 		self.Blocked = blocked
+		self.Blocked_orig = blocked
 		self.Events = []
 		self.under = None
 		self.mapSubsurface = None
@@ -95,6 +96,9 @@ class Tile:
 			
 	def genEvent(self, mapSubsurface):
 		evt = self.Events[0]
+
+		if evt.blocked:
+			self.Blocked = True
 		
 		#get the art
 		artfile, arttile = evt.imageInfo()
@@ -109,6 +113,9 @@ class Tile:
 		#change tile info (such as blocked)
 	
 	def removeEvent(self):
+		# Event is finished, reinstate original blocked val
+		self.Blocked = self.Blocked_orig
+
 		del(self.Events[0])
 		
 		#replace old tile

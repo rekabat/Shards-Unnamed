@@ -1,5 +1,6 @@
 import pygame as pg
 import mapParser
+import text
 
 PX_STEP = 1
 
@@ -81,9 +82,12 @@ class Moveable:
 	#########################################
 	
 	def cornersBlocked(self, rect):
-		smallerRect = rect.copy()
-		smallerRect.width  *= .9
-		smallerRect.height *= .9
+		# smallRect is centered within rect, but 90% size
+		cp = rect.copy()
+		smallerRect=pg.Rect((0,0),(1,1))
+		smallerRect.size = (cp.width*.9, cp.height*.9)
+		smallerRect.center = cp.center
+
 		return \
 			self.map.blocked(smallerRect.topleft)    or \
 			self.map.blocked(smallerRect.topright)   or \
@@ -105,7 +109,7 @@ class Player(Moveable):
 		placing=pg.Rect(pixel[0]-wh[0]*.5, pixel[1]-wh[1]*.5, wh[0], wh[1])
 		if self.mapSurface.get_rect().contains(placing):
 			self.screen.get().blit(self.mapSurface.subsurface(placing), (0,0))
-			pg.display.flip()
+			# pg.display.flip()
 			return True
 		return False
 		
@@ -129,6 +133,11 @@ class Player(Moveable):
 		if Moveable.place(self, rect, use_eventless):
 			if self.map.hasEvent(rect.center):
 				worldEvents = self.map.passEvents(rect.center)
-				# Moveable.place(self, rect, True)
+				Moveable.place(self, rect, True)
 				return worldEvents
+			elif self.map.hasEventNear(rect):
+				tx = text.Text("Press Enter", 50, text.RED)
+				tx.place(self.screen.get(), (5,425), False)
+				# pg.display.flip()
+
 		

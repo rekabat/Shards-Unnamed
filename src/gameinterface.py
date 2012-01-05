@@ -22,6 +22,7 @@ class GameInterface:
     def createWorld(self):
         self.map = map.Map('maps/mapgen_map')
         self.player = moveables.Player(self.map, (12, 10), self.display)
+
     
     def dispatch(self, events):
         if self.state == "main-menu":
@@ -66,3 +67,4 @@ class GameInterface:
 
         elif self.state == "pause":
             pass
+    

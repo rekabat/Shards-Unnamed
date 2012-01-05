@@ -59,9 +59,20 @@ class Map:
             return self.setup[self.pix2tile(coords)].hasEvent()
         else:
             return self.setup[coords].hasEvent()
-            
+    
     def passEvents(self, coords, pixel=True): # false means tile
         if pixel:
             return self.setup[self.pix2tile(coords)].passEvents()
         else:
             return self.setup[coords].passEvents()
+    
+
+    def hasEventNear(self, rect):
+        corners = [rect.topleft, rect.bottomleft, rect.topright, rect.bottomright]
+        closeTiles = [self.pix2tile(each) for each in corners]
+        closeTiles.remove(self.pix2tile(rect.center))
+
+        return self.hasEvent(closeTiles[0], False) or \
+            self.hasEvent(closeTiles[1], False) or \
+            self.hasEvent(closeTiles[2], False)
+            
