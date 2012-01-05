@@ -57,7 +57,8 @@ class GameInterface:
             mv += "L" if self.player.udlr[2] else ""
             mv += "R" if self.player.udlr[3] else ""
 
-            returnedWE = self.player.move(mv)
+            WE = self.player.move(mv)
+            # self.handleWE(returnedWE) if WE else None
 
         elif self.state == "pause":
             pass
