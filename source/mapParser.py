@@ -73,9 +73,9 @@ class Tile:
 	def hasEvent(self):
 		# if len(self.WorldEvents) > 0:
 			# print self.WorldEvents
-		print self.WorldEvents
+		# print self.WorldEvents
 		for each in self.WorldEvents:
-			temp = each.getter()
+			each.get()
 
 class TileMap:
 	def __init__(self, tileFile, squareSize):

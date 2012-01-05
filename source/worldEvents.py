@@ -45,26 +45,29 @@ def parse(evtfile):
             
             temp = []
     
-    return eventDict
+	return eventDict
 
 class WorldEvent:
-    def __init__(self, on, blocked, event_id, one_time, art, art_tile, extra):
-        self.on = on
-        self.blocked = blocked
-        self.event_id = event_id
-        self.one_time = one_time
-        self.art = art
-        self.art_tile = art_tile
-        self.extra = extra
-		
-	def getter(self):
-		return 1#EVENT_IDS[self.event_id](extra)
+	def __init__(self, on, blocked, event_id, one_time, art, art_tile, extra):
+		self.on = on
+		self.blocked = blocked
+		self.event_id = event_id
+		self.one_time = one_time
+		self.art = art
+		self.art_tile = art_tile
+		self.extra = extra
+
+		print 'yes'
+
+	def get(self):
+		print 'success1'
+		return EVENT_IDS[self.event_id](extra)
 
 
 class TwoWayDialog(WorldEvent):
-     def __init__(self, text):
-         print 'success'
+	def __init__(self, text):
+		print 'success'
 
 EVENT_IDS = { 1: TwoWayDialog } #,
-#               2: PickUpItem,
-#               3: DeathByBurning }
+	  # 2: PickUpItem,
+	  # 3: DeathByBurning }
