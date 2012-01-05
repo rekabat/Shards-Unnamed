@@ -2,7 +2,7 @@ import pygame as pg
 
 import worldEvents
 
-TILE_RESOLUTION = 32
+TILE_RES = (32,32)
 
 def tileRect((x, y), squareSize):
 	return pg.Rect((x * squareSize[0], y * squareSize[1]), squareSize)
@@ -10,6 +10,33 @@ def tileRect((x, y), squareSize):
 def tileToMap(mapSurface, tileCoordsTo, tileSubsurface, squaresize):
 	toRect = tileRect(tileCoordsTo, squaresize)
 	mapSurface.blit(tileSubsurface, toRect)
+
+def genMap(file_base):
+	file = file_base + '.map'
+	evtFile = file_base + '.evt'
+
+	tileFile, tileSize, mapSize, setup = parse(file)
+	img =  pg.Surface((mapSize[0]*tileSize[0], mapSize[1]*tileSize[1]))
+
+	tm = TileMap(tileFile, tileSize)
+	we = worldEvents.parse(evtFile)
+
+	for pos in setup.keys():
+		tileToMap(img, pos, tm.get(setup[pos].type()), tileSize)
+		
+	img_eventless = img.copy()
+	for pos in setup.keys():
+		if pos in we:
+			mapSubsurface = img.subsurface(tileRect(pos, tileSize))
+			setup[pos].addEvents(we[pos], mapSubsurface)
+			
+	if tileSize != TILE_RES:
+		print tileSize, TILE_RES
+		print "Warning: Tile size inconsistency"
+		raise KeyboardInterrupt
+
+	return {'img':img, 'tileFile':tileFile, 'tileSize':tileSize, 
+			'mapSize':mapSize, 'setup':setup, 'img_eventless':img_eventless}
 
 def parseMapLine(line):
 	pos, tile = line.split("/")
@@ -32,8 +59,9 @@ def parse(file):
 	theMap = [line.strip() for line in open(file, 'r').readlines()]
 	
 	tileFile = theMap[1]
-	tileSize = [int(theMap[3]), int(theMap[4])]
-	mapSize = [int(theMap[6]), int(theMap[7])]
+	# Future: Check tileSize vs. TILE_RES
+	tileSize = tuple([int(theMap[3]), int(theMap[4])])
+	mapSize = tuple([int(theMap[6]), int(theMap[7])])
 	
 	# setup = [[],[]]
 	setup = {}
@@ -129,73 +157,3 @@ class TileMap:
 					break
 			y += 1
 		return tileDict
-
-
-class Map:
-	def __init__(self, file):
-		self.file = file + ".map"
-		self.evtFile = file + ".evt"
-
-		self.tileFile, self.tileSize, self.mapSize, self.setup = parse(self.file)
-
-		self.img = pg.Surface((self.mapSize[0]*self.tileSize[0], self.mapSize[1]*self.tileSize[1]))
-
-		tm = TileMap(self.tileFile, self.tileSize)
-		we = worldEvents.parse(self.evtFile)
-
-		for pos in self.setup.keys():
-			tileToMap(self.img, pos, tm.get(self.setup[pos].type()), self.tileSize)
-		
-		self.img_eventless = self.img.copy()
-		
-		for pos in self.setup.keys():
-			if pos in we:
-				mapSubsurface = self.img.subsurface(tileRect(pos, self.tileSize))
-				self.setup[pos].addEvents(we[pos], mapSubsurface)
-				
-
-	def get(self):
-		return self.img
-	
-	def get_eventless(self):
-		return self.img_eventless
-	
-	def get_rect(self):
-		return self.img.get_rect()
-	
-	def tile2pix(self,(x, y)):
-		if x > self.mapSize[0] or y > self.mapSize[1] or x < 0 or y < 0:
-			print "out of bounds"
-			raise KeyboardInterrupt
-		# print (x+.5), self.tileSize[0], (y+.5), self.tileSize[1], int((x+.5)*self.tileSize[0]), int((y+.5)*self.tileSize[1])
-		return (int((x+.5)*self.tileSize[0]), int((y+.5)*self.tileSize[1]))
-	
-	def pix2tile(self,(x,y)):
-		return (int(x/self.tileSize[0]), int(y/self.tileSize[1]))
-	
-	def getTileSize(self):
-		return self.tileSize
-	
-	def getTile(self, coords, pixel=True): #false means tile
-		if pixel:
-			return self.setup[self.pix2tile(coords)]
-		else:
-			return self.setup[coords]
-	
-	def blocked(self, coords, pixel=True): #false means tile
-		if pixel:
-			return self.setup[self.pix2tile(coords)].blocked()
-		else:
-			return self.setup[coords].blocked()
-	
-	def hasEvent(self, coords, pixel=True): # false means tile
-		if pixel:
-			return self.setup[self.pix2tile(coords)].hasEvent()
-		else:
-			return self.setup[coords].hasEvent()
-			
-	def triggerEvent(self, coords, pixel=True): # false means tile
-		if pixel:
-			return self.setup[self.pix2tile(coords)].triggerEvent()
-		else:
-			return self.setup[coords].triggerEvent()

@@ -4,29 +4,21 @@ from pygame.locals import *
 import worldEvents
 import mapParser
 
+TILE_RES = (32, 32)
 
 class Map:
     def __init__(self, file):
         self.file = file + ".map"
         self.evtFile = file + ".evt"
 
-        self.tileFile, self.tileSize, self.mapSize, self.setup = mapParser.parse(self.file)
+        mapData = mapParser.genMap(file)
 
-        self.img = pg.Surface((self.mapSize[0]*self.tileSize[0], self.mapSize[1]*self.tileSize[1]))
-
-        tm = mapParser.TileMap(self.tileFile, self.tileSize)
-        we = worldEvents.parse(self.evtFile)
-
-        for pos in self.setup.keys():
-            mapParser.tileToMap(self.img, pos, tm.get(self.setup[pos].type()), self.tileSize)
-        
-        self.img_eventless = self.img.copy()
-        
-        for pos in self.setup.keys():
-            if pos in we:
-                mapSubsurface = self.img.subsurface(mapParser.tileRect(pos, self.tileSize))
-                self.setup[pos].addEvents(we[pos], mapSubsurface)
-                
+        self.tileFile = mapData['tileFile']
+        self.tileSize = mapData['tileSize']
+        self.mapSize = mapData['mapSize']
+        self.setup = mapData['setup']
+        self.img = mapData['img']
+        self.img_eventless = mapData['img_eventless']
 
     def get(self):
         return self.img

@@ -6,6 +6,7 @@ import map
 import moveables
 
 TILE_RES = (32,32)
+
 class GameInterface:
     def __init__(self, state="main-menu"):
         self.display = display.Display()
