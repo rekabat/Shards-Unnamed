@@ -1,50 +1,50 @@
 def getDict(pos, evtList):
-    retDict = {'on': pos}
-    for i, line in enumerate(evtList):
-        if line.startswith("> "):
-            retDict['extra'] = evtList[i:]
-            break
-        else:
-            k, v = line.split(": ")
-            retDict[k.lower()] = v
-    
-    # blocked as bool
-    retDict['blocked'] = bool(int(retDict['blocked']))
+	retDict = {'on': pos}
+	for i, line in enumerate(evtList):
+		if line.startswith("> "):
+			retDict['extra'] = evtList[i:]
+			break
+		else:
+			k, v = line.split(": ")
+			retDict[k.lower()] = v
+	
+	# blocked as bool
+	retDict['blocked'] = bool(int(retDict['blocked']))
 
-    # event_id as int
-    retDict['event_id'] = int(retDict['event_id'])
+	# event_id as int
+	retDict['event_id'] = int(retDict['event_id'])
 
-    # one_time as bool
-    retDict['one_time'] = bool(int(retDict['one_time']))
+	# one_time as bool
+	retDict['one_time'] = bool(int(retDict['one_time']))
 
-    # art as string, none if no art exists for event
-    retDict['art'] = retDict['art'].replace("'", "")
-    if len(retDict['art']) == 0:
-        retDict['art'] = None
-    
-    # art tile as tile coords (tuple)
-    retDict['art_tile'] = tuple([int(i) for i in retDict['art_tile'].split(":")])
+	# art as string, none if no art exists for event
+	retDict['art'] = retDict['art'].replace("'", "")
+	if len(retDict['art']) == 0:
+		retDict['art'] = None
+	
+	# art tile as tile coords (tuple)
+	retDict['art_tile'] = tuple([int(i) for i in retDict['art_tile'].split(":")])
 
-    return retDict
+	return retDict
 
 def parse(evtfile):
-    eventDict = {}
-    file = [line.strip() for line in open(evtfile, 'r').readlines()]
+	eventDict = {}
+	file = [line.strip() for line in open(evtfile, 'r').readlines()]
 
-    temp = []
-    for line in file:
-        if not line.startswith(">>>"):
-            temp.append(line)
-        else:
-            pos = temp.pop(0).split(" ")[1]
-            pos = tuple([int(i) for i in pos.split(":")])
-            
-            if pos not in eventDict.keys():
-                eventDict[pos] = []
-            eventDict[pos].append(WorldEvent(**getDict(pos, temp)))
-            
-            temp = []
-    
+	temp = []
+	for line in file:
+		if not line.startswith(">>>"):
+			temp.append(line)
+		else:
+			pos = temp.pop(0).split(" ")[1]
+			pos = tuple([int(i) for i in pos.split(":")])
+			
+			if pos not in eventDict.keys():
+				eventDict[pos] = []
+			eventDict[pos].append(WorldEvent(**getDict(pos, temp)))
+			
+			temp = []
+	
 	return eventDict
 
 class WorldEvent:
@@ -61,7 +61,7 @@ class WorldEvent:
 
 	def get(self):
 		print 'success1'
-		return EVENT_IDS[self.event_id](extra)
+		return EVENT_IDS[self.event_id](self.extra)
 
 
 class TwoWayDialog(WorldEvent):
