@@ -1,3 +1,6 @@
+import pygame as pg
+import time
+
 def getDict(pos, evtList):
 	retDict = {'on': pos}
 	for i, line in enumerate(evtList):
@@ -64,8 +67,14 @@ class WorldEvent:
 		return self.art, self.art_tile
 
 
+import text
 def twoWayDialog(extra):
 	print 'success'
+	new = text.Text("SUCCESS", 50)
+	new.place(pg.display.get_surface(), (0,0), center=False)
+	pg.display.flip()
+	time.sleep(1)
+	
 
 EVENT_IDS = { 1: twoWayDialog } #,
 	  # 2: PickUpItem,

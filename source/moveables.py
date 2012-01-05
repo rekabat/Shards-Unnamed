@@ -8,42 +8,42 @@ class Moveable:
 		#the map it's on
 		self.map = map
 		#the map it's on's surface
-		self.surface = map.get()
+		self.mapSurface = map.get()
 		#the map it's on's surface without events
-		self.surface_eventless = map.get_eventless()
-		#give tile location
-		self.position = map.tile2pix(position)
-		#given in tile size
-		self.size = (size[0]*map.getTileSize()[0], size[1]*map.getTileSize()[1])
+		self.mapSurface_eventless = map.get_eventless()
 		
-		#the surface behind the moveable
-		self.under = None
+		#make a rect for where it is
+		size = (size[0]*map.getTileSize()[0], size[1]*map.getTileSize()[1]) #given in tile size, convert to pixel size 
+		position = map.tile2pix(position) #given in tile coordinates, convert to pixel
+		self.rect= pg.Rect((position[0]-size[0]*.5, position[1]-size[1]*.5), size)
+		
+		# print self.rect
 		
 		#the image of the moveable
 		self.art = pg.image.load(art).convert_alpha()
 		
-		#a call to place it on the map
-		self.place(self.position)
+		#the surface behind the moveable
+		self.under = self.mapSurface.subsurface(self.rect).copy()
+		#a call to place it on the map, which also sets self.under
+		self.place(self.rect)
 		
-	def place(self, position, eventless):
-		newRect = pg.Rect((position[0]-self.size[0]*.5, position[1]-self.size[1]*.5),self.size)
-		
-		if self.map.get_rect().contains(newRect):
-			if self.under != None:
-				currentRect = pg.Rect((self.position[0]-self.size[0]*.5, self.position[1]-self.size[1]*.5),self.size)
-				self.map.get().blit(self.under, currentRect)
+	def place(self, newRect, eventless=False):
+		if self.mapSurface.get_rect().contains(newRect):
 			if eventless:
-				self.under = self.surface_eventless.subsurface(newRect).copy()
+				self.under = self.mapSurface_eventless.subsurface(self.rect).copy()
+				self.mapSurface.blit(self.under, self.rect) ######COMMENT OUT FOR FUN TIMES!
+				self.under = self.mapSurface_eventless.subsurface(newRect).copy()
 			else:
-				self.under = self.map.get().subsurface(newRect).copy()
-			self.map.get().blit(self.art, newRect)
-			self.position = position
+				self.mapSurface.blit(self.under, self.rect) ######COMMENT OUT FOR FUN TIMES!
+				self.under = self.mapSurface.subsurface(newRect).copy()
+			self.mapSurface.blit(self.art, newRect)
+			self.rect = newRect
 			
 			return True
 		else:
 			return False
 	
-	def move(self, direction, eventless=False):
+	def move(self, direction):
 		xmove = 0
 		ymove = 0
 		
@@ -56,7 +56,9 @@ class Moveable:
 		if "R" in direction:
 			xmove+=PX_STEP
 		
-		newPos = (self.position[0]+xmove, self.position[1]+ymove)
+		newRect = self.rect.copy()
+		newRect.centerx += xmove
+		newRect.centery += ymove
 		
 		#########################################
 		#########################################
@@ -65,72 +67,67 @@ class Moveable:
 		#########################################
 	
 		canMove = False
-		if self.cornersBlocked(newPos):
+		if self.cornersBlocked(newRect):
 			if len(direction)>1:
 				for each in direction:
 					canMove = self.move(each)
 		else:
-			self.place(newPos, eventless)
+			self.place(newRect)
 			canMove = True
 		
 		return canMove
 	
 	#########################################
 	#########################################
-	# Maybe change back to .5 and implement sliding towards passages
+	# Maybe change back to 1 and implement sliding towards passages
 	#########################################
 	#########################################
-	def fourCorners(self, pos):
-		return (
-			(pos[0]-self.size[0]*.45, pos[1]-self.size[1]*.45), #top left
-			(pos[0]+self.size[0]*.45, pos[1]-self.size[1]*.45), #top right
-			(pos[0]-self.size[0]*.45, pos[1]+self.size[1]*.45), #bottom left
-			(pos[0]+self.size[0]*.45, pos[1]+self.size[1]*.45)  #bottom right
-			)
 	
-	def cornersBlocked(self, pos):
-		fc = self.fourCorners(pos)
-		return self.map.blocked(fc[0]) or self.map.blocked(fc[1]) or self.map.blocked(fc[2]) or self.map.blocked(fc[3])
+	def cornersBlocked(self, rect):
+		smallerRect = rect.copy()
+		smallerRect.width  *= .9
+		smallerRect.height *= .9
+		return \
+			self.map.blocked(smallerRect.topleft)    or \
+			self.map.blocked(smallerRect.topright)   or \
+			self.map.blocked(smallerRect.bottomleft) or \
+			self.map.blocked(smallerRect.bottomright)
 
 class Player(Moveable):
 	def __init__(self, map, position, screen):
 		Moveable.__init__(self, map, position, (1,1), 'art/player.png')
 		self.screen = screen
-		self.lastGoodPixel = self.position
+		self.lastGoodPixel = self.rect.center
 		
-		self.moveFrame(self.position)
-		self.justWalkedOnEvent = False
+		self.moveFrame(self.lastGoodPixel)
 		
 	
 	def moveFrame(self, pixel):
 		wh = self.screen.getWH()
 		placing=pg.Rect(pixel[0]-wh[0]*.5, pixel[1]-wh[1]*.5, wh[0], wh[1])
-		if self.surface.get_rect().contains(placing):
-			self.screen.get().blit(self.surface.subsurface(placing), (0,0))
+		if self.mapSurface.get_rect().contains(placing):
+			self.screen.get().blit(self.mapSurface.subsurface(placing), (0,0))
 			pg.display.flip()
 			return True
 		return False
 		
 	
-	def move(self, direction, eventless=False):
-		if self.justWalkedOnEvent:
-			eventless = True
-			self.justWalkedOnEvent = False
+	def move(self, direction):
 		
-		Moveable.move(self, direction, eventless)
+		Moveable.move(self, direction)
 
-		if self.moveFrame(self.position):
-			self.lastGoodPixel = self.position
-		elif self.moveFrame((self.position[0], self.lastGoodPixel[1])):
-			self.lastGoodPixel = (self.position[0], self.lastGoodPixel[1])
-		elif self.moveFrame((self.lastGoodPixel[0], self.position[1])):
-			self.lastGoodPixel = (self.lastGoodPixel[0], self.position[1])
+		if self.moveFrame(self.rect.center):
+			self.lastGoodPixel = self.rect.center
+		elif self.moveFrame((self.rect.centerx, self.lastGoodPixel[1])):
+			self.lastGoodPixel = (self.rect.centerx, self.lastGoodPixel[1])
+		elif self.moveFrame((self.lastGoodPixel[0], self.rect.centery)):
+			self.lastGoodPixel = (self.lastGoodPixel[0], self.rect.centery)
 		else:
 			self.moveFrame(self.lastGoodPixel)
 	
-	def place(self, position, eventless=False):
-		if Moveable.place(self, position, eventless):
-			if self.map.hasEvent(position):
-				self.justWalkedOnEvent = True
-				self.map.triggerEvent(position)
+	def place(self, rect):
+		if Moveable.place(self, rect):
+			if self.map.hasEvent(rect.center):
+				self.map.triggerEvent(rect.center)
+				Moveable.place(self, rect, True)
 		

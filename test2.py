@@ -9,9 +9,11 @@ import source.display as display
 import source.text as text
 import source.mapParser as mapParser
 import source.moveables as moveables
+# import source.cursor as cursor
 
 screen = display.Display()
 screen.createDisplay()
+# cursr = cursor.Cursor(1)
 
 myMap = mapParser.Map('maps/mapgen_map')
 
