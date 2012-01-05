@@ -56,11 +56,15 @@ class WorldEvent:
         self.art = art
         self.art_tile = art_tile
         self.extra = extra
+		
+	def getter(self):
+		return 1#EVENT_IDS[self.event_id](extra)
 
-# class TwoWayDialog(WorldEvent):
-#     def __init__(self, text):
-#         pass
 
-# EVENT_IDS = { 1: TwoWayDialog,
+class TwoWayDialog(WorldEvent):
+     def __init__(self, text):
+         print 'success'
+
+EVENT_IDS = { 1: TwoWayDialog } #,
 #               2: PickUpItem,
 #               3: DeathByBurning }

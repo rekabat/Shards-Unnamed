@@ -71,8 +71,11 @@ class Tile:
 		self.WorldEvents.extend(event)
 
 	def hasEvent(self):
-		if len(self.WorldEvents) > 0:
-			print self.WorldEvents
+		# if len(self.WorldEvents) > 0:
+			# print self.WorldEvents
+		print self.WorldEvents
+		for each in self.WorldEvents:
+			temp = each.getter()
 
 class TileMap:
 	def __init__(self, tileFile, squareSize):
