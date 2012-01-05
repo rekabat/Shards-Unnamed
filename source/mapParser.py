@@ -91,6 +91,9 @@ class Tile:
 			self.genEvent(self.mapSubsurface)
 	
 	def hasEvent(self):
+		return len(self.Events)>0
+	
+	def triggerEvent(self):
 		# if len(self.WorldEvents) > 0:
 			# print self.WorldEvents
 		# print self.WorldEvents
@@ -190,3 +193,9 @@ class Map:
 			return self.setup[self.pix2tile(coords)].hasEvent()
 		else:
 			return self.setup[coords].hasEvent()
+			
+	def triggerEvent(self, coords, pixel=True): # false means tile
+		if pixel:
+			return self.setup[self.pix2tile(coords)].triggerEvent()
+		else:
+			return self.setup[coords].triggerEvent()

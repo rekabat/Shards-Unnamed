@@ -7,6 +7,10 @@ class Moveable:
 	def __init__(self, map, position, size, art):
 		#the map it's on
 		self.map = map
+		#the map it's on's surface
+		self.surface = map.get()
+		#the map it's on's surface without events
+		self.surface_eventless = map.get_eventless()
 		#give tile location
 		self.position = map.tile2pix(position)
 		#given in tile size
@@ -21,14 +25,17 @@ class Moveable:
 		#a call to place it on the map
 		self.place(self.position)
 		
-	def place(self, position):
+	def place(self, position, eventless):
 		newRect = pg.Rect((position[0]-self.size[0]*.5, position[1]-self.size[1]*.5),self.size)
 		
 		if self.map.get_rect().contains(newRect):
 			if self.under != None:
 				currentRect = pg.Rect((self.position[0]-self.size[0]*.5, self.position[1]-self.size[1]*.5),self.size)
 				self.map.get().blit(self.under, currentRect)
-			self.under = self.map.get().subsurface(newRect).copy()
+			if eventless:
+				self.under = self.surface_eventless.subsurface(newRect).copy()
+			else:
+				self.under = self.map.get().subsurface(newRect).copy()
 			self.map.get().blit(self.art, newRect)
 			self.position = position
 			
@@ -36,7 +43,7 @@ class Moveable:
 		else:
 			return False
 	
-	def move(self, direction):
+	def move(self, direction, eventless=False):
 		xmove = 0
 		ymove = 0
 		
@@ -63,7 +70,7 @@ class Moveable:
 				for each in direction:
 					canMove = self.move(each)
 		else:
-			self.place(newPos)
+			self.place(newPos, eventless)
 			canMove = True
 		
 		return canMove
@@ -89,10 +96,10 @@ class Player(Moveable):
 	def __init__(self, map, position, screen):
 		Moveable.__init__(self, map, position, (1,1), 'art/player.png')
 		self.screen = screen
-		self.surface = self.map.get()
 		self.lastGoodPixel = self.position
 		
 		self.moveFrame(self.position)
+		self.justWalkedOnEvent = False
 		
 	
 	def moveFrame(self, pixel):
@@ -105,8 +112,12 @@ class Player(Moveable):
 		return False
 		
 	
-	def move(self, direction):
-		Moveable.move(self, direction)
+	def move(self, direction, eventless=False):
+		if self.justWalkedOnEvent:
+			eventless = True
+			self.justWalkedOnEvent = False
+		
+		Moveable.move(self, direction, eventless)
 
 		if self.moveFrame(self.position):
 			self.lastGoodPixel = self.position
@@ -117,7 +128,9 @@ class Player(Moveable):
 		else:
 			self.moveFrame(self.lastGoodPixel)
 	
-	def place(self, position):
-		if Moveable.place(self, position):
-			self.map.hasEvent(position)
+	def place(self, position, eventless=False):
+		if Moveable.place(self, position, eventless):
+			if self.map.hasEvent(position):
+				self.justWalkedOnEvent = True
+				self.map.triggerEvent(position)
 		
