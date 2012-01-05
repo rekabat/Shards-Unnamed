@@ -1,6 +1,7 @@
 import pygame as pg
 
 import worldEvents
+import worldEventsParser
 
 TILE_RES = (32,32)
 
@@ -19,7 +20,7 @@ def genMap(file_base):
 	img =  pg.Surface((mapSize[0]*tileSize[0], mapSize[1]*tileSize[1]))
 
 	tm = TileMap(tileFile, tileSize)
-	we = worldEvents.parse(evtFile)
+	we = worldEventsParser.parse(evtFile)
 
 	for pos in setup.keys():
 		tileToMap(img, pos, tm.get(setup[pos].type()), tileSize)
