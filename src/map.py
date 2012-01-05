@@ -60,8 +60,8 @@ class Map:
         else:
             return self.setup[coords].hasEvent()
             
-    def triggerEvent(self, coords, pixel=True): # false means tile
+    def passEvents(self, coords, pixel=True): # false means tile
         if pixel:
-            return self.setup[self.pix2tile(coords)].triggerEvent()
+            return self.setup[self.pix2tile(coords)].passEvents()
         else:
-            return self.setup[coords].triggerEvent()
+            return self.setup[coords].passEvents()

@@ -58,7 +58,11 @@ class GameInterface:
             mv += "R" if self.player.udlr[3] else ""
 
             WE = self.player.move(mv)
-            # self.handleWE(returnedWE) if WE else None
+
+            if WE is not None:
+                for each in WE:
+                    each.execute(self)
+                    self.player.place(self.player.rect, True)
 
         elif self.state == "pause":
             pass

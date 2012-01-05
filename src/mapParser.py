@@ -121,13 +121,14 @@ class Tile:
 	def hasEvent(self):
 		return len(self.Events)>0
 	
-	def triggerEvent(self):
+	def passEvents(self):
 		# if len(self.WorldEvents) > 0:
 			# print self.WorldEvents
 		# print self.WorldEvents
-		for i in range(len(self.Events)):
-			self.Events[0].execute()
-			self.removeEvent()
+		# for i in range(len(self.Events)):
+		# 	self.Events[0].execute()
+		# 	self.removeEvent()
+		return self.Events
 
 class TileMap:
 	def __init__(self, tileFile, squareSize):

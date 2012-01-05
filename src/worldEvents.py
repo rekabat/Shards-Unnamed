@@ -1,6 +1,8 @@
 import pygame as pg
 import time
 
+import text
+
 def getDict(pos, evtList):
 	retDict = {'on': pos}
 	for i, line in enumerate(evtList):
@@ -26,7 +28,10 @@ def getDict(pos, evtList):
 		retDict['art'] = None
 	
 	# art tile as tile coords (tuple)
-	retDict['art_tile'] = tuple([int(i) for i in retDict['art_tile'].split(":")])
+	if retDict['art_tile'] == "''":
+		retDict['art_tile'] = None
+	else:
+		retDict['art_tile'] = tuple([int(i) for i in retDict['art_tile'].split(":")])
 
 	return retDict
 
@@ -44,7 +49,11 @@ def parse(evtfile):
 			
 			if pos not in eventDict.keys():
 				eventDict[pos] = []
-			eventDict[pos].append(WorldEvent(**getDict(pos, temp)))
+			
+
+			ret = getDict(pos,temp)
+			eventObj = EVENT_IDS[ret['event_id']]
+			eventDict[pos].append(eventObj(**ret))
 			
 			temp = []
 	
@@ -60,22 +69,25 @@ class WorldEvent:
 		self.art_tile = art_tile
 		self.extra = extra
 
-	def execute(self):
-		return EVENT_IDS[self.event_id](self.extra)
+	# def execute(self, GI):
+	# 	return EVENT_IDS[self.event_id](self.extra, GI)
 	
 	def imageInfo(self):
 		return self.art, self.art_tile
 
-
-import text
-def twoWayDialog(extra):
-	print 'success'
-	new = text.Text("SUCCESS", 50)
-	new.place(pg.display.get_surface(), (0,0), center=False)
-	pg.display.flip()
-	time.sleep(1)
+class TwoWayDialog(WorldEvent):
+	def __init__(self, **kwargs):
+		WorldEvent.__init__(self, **kwargs)
 	
+	def execute(self, GI):
+		print 'success', self
+		new = text.Text("SUCCESS", 50)
+		new.place(pg.display.get_surface(), (0,0), center=False)
+		pg.display.flip()
+		time.sleep(1)
+		GI.map.setup[GI.map.pix2tile(GI.player.rect.center)].removeEvent()
 
-EVENT_IDS = { 1: twoWayDialog } #,
+
+EVENT_IDS = { 1: TwoWayDialog } #,
 	  # 2: PickUpItem,
 	  # 3: DeathByBurning }

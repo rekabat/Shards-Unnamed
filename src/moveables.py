@@ -67,16 +67,12 @@ class Moveable:
 		#########################################
 		#########################################
 	
-		canMove = False
 		if self.cornersBlocked(newRect):
 			if len(direction)>1:
 				for each in direction:
-					canMove = self.move(each)
+					self.move(each)
 		else:
-			self.place(newRect)
-			canMove = True
-		
-		return canMove
+			return self.place(newRect)
 	
 	#########################################
 	#########################################
@@ -116,7 +112,7 @@ class Player(Moveable):
 	
 	def move(self, direction):
 		
-		Moveable.move(self, direction)
+		ret = Moveable.move(self, direction)
 
 		if self.moveFrame(self.rect.center):
 			self.lastGoodPixel = self.rect.center
@@ -126,10 +122,13 @@ class Player(Moveable):
 			self.lastGoodPixel = (self.lastGoodPixel[0], self.rect.centery)
 		else:
 			self.moveFrame(self.lastGoodPixel)
+		
+		return ret
 	
-	def place(self, rect):
-		if Moveable.place(self, rect):
+	def place(self, rect, use_eventless=False):
+		if Moveable.place(self, rect, use_eventless):
 			if self.map.hasEvent(rect.center):
-				self.map.triggerEvent(rect.center)
-				Moveable.place(self, rect, True)
+				worldEvents = self.map.passEvents(rect.center)
+				# Moveable.place(self, rect, True)
+				return worldEvents
 		
