@@ -125,8 +125,8 @@ class Tile:
 		# if len(self.WorldEvents) > 0:
 			# print self.WorldEvents
 		# print self.WorldEvents
-		for each in self.Events:
-			each.execute()
+		for i in range(len(self.Events)):
+			self.Events[0].execute()
 			self.removeEvent()
 
 class TileMap:

@@ -27,9 +27,9 @@ class Moveable:
 		#a call to place it on the map, which also sets self.under
 		self.place(self.rect)
 		
-	def place(self, newRect, eventless=False):
+	def place(self, newRect, eventless_map=False):
 		if self.mapSurface.get_rect().contains(newRect):
-			if eventless:
+			if eventless_map:
 				self.under = self.mapSurface_eventless.subsurface(self.rect).copy()
 				self.mapSurface.blit(self.under, self.rect) ######COMMENT OUT FOR FUN TIMES!
 				self.under = self.mapSurface_eventless.subsurface(newRect).copy()
@@ -41,6 +41,7 @@ class Moveable:
 			
 			return True
 		else:
+			print "Warning: Player wants to leave the map."
 			return False
 	
 	def move(self, direction):
