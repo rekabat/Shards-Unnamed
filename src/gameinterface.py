@@ -16,8 +16,10 @@ class GameInterface:
 		self.map = None
 		self.eventForeground = None
 		self.player = None
-		self.window = pg.Surface(self.display.getWH())
+		# self.window = pg.Surface(self.display.getWH(), SRCALPHA, 32).convert_alpha()
+		self.window = None
 		self.clearWindow()
+
 
 		self.state = state
 		if state == "main-menu":
@@ -25,18 +27,26 @@ class GameInterface:
 		elif state == "play":
 			self.createWorld('maps/mapgen_map')
 			
-		self.pressEnterDisplayed = False
+			self.pressEnterDisplayed = False #maybe not in state play
 	
 	def clearWindow(self):
-		self.window.fill(TRANSPARENT)
-		self.window.set_colorkey(TRANSPARENT, pg.RLEACCEL)
+		self.window = pg.Surface(self.display.getWH(), SRCALPHA, 32).convert_alpha()
 	
 	def flipPressEnterDisplayed(self):
-		tx = text.Text("Press Enter", 50, text.RED).get()
-		if self.pressEnterDisplayed:
-			tx.fill(TRANSPARENT)
-		self.window.blit(tx, (5, self.display.getWH()[1]-55))
+		# tx = text.Text("Press Enter", 50, text.RED).get()
+		# if self.pressEnterDisplayed:
+		# 	print "here"
+		# 	tx = tx.get_rect()
+		# 	tx = pg.Surface(tx, SRCALPHA, 32).convert_alpha()
+		# self.window.blit(tx, (5, self.display.getWH()[1]-55))
+		# self.pressEnterDisplayed = not self.pressEnterDisplayed
+		temp = self.player.art
+		self.player.art = self.player.art_excited
+		self.player.art_excited = temp
 		self.pressEnterDisplayed = not self.pressEnterDisplayed
+		pass
+		
+
 
 	def createWorld(self, mapfile):
 		self.map = map.Map(mapfile)
@@ -132,9 +142,15 @@ class GameInterface:
 			
 			#enter overrides movements and triggers events
 			if self.eventForeground.blocked(self.player.getRect()) and enterPressed:
+				#remove the press enter dialog
+				self.flipPressEnterDisplayed()
+				self.renderView()
+				#execute the event
 				evt = self.eventForeground.getBlockedEvents(self.player.getRect())
 				evt.execute(self)
 				self.eventForeground.remove(evt)
+				#so that if it's now standing on event, that event will be activated
+				movePlayer("UD")
 				
 			
 			if len(mv) > 0:

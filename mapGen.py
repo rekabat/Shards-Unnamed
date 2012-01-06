@@ -2,7 +2,7 @@ x=30
 y=30
 
 tilefile = 'art/floors.png'
-pos = "1:0"
+pos = "3:0"
 posborder = "2:3"
 
 file = open("maps/mapgen_map.map", "w")

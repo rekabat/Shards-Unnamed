@@ -73,7 +73,7 @@ def parse(evtfile, EVENT_IDS):
             
             ret = getDict(pos, event)
             eventObj = EVENT_IDS[ret['event_id']]
-            print j
+            
             if j == 0:
                 eventList.append(eventObj(**ret))
             else:

@@ -12,11 +12,7 @@ def tileRect((x, y), squareSize):
 class EventForeground:
 	def __init__(self, file):
 		self.file = file + ".evt"
-		# self.eventList, self.mapSize, self.img = worldEventsParser.parse(self.file, EVENT_IDS)
 		self.eventList = worldEventsParser.parse(self.file, EVENT_IDS)
-
-	# def get(self):
-	# 	return self.img
 	
 	def onAndGetEvents(self, rect):
 		for each in self.eventList:
@@ -47,11 +43,6 @@ class EventForeground:
 		return False
 	
 	def remove(self, event):
-		# #create a transparent tile
-		# erase = pg.Surface(event.getArt().get_size())
-		# erase.fill((199,200,201))
-		# #put over the current event artwork
-		# self.get().blit(erase, event.rect)
 		#activate the event beind it
 		if event.behind != None:
 			self.activate(event.behind)
@@ -61,8 +52,6 @@ class EventForeground:
 	def activate(self, event):
 		#add event to the list
 		self.eventList.append(event)
-		#draw to the event foreground surface
-		# self.get().blit(event.getArt(), event.rect)
 
 
 class WorldEvent:
