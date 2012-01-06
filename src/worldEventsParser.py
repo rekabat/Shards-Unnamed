@@ -41,47 +41,43 @@ def getDict(pos, evtList):
 def parse(evtfile, EVENT_IDS):
     eventDict = {}
     file = [line.strip() for line in open(evtfile, 'r').readlines()]
-
-    mapInTiles = file[0]
-    file = file[2:]
-
-    eventInfo = []
+    
+    eventChains = []
+    chain = []
     for line in file:
         if not line.startswith(">>>"):
-            eventInfo.append(line)
+            chain.append(line)
         else:
-            pos = eventInfo.pop(0).split(" ")[1]
+            eventChains.append(chain)
+            chain = []
+
+    event=[]
+    chain=[]
+    chainList=[]
+    for listOfStringsOfChain in eventChains:
+        for line in listOfStringsOfChain:
+            if not line.startswith("}}}"):
+                event.append(line)
+            else:
+                chain.append(event)
+                event=[]
+        chainList.append(chain)
+        chain = []
+    
+    eventList = []
+    for chain in chainList:
+        j = 0
+        for event in chain:
+            pos = event.pop(0).split(" ")[1]
             pos = tuple([int(i) for i in pos.split(":")])
             
-            # if pos not in eventDict.keys():
-            #     eventDict[pos] = []
-            
-            ret = getDict(pos, eventInfo)
+            ret = getDict(pos, event)
             eventObj = EVENT_IDS[ret['event_id']]
-            if pos not in eventDict: 
-                eventDict[pos] = eventObj(**ret)
+            print j
+            if j == 0:
+                eventList.append(eventObj(**ret))
             else:
-                eventDict[pos].setDeepest(eventObj(**ret))
-            # eventDict[pos].append(eventObj(**ret))
-            
-            eventInfo = []
+                eventList[-1].setDeepest(eventObj(**ret))
+            j+=1
     
-    mapInTiles = mapInTiles.split(" ")[1].split(":")
-    mapInTiles = tuple([int(i) for i in mapInTiles])
-
-    mapSize = (mapInTiles[0] * TILE_RES[0],
-                mapInTiles[1] * TILE_RES[1])
-    
-    img = pg.Surface(mapSize)
-    img.fill(TRANSPARENT)
-    img.set_colorkey(TRANSPARENT, pg.RLEACCEL)
-    # img.set_alpha(100)
-
-    for pos in eventDict:
-        img.blit(eventDict[pos].art, eventDict[pos].rect)
-
-    eventList = []
-    for each in eventDict:
-        eventList.append(eventDict[each])
-    
-    return eventList, mapSize, img
+    return eventList

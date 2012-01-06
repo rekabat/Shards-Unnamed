@@ -12,10 +12,11 @@ def tileRect((x, y), squareSize):
 class EventForeground:
 	def __init__(self, file):
 		self.file = file + ".evt"
-		self.eventList, self.mapSize, self.img = worldEventsParser.parse(self.file, EVENT_IDS)
+		# self.eventList, self.mapSize, self.img = worldEventsParser.parse(self.file, EVENT_IDS)
+		self.eventList = worldEventsParser.parse(self.file, EVENT_IDS)
 
-	def get(self):
-		return self.img
+	# def get(self):
+	# 	return self.img
 	
 	def onAndGetEvents(self, rect):
 		for each in self.eventList:
@@ -31,6 +32,14 @@ class EventForeground:
 			if each.rect.colliderect(rect) and each.blocked:
 				return each
 	
+	def getEventsInRect(self, rect):
+		ret = []
+		for each in self.eventList:
+			if each.rect.colliderect(rect):
+				ret.append(each)
+		return ret
+
+	
 	def blocked(self, rect):
 		for each in self.eventList:
 			if each.rect.colliderect(rect) and each.blocked:
@@ -38,11 +47,11 @@ class EventForeground:
 		return False
 	
 	def remove(self, event):
-		#create a transparent tile
-		erase = pg.Surface(event.getArt().get_size())
-		erase.fill((199,200,201))
-		#put over the current event artwork
-		self.get().blit(erase, event.rect)
+		# #create a transparent tile
+		# erase = pg.Surface(event.getArt().get_size())
+		# erase.fill((199,200,201))
+		# #put over the current event artwork
+		# self.get().blit(erase, event.rect)
 		#activate the event beind it
 		if event.behind != None:
 			self.activate(event.behind)
@@ -53,7 +62,7 @@ class EventForeground:
 		#add event to the list
 		self.eventList.append(event)
 		#draw to the event foreground surface
-		self.get().blit(event.getArt(), event.rect)
+		# self.get().blit(event.getArt(), event.rect)
 
 
 class WorldEvent:
@@ -73,6 +82,9 @@ class WorldEvent:
 
 	def getArt(self):
 		return self.art
+	
+	def getRect(self):
+		return self.rect
 	
 	def setDeepest(self, WE):
 		if self.behind is not None:

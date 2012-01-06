@@ -152,7 +152,7 @@ class GameInterface:
 			pass
 	
 	def renderView(self):
-		#gets optimal view frame
+		#gets optimal view frame based on player
 		mapx, mapy = self.map.get().get_size()
 		x, y = self.player.getRect().center
 		w, h = self.display.getWH()
@@ -173,8 +173,13 @@ class GameInterface:
 		#blits a subsurface of the map to the display (lowest layer)
 		self.display.get().blit(self.map.get().subsurface(view), (0,0))
 		
-		#blits a subsurface of the foreground event to the display (second layer)
-		self.display.get().blit(self.eventForeground.get().subsurface(view), (0,0))
+		#retrieves all the events that happen to coincide with the view
+		evtsToDisplay = self.eventForeground.getEventsInRect(view)
+		#it goes through each and finds their relative position on the display based on their relative position to the map
+		for each in evtsToDisplay:
+			relRect=each.getRect().copy()
+			relRect.center = (w*.5)+(relRect.centerx-viewx), (h*.5)+(relRect.centery-viewy)
+			self.display.get().blit(each.getArt(), relRect)
 		
 		#gets a rect for player relative to the display screen as opposed to the map
 		relativePlayerRect = pg.Rect((0,0),TILE_RES)
@@ -184,24 +189,5 @@ class GameInterface:
 		
 		#blits the window to the display over everything else (top layer)
 		self.display.get().blit(self.window, (0,0))
-		
-		'''
-		##### INEFFECIENT, only copy the view portion of the maps (optimally)
-		
-		# make a copy of the map image
-		tempSurf = self.map.get().copy()
-		# blit the event foreground onto that copy
-		tempSurf.blit(self.eventForeground.get(), (0,0))
-		# put the player's image onto the correct spot of the map copy
-		tempSurf.blit(self.player.getArt(), self.player.getRect())
-
-		# tempSurf becomes size of view, push window on top
-		tempSurf = tempSurf.subsurface(view).copy()
-		tempSurf.blit(self.window, (0, 0))
-
-		#tempSurf.blit("self.window", view)
-
-		self.display.get().blit(tempSurf, (0,0))
-		'''
 		
 		pg.display.flip()

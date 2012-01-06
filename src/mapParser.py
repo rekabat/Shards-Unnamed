@@ -19,7 +19,7 @@ def genMap(file_base):
 
 	for pos in setup.keys():
 		tileToMap(img, pos, tm.get(setup[pos].type()), tileSize)
-			
+	
 	if tileSize != TILE_RES:
 		print tileSize, TILE_RES
 		print "Warning: Tile size inconsistency"
