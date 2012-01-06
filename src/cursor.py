@@ -36,13 +36,20 @@ CTYPE={
 }
 
 class Cursor:
-	def __init__(self, ctype):
-		self.ctype = ctype
-		self.changeType(self.ctype)
-		
-	def changeType(self, ctyp):
-		self.ctype = ctyp
-		c = pg.cursors.compile(CTYPE[self.ctype], black="X", white=".", xor="o")
-		print c, CTYPE[self.ctype]
-		pg.mouse.set_cursor(*c)
-		
+    def __init__(self):#, ctype):
+        self.visible = True
+
+        # self.ctype = ctype
+        # self.changeType(self.ctype)
+        
+    def flipVisible(self):
+        self.visible = not self.visible
+        pg.mouse.set_visible(self.visible)
+    
+    def changeType(self, ctyp):
+        pass
+        # self.ctype = ctyp
+        # c = pg.cursors.compile(CTYPE[self.ctype], black="X", white=".", xor="o")
+        # print c, CTYPE[self.ctype]
+        # pg.mouse.set_cursor(*c)
+        

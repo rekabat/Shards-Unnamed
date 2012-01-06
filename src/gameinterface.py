@@ -6,6 +6,7 @@ import map
 import player
 import worldEvents
 import text
+import cursor
 
 TILE_RES = (32,32)
 TRANSPARENT = (199,200,201)
@@ -16,9 +17,9 @@ class GameInterface:
 		self.map = None
 		self.eventForeground = None
 		self.player = None
-		# self.window = pg.Surface(self.display.getWH(), SRCALPHA, 32).convert_alpha()
 		self.window = None
 		self.clearWindow()
+		self.cursr = cursor.Cursor()
 
 
 		self.state = state
@@ -77,6 +78,7 @@ class GameInterface:
 						enterPressed = True
 					if key == pg.K_t:
 						self.display.toggleFull()
+						self.cursr.flipVisible()
 				
 				elif event.type == pg.KEYUP:
 					key = event.dict['key']
