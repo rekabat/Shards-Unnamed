@@ -67,7 +67,7 @@ class GameInterface:
 			mv += "L" if self.player.udlr[2] else ""
 			mv += "R" if self.player.udlr[3] else ""
 
-			while len(mv) > 0:
+			def movePlayer(mv):
 				# Get the rect that the player would go to given the buttons pressed
 				playerNewRect = self.player.ifMoved(mv)
 
@@ -88,12 +88,28 @@ class GameInterface:
 				if not cantMove:
 					mv = ""
 					self.player.move(playerNewRect)
+					
 					# Player can be either standing on event or moved next to an event
-					onEvent = self.eventForeground.onAndGetEvents(playerNewRect)
-					if onEvent:
-						onEvent.execute(self)
+					
+					#this loop triggers a chain of events that are stood on
+					while 1:
+						onEvent = self.eventForeground.onAndGetEvents(playerNewRect)
+						if onEvent:
+							onEvent.execute(self)
+							self.eventForeground.remove(onEvent)
+						else:
+							break
+					
+					return True
 				else:
-					mv=mv[:-1]
+					if len(mv) > 1:
+						if not movePlayer(mv[0]):
+							movePlayer(mv[1:])
+					else:
+						return False
+			
+			if len(mv) > 0:
+				movePlayer(mv)
 			
 
 			# WE = self.player.move(mv)

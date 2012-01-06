@@ -32,6 +32,20 @@ class EventForeground:
 				return True
 		return False
 	
+	def remove(self, event):
+		erase = pg.Surface(event.art.get_size())
+		erase.fill((199,200,201))
+		self.get().blit(erase, event.rect)
+		if event.behind != None:
+			self.activate(event.behind)
+		self.eventList.remove(event) #maybe at the top
+	
+	def activate(self, event):
+		self.eventList.append(event)
+		self.get().blit(event.art, event.rect)
+		#draw to img
+		print 'Working on it'
+		
 	# def registerEvent(self, event, subsurface):
 	# 	self.drawEvent(event, subsurface)
 	# 	# Somehow dispatch 

@@ -12,7 +12,7 @@ def runGame():
     GI = src.gameinterface.GameInterface('play')
     
     while True:
-        # clock.tick(50)
+        clock.tick(50)
 
         events = pg.event.get()
         if pg.QUIT in [each.type for each in events]:

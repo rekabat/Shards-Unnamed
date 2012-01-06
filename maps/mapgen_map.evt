@@ -7,7 +7,17 @@ ONE_TIME: 0
 ART: 'art/items1.png'
 ART_TILE: 3:0
 > Dialog
-NPC: I am a sword
-You: Holy fuck, a talking sword
+NPC: I am a sword.
+You: Holy fuck, a talking sword!
 NPC: Indeed.
+>>>
+ON: 11:13
+BLOCKED: 0
+EVENT_ID: 1
+ONE_TIME: 0
+ART: 'art/items1.png'
+ART_TILE: 2:1
+> Dialog
+NPC: Boot, I say.
+You: Indubitably.
 >>>
