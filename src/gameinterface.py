@@ -75,6 +75,8 @@ class GameInterface:
 						self.player.udlr[3] = True
 					if key == pg.K_RETURN:
 						enterPressed = True
+					if key == pg.K_t:
+						self.display.toggleFull()
 				
 				elif event.type == pg.KEYUP:
 					key = event.dict['key']
