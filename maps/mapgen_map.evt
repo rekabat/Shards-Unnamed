@@ -1,7 +1,7 @@
 MAPSIZE: 30:30
 >>>
 ON: 13:17
-BLOCKED: 1
+BLOCKED: 0
 EVENT_ID: 1
 ONE_TIME: 0
 ART: 'art/items1.png'

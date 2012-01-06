@@ -17,9 +17,9 @@ class EventForeground:
 	def get(self):
 		return self.img
 	
-	def onAndGetEvents(self, coord):
+	def onAndGetEvents(self, rect):
 		for each in self.eventList:
-			if each.rect.collidepoint(coord):
+			if each.rect.collidepoint(rect.center):
 				return each
 		return False
 	
@@ -75,10 +75,12 @@ class TwoWayDialog(WorldEvent):
 	def execute(self, GI):
 		print 'success', self
 		new = text.Text("SUCCESS", 50)
-		new.place(pg.display.get_surface(), (0,0), center=False)
+		new.place(GI.window, (0,0), center=False)
 		# pg.display.flip()
+		GI.renderView()
 		time.sleep(1)
-		GI.map.setup[self.on].removeEvent()
+		GI.clearWindow()
+		GI.renderView()
 
 
 EVENT_IDS = { 1: TwoWayDialog } #,

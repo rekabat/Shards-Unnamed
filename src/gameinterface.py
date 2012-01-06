@@ -14,13 +14,19 @@ class GameInterface:
 		self.map = None
 		self.eventForeground = None
 		self.player = None
+		self.window = pg.Surface(self.display.getWH())
+		self.clearWindow()
 
 		self.state = state
 		if state == "main-menu":
 			print "Not quite there yet"
 		elif state == "play":
 			self.createWorld('maps/mapgen_map')
-		
+	
+	def clearWindow(self):
+		self.window.fill((199,200,201))
+		self.window.set_colorkey((199,200,201))
+
 	def createWorld(self, mapfile):
 		self.map = map.Map(mapfile)
 		self.eventForeground = worldEvents.EventForeground(mapfile)
@@ -81,6 +87,10 @@ class GameInterface:
 				# If the movement is valid, move the player there
 				if not cantMove:
 					self.player.move(playerNewRect)
+					# Player can be either standing on event or moved next to an event
+					onEvent = self.eventForeground.onAndGetEvents(playerNewRect)
+					if onEvent:
+						onEvent.execute(self)
 			
 
 			# WE = self.player.move(mv)
@@ -119,8 +129,12 @@ class GameInterface:
 		# put the player's image onto the correct spot of the map copy
 		tempSurf.blit(self.player.getArt(), self.player.getRect())
 
+		# tempSurf becomes size of view, push window on top
 		tempSurf = tempSurf.subsurface(view).copy()
+		tempSurf.blit(self.window, (0, 0))
 
 		#tempSurf.blit("self.window", view)
 
 		self.display.get().blit(tempSurf, (0,0))
+
+		pg.display.flip()
