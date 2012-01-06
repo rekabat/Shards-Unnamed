@@ -67,7 +67,7 @@ class GameInterface:
 			mv += "L" if self.player.udlr[2] else ""
 			mv += "R" if self.player.udlr[3] else ""
 
-			if len(mv) > 0:
+			while len(mv) > 0:
 				# Get the rect that the player would go to given the buttons pressed
 				playerNewRect = self.player.ifMoved(mv)
 
@@ -86,11 +86,14 @@ class GameInterface:
 				
 				# If the movement is valid, move the player there
 				if not cantMove:
+					mv = ""
 					self.player.move(playerNewRect)
 					# Player can be either standing on event or moved next to an event
 					onEvent = self.eventForeground.onAndGetEvents(playerNewRect)
 					if onEvent:
 						onEvent.execute(self)
+				else:
+					mv=mv[:-1]
 			
 
 			# WE = self.player.move(mv)
@@ -104,24 +107,42 @@ class GameInterface:
 			pass
 	
 	def renderView(self):
+		#gets optimal view frame
 		mapx, mapy = self.map.get().get_size()
 		x, y = self.player.getRect().center
 		w, h = self.display.getWH()
-
+		viewx, viewy = x+0, y+0
+		
 		if (x < (w*.5)):
-			x = w*.5
+			viewx = w*.5
 		elif (x > (mapx - (w*.5))):
-			x = mapx - (w*.5)
+			viewx = mapx - (w*.5)
 		if (y < (h*.5)):
-			y = h*.5
+			viewy = h*.5
 		elif (y > (mapy - (h*.5))):
-			y = mapy - (h*.5)
+			viewy = mapy - (h*.5)
 
 		view = pg.Rect((0, 0), (w, h))
-		view.center = x, y
-
+		view.center = viewx, viewy
+		
+		#blits a subsurface of the map to the display (lowest layer)
+		self.display.get().blit(self.map.get().subsurface(view), (0,0))
+		
+		#blits a subsurface of the foreground event to the display (second layer)
+		self.display.get().blit(self.eventForeground.get().subsurface(view), (0,0))
+		
+		#gets a rect for player relative to the display screen as opposed to the map
+		relativePlayerRect = pg.Rect((0,0),TILE_RES)
+		relativePlayerRect.center = (w*.5)+(x-viewx), (h*.5)+(y-viewy)
+		#blits the player to the screen (second highest layer)
+		self.display.get().blit(self.player.getArt(), relativePlayerRect)
+		
+		#blits the window to the display over everything else (top layer)
+		self.display.get().blit(self.window, (0,0))
+		
+		'''
 		##### INEFFECIENT, only copy the view portion of the maps (optimally)
-
+		
 		# make a copy of the map image
 		tempSurf = self.map.get().copy()
 		# blit the event foreground onto that copy
@@ -136,5 +157,6 @@ class GameInterface:
 		#tempSurf.blit("self.window", view)
 
 		self.display.get().blit(tempSurf, (0,0))
-
+		'''
+		
 		pg.display.flip()

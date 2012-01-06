@@ -1,8 +1,5 @@
 import pygame as pg
 
-import worldEvents
-import worldEventsParser
-
 TILE_RES = (32,32)
 
 def tileRect((x, y), squareSize):
@@ -19,16 +16,9 @@ def genMap(file_base):
 	img =  pg.Surface((mapSize[0]*tileSize[0], mapSize[1]*tileSize[1]))
 
 	tm = TileMap(tileFile, tileSize)
-	# we = worldEventsParser.parse(evtFile)
 
 	for pos in setup.keys():
 		tileToMap(img, pos, tm.get(setup[pos].type()), tileSize)
-		
-	# img_eventless = img.copy()
-	# for pos in setup.keys():
-	# 	if pos in we:
-	# 		mapSubsurface = img.subsurface(tileRect(pos, tileSize))
-	# 		setup[pos].addEvents(we[pos], mapSubsurface)
 			
 	if tileSize != TILE_RES:
 		print tileSize, TILE_RES
@@ -67,7 +57,6 @@ def parse(file):
 	setup = {}
 	for line in theMap[9:]:
 		# first, second = each.split("/")
-		# print first, second
 		pos, tile = parseMapLine(line)
 		setup[pos] = tile
 	return tileFile, tileSize, mapSize, setup
@@ -77,7 +66,6 @@ class Tile:
 		self.Type = type
 		self.Blocked = blocked
 		self.Blocked_orig = blocked
-		self.Events = []
 		self.under = None
 		self.mapSubsurface = None
 	
@@ -87,30 +75,31 @@ class Tile:
 	def blocked(self):
 		return self.Blocked
 	
+	'''
 	def addEvents(self, event, mapSubsurface):
 		self.Events.extend(event)
 		self.genEvent(mapSubsurface)
 		
 		
-		# for each in self.Events:
-			
+		for each in self.Events:
+	
 	def genEvent(self, mapSubsurface):
 		evt = self.Events[0]
 
 		if evt.blocked:
 			self.Blocked = True
 		
-		#get the art
+		# get the art
 		artfile, arttile = evt.imageInfo()
 		artfile = pg.image.load(artfile).convert_alpha()
 		
-		#place it on map
+		# place it on map
 		self.under = mapSubsurface.copy()
 		self.mapSubsurface = mapSubsurface
 		arttile = tileRect(arttile, (32,32))
 		mapSubsurface.blit(artfile.subsurface(arttile), (0,0))
 		
-		#change tile info (such as blocked)
+		# change tile info (such as blocked)
 	
 	def removeEvent(self):
 		# Event is finished, reinstate original blocked val
@@ -118,25 +107,14 @@ class Tile:
 
 		del(self.Events[0])
 		
-		#replace old tile
+		# replace old tile
 		self.mapSubsurface.blit(self.under, (0,0))
 		
-		#call genEvent on next event if there is one
+		# call genEvent on next event if there is one
 		if len(self.Events) >0:
 			self.genEvent(self.mapSubsurface)
+	'''
 	
-	def hasEvent(self):
-		return len(self.Events)>0
-	
-	def passEvents(self):
-		# if len(self.WorldEvents) > 0:
-			# print self.WorldEvents
-		# print self.WorldEvents
-		# for i in range(len(self.Events)):
-		# 	self.Events[0].execute()
-		# 	self.removeEvent()
-		return self.Events
-
 class TileMap:
 	def __init__(self, tileFile, squareSize):
 		self.tileFile = tileFile
