@@ -5,8 +5,10 @@ import display
 import map
 import player
 import worldEvents
+import text
 
 TILE_RES = (32,32)
+TRANSPARENT = (199,200,201)
 
 class GameInterface:
 	def __init__(self, state="main-menu"):
@@ -22,10 +24,19 @@ class GameInterface:
 			print "Not quite there yet"
 		elif state == "play":
 			self.createWorld('maps/mapgen_map')
+			
+		self.pressEnterDisplayed = False
 	
 	def clearWindow(self):
-		self.window.fill((199,200,201))
-		self.window.set_colorkey((199,200,201))
+		self.window.fill(TRANSPARENT)
+		self.window.set_colorkey(TRANSPARENT, pg.RLEACCEL)
+	
+	def flipPressEnterDisplayed(self):
+		tx = text.Text("Press Enter", 50, text.RED).get()
+		if self.pressEnterDisplayed:
+			tx.fill(TRANSPARENT)
+		self.window.blit(tx, (5, self.display.getWH()[1]-55))
+		self.pressEnterDisplayed = not self.pressEnterDisplayed
 
 	def createWorld(self, mapfile):
 		self.map = map.Map(mapfile)
@@ -38,6 +49,9 @@ class GameInterface:
 			pass
 
 		elif self.state == "play":
+			
+			enterPressed = False
+			
 			for event in events:
 				if event.type == pg.KEYDOWN:
 					key = event.dict['key']
@@ -49,6 +63,8 @@ class GameInterface:
 						self.player.udlr[2] = True
 					if key == pg.K_d:
 						self.player.udlr[3] = True
+					if key == pg.K_RETURN:
+						enterPressed = True
 				
 				elif event.type == pg.KEYUP:
 					key = event.dict['key']
@@ -89,7 +105,13 @@ class GameInterface:
 					mv = ""
 					self.player.move(playerNewRect)
 					
-					# Player can be either standing on event or moved next to an event
+					# blits a message to self.window if your in proximity to an event
+					bl = self.eventForeground.blocked(playerNewRect)
+					if ( bl and (not self.pressEnterDisplayed)) or ((not bl) and self.pressEnterDisplayed):
+						self.flipPressEnterDisplayed()
+					# activates an event with enter outside of this function
+					
+					
 					
 					#this loop triggers a chain of events that are stood on
 					while 1:
@@ -107,6 +129,13 @@ class GameInterface:
 							movePlayer(mv[1:])
 					else:
 						return False
+			
+			#enter overrides movements and triggers events
+			if self.eventForeground.blocked(self.player.getRect()) and enterPressed:
+				evt = self.eventForeground.getBlockedEvents(self.player.getRect())
+				evt.execute(self)
+				self.eventForeground.remove(evt)
+				
 			
 			if len(mv) > 0:
 				movePlayer(mv)

@@ -4,6 +4,7 @@ from pygame.locals import *
 from mapParser import tileRect
 
 TILE_RES = (32, 32)
+TRANSPARENT = (199,200,201)
 
 def getDict(pos, evtList):
     retDict = {'on': pos}
@@ -72,8 +73,8 @@ def parse(evtfile, EVENT_IDS):
                 mapInTiles[1] * TILE_RES[1])
     
     img = pg.Surface(mapSize)
-    img.fill((199,200,201))
-    img.set_colorkey((199,200,201))
+    img.fill(TRANSPARENT)
+    img.set_colorkey(TRANSPARENT, pg.RLEACCEL)
     # img.set_alpha(100)
 
     for pos in eventDict:

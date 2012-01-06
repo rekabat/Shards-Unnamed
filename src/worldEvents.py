@@ -23,8 +23,13 @@ class EventForeground:
 				return each
 		return False
 	
-	def nearAndGetEvents(self,coord):
+	def nearAndGetBlockedEvents(self, rect):
+		#actually... same as blocked, just pass it the full sized rectangle instead of the shrunken one
 		pass
+	def getBlockedEvents(self, rect):
+		for each in self.eventList:
+			if each.rect.colliderect(rect) and each.blocked:
+				return each
 	
 	def blocked(self, rect):
 		for each in self.eventList:
@@ -33,28 +38,22 @@ class EventForeground:
 		return False
 	
 	def remove(self, event):
-		erase = pg.Surface(event.art.get_size())
+		#create a transparent tile
+		erase = pg.Surface(event.getArt().get_size())
 		erase.fill((199,200,201))
+		#put over the current event artwork
 		self.get().blit(erase, event.rect)
+		#activate the event beind it
 		if event.behind != None:
 			self.activate(event.behind)
-		self.eventList.remove(event) #maybe at the top
+		#remove the event
+		self.eventList.remove(event)
 	
 	def activate(self, event):
+		#add event to the list
 		self.eventList.append(event)
-		self.get().blit(event.art, event.rect)
-		#draw to img
-		print 'Working on it'
-		
-	# def registerEvent(self, event, subsurface):
-	# 	self.drawEvent(event, subsurface)
-	# 	# Somehow dispatch 
-	
-	# def drawEvent(self, event, subsurface):
-	# 	artFile, artTile = event.imageInfo()
-	# 	artFile = pg.image.load(artFile).convert_alpha()
-	# 	artTile = tileRect(artTile, (32,32))
-	# 	subsurface.blit(artFile.subsurface(artTile), (0,0))
+		#draw to the event foreground surface
+		self.get().blit(event.getArt(), event.rect)
 
 
 class WorldEvent:
@@ -72,8 +71,8 @@ class WorldEvent:
 		self.rect = tileRect(on, TILE_RES)
 		self.behind = None #WE get stacked behind other events on the same tile, that is, when one gets executed and removed the one behind it gets placed
 
-	# def imageInfo(self):
-	# 	return self.art, self.art_tile
+	def getArt(self):
+		return self.art
 	
 	def setDeepest(self, WE):
 		if self.behind is not None:
@@ -87,10 +86,8 @@ class TwoWayDialog(WorldEvent):
 		WorldEvent.__init__(self, **kwargs)
 	
 	def execute(self, GI):
-		print 'success', self
 		new = text.Text("SUCCESS", 50)
 		new.place(GI.window, (0,0), center=False)
-		# pg.display.flip()
 		GI.renderView()
 		time.sleep(1)
 		GI.clearWindow()
