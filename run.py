@@ -19,6 +19,7 @@ def runGame():
             return
         else:
             GI.dispatch(events)
+            GI.renderView()
             pg.display.flip()
 
 if __name__ == '__main__': runGame()

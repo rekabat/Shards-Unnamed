@@ -52,16 +52,35 @@ def parse(evtfile, EVENT_IDS):
             pos = eventInfo.pop(0).split(" ")[1]
             pos = tuple([int(i) for i in pos.split(":")])
             
-            if pos not in eventDict.keys():
-                eventDict[pos] = []
-
+            # if pos not in eventDict.keys():
+            #     eventDict[pos] = []
+            
             ret = getDict(pos, eventInfo)
             eventObj = EVENT_IDS[ret['event_id']]
-            eventDict[pos].append(eventObj(**ret))
+            if pos not in eventDict: 
+                eventDict[pos] = eventObj(**ret)
+            else:
+                eventDict[pos].setDeepest(eventObj(**ret))
+            # eventDict[pos].append(eventObj(**ret))
             
             eventInfo = []
     
     mapInTiles = mapInTiles.split(" ")[1].split(":")
     mapInTiles = tuple([int(i) for i in mapInTiles])
+
+    mapSize = (mapInTiles[0] * TILE_RES[0],
+                mapInTiles[1] * TILE_RES[1])
     
-    return eventDict, mapInTiles
+    img = pg.Surface(mapSize)
+    img.fill((199,200,201))
+    img.set_colorkey((199,200,201))
+    # img.set_alpha(100)
+
+    for pos in eventDict:
+        img.blit(eventDict[pos].art, eventDict[pos].rect)
+
+    eventList = []
+    for each in eventDict:
+        eventList.append(eventDict[each])
+    
+    return eventList, mapSize, img

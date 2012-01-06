@@ -12,31 +12,35 @@ def tileRect((x, y), squareSize):
 class EventForeground:
 	def __init__(self, file):
 		self.file = file + ".evt"
-		self.eventDict, mapInTiles = worldEventsParser.parse(self.file, EVENT_IDS)
-		self.mapSize = (mapInTiles[0] * TILE_RES[0],
-						mapInTiles[1] * TILE_RES[1])
-
-		self.img = pg.Surface(self.mapSize)
-
-		for pos in self.eventDict:
-			for event in self.eventDict[pos]:
-				rect = tileRect(pos, TILE_RES)
-				event.rect = rect
-				sub = self.img.subsurface(rect)
-				self.registerEvent(event, sub)
+		self.eventList, self.mapSize, self.img = worldEventsParser.parse(self.file, EVENT_IDS)
 
 	def get(self):
 		return self.img
 	
-	def registerEvent(self, event, subsurface):
-		self.drawEvent(event, subsurface)
-		# Somehow dispatch 
+	def onAndGetEvents(self, coord):
+		for each in self.eventList:
+			if each.rect.collidepoint(coord):
+				return each
+		return False
 	
-	def drawEvent(self, event, subsurface):
-		artFile, artTile = event.imageInfo()
-		artFile = pg.image.load(artFile).convert_alpha()
-		artTile = tileRect(artTile, (32,32))
-		subsurface.blit(artFile.subsurface(artTile), (0,0))
+	def nearAndGetEvents(self,coord):
+		pass
+	
+	def blocked(self, rect):
+		for each in self.eventList:
+			if each.rect.colliderect(rect) and each.blocked:
+				return True
+		return False
+	
+	# def registerEvent(self, event, subsurface):
+	# 	self.drawEvent(event, subsurface)
+	# 	# Somehow dispatch 
+	
+	# def drawEvent(self, event, subsurface):
+	# 	artFile, artTile = event.imageInfo()
+	# 	artFile = pg.image.load(artFile).convert_alpha()
+	# 	artTile = tileRect(artTile, (32,32))
+	# 	subsurface.blit(artFile.subsurface(artTile), (0,0))
 
 
 class WorldEvent:
@@ -45,13 +49,23 @@ class WorldEvent:
 		self.blocked = blocked
 		self.event_id = event_id
 		self.one_time = one_time
-		self.art = art
-		self.art_tile = art_tile
-		self.extra = extra
-		self.rect = None
 
-	def imageInfo(self):
-		return self.art, self.art_tile
+		art = pg.image.load(art).convert_alpha()
+		self.art = art.subsurface(tileRect(art_tile, TILE_RES)).copy()
+
+		# self.art_tile = art_tile
+		self.extra = extra
+		self.rect = tileRect(on, TILE_RES)
+		self.behind = None #WE get stacked behind other events on the same tile, that is, when one gets executed and removed the one behind it gets placed
+
+	# def imageInfo(self):
+	# 	return self.art, self.art_tile
+	
+	def setDeepest(self, WE):
+		if self.behind is not None:
+			self.behind.setDeepest(WE)
+		else:
+			self.behind = WE
 		
 
 class TwoWayDialog(WorldEvent):

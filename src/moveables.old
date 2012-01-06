@@ -104,6 +104,10 @@ class Player(Moveable):
 		self.udlr = [False, False, False, False]
 		
 	
+	def goodFrameRect(self):
+		wh = self.screen.getWH()
+		return pg.Rect(self.lastGoodPixel[0]-wh[0]*.5, self.lastGoodPixel[1]-wh[1]*.5, wh[0], wh[1])
+
 	def moveFrame(self, pixel):
 		wh = self.screen.getWH()
 		placing=pg.Rect(pixel[0]-wh[0]*.5, pixel[1]-wh[1]*.5, wh[0], wh[1])
