@@ -1,7 +1,7 @@
 import pygame as pg
 
 TILE_RES = (32,32)
-PX_STEP = 1
+PX_STEP = 3
 
 class Player:
 	def __init__(self, position, size= (1,1), art='art/player.png', art_excited='art/playerredline.png'):

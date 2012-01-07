@@ -54,6 +54,12 @@ class GameInterface:
 
 	
 	def dispatch(self, events):
+		#some things are handled the same way in all states:
+		for event in events:
+			if event.type == pg.QUIT:
+				quit()
+
+
 		if self.state == "main-menu":
 			pass
 
@@ -123,7 +129,9 @@ class GameInterface:
 					#this loop triggers a chain of events that are stood on
 					onEvent = self.eventForeground.onAndGetEvents(playerNewRect)
 					if onEvent:
+						self.state = "WE"
 						onEvent.execute(self)
+						self.state = "play"
 						self.eventForeground.remove(onEvent)
 						#release player from any movements
 						self.player.forgetMovement()
@@ -145,7 +153,9 @@ class GameInterface:
 				self.flipOutlines(evt[1:])
 				self.renderView()
 				#execute the event
+				self.state = "WE"
 				evt[0].execute(self)
+				self.state = "play"
 				self.eventForeground.remove(evt[0])
 				#release player from any movements
 				self.player.forgetMovement()
@@ -166,6 +176,12 @@ class GameInterface:
 
 		elif self.state == "pause":
 			pass
+		
+		elif self.state == "WE":
+			pass
+		
+		#it returns all events that are not executed in the general state
+		return events
 	
 	def renderView(self):
 		#gets optimal view frame based on player

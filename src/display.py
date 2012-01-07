@@ -2,6 +2,8 @@ import pygame
 
 class Display:
 	def __init__(self):
+		pygame.display.init()
+
 		self.width = 640
 		self.height = 480
 		self.isFull=False

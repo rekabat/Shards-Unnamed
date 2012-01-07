@@ -151,11 +151,15 @@ class dialog(WorldEvent):
 			
 			gotEnter = False
 			while not gotEnter:
+				#wait only gets the first event that happens, so it's not a list
 				evt = pg.event.wait()
-				if evt.type == pg.KEYDOWN:
-					if evt.dict['key'] == pg.K_RETURN:
-						gotEnter = True
-						break
+				evt = GI.dispatch([evt])
+				if len(evt) > 0:
+					evt = evt[0]
+					if evt.type == pg.KEYDOWN:
+						if evt.dict['key'] == pg.K_RETURN:
+							gotEnter = True
+							break
 
 			
 		GI.renderView()

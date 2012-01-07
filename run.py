@@ -12,13 +12,11 @@ def runGame():
     GI = src.gameinterface.GameInterface('play')
     
     while True:
-        # clock.tick(50)
+        clock.tick(30)
 
         events = pg.event.get()
-        if pg.QUIT in [each.type for each in events]:
-            return
-        else:
-            GI.dispatch(events)
-            GI.renderView()
+        
+        GI.dispatch(events)
+        GI.renderView()
 
 if __name__ == '__main__': runGame()
