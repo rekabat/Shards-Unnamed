@@ -20,15 +20,19 @@ class GameInterface:
 		self.window = None
 		self.clearWindow()
 		self.cursr = cursor.Cursor()
+		self.view = None
 
 
 		self.state = state
 		if state == "main-menu":
 			print "Not quite there yet"
 		elif state == "play":
-			self.createWorld('maps/mapgen_map')
-			
 			self.outlinedEvents = []
+
+			self.createWorld('maps/mapgen_map')
+			self.renderView()
+			
+			
 	
 	def clearWindow(self):
 		self.window = pg.Surface(self.display.getWH(), SRCALPHA, 32).convert_alpha()
@@ -183,6 +187,12 @@ class GameInterface:
 		#it returns all events that are not executed in the general state
 		return events
 	
+	def playerOnTopHalf(self):
+		if self.view.centery+5 < self.player.getRect().centery:
+			return False
+		else:
+			return True
+
 	def renderView(self):
 		#gets optimal view frame based on player
 		mapx, mapy = self.map.get().get_size()
@@ -223,3 +233,5 @@ class GameInterface:
 		self.display.get().blit(self.window, (0,0))
 		
 		pg.display.flip()
+
+		self.view = view

@@ -126,25 +126,78 @@ class dialog(WorldEvent):
 		WorldEvent.__init__(self, **kwargs)
 	
 	def execute(self, GI):
+		namesize = 20 #height in pixels for the speaker's name
+		namepadding = 3 #pixels away from the edge of the box for the name placement
+		dialogsize = 35 #height in pixels
+		dialogwidthfraction = .90 #the fraction of the width of the box that the lines of dialog take
+
 		# if player is on the top half of the screen or exactly in the middle, make a text box on the bottom
 		# otherwise, if player's on the bottom half, make it on the top.
 		# and wait for an enter key press to go to the next line
 
-
-		
 		box = pg.Surface((int(GI.display.getWH()[0]), int(GI.display.getWH()[1]*.25)))
 		box.fill((96,123,139))
-		for each in self.extra[1:]:
-			speaker, words = each.split(":] ")
-			# words = words.split(' ')
 
-			GI.window.blit(box, (0,0))
+		enter = text.Text("PRESS ENTER", namesize, (10,50,10))
+		enter.place(box, (box.get_rect().width-namepadding-enter.getLength(), namepadding), center=False)
 
-			speaker = text.Text(speaker+":", 20, (10,50,10))
-			speaker.place(GI.window, (3,3), center=False)
+		dialogLinesPerBox = (box.get_rect().height - namesize - namepadding*2) / dialogsize
+		linesPx = [(int(box.get_rect().width*((1-dialogwidthfraction)/2)), int(namesize + namepadding*2))]
+		for i in range(dialogLinesPerBox-1):
+			linesPx.append((linesPx[i][0], int(linesPx[i][1]+dialogsize)))
 
-			words = text.Text(words, 50, text.BLACK)
-			words.place(GI.window, (10,25), center=False)
+		dialogWidth = int(box.get_rect().width*dialogwidthfraction)
+
+		# make a space and ellipses
+		space = text.Text(" ",   dialogsize, text.BLACK)
+		ooo   = text.Text("...", dialogsize, text.BLACK)
+
+		dialogLines = self.extra[1:]
+
+		q = 0
+		while q < (len(dialogLines)):
+			boxc = box.copy()
+
+			speaker, words = dialogLines[q].split(":] ")
+
+			if speaker == "%PLAYER":
+				speaker = GI.player.getName()
+			speaker = text.Text(speaker+":", namesize, (10,50,10))
+			speaker.place(boxc, (namepadding,namepadding), center=False)
+
+			words = words.split(' ')
+			for i in range(len(words)):
+				words[i] = text.Text(words[i], dialogsize, text.BLACK)
+
+			line = 0
+			lines = []
+			
+			word = 1
+			lines.append(words[0])
+			while word < len(words):
+				if lines[line].getLength() + space.getLength() + words[word].getLength() <= dialogWidth:
+					lines[line] = lines[line].concatenate([space, words[word]])
+				else:
+					line+=1
+					lines.append(words[word])
+				word +=1
+			
+			passback = speaker.getStr()+"] "
+			for i in range(len(lines)):
+				if i < dialogLinesPerBox:
+					lines[i].place(boxc, linesPx[i], center=False)
+				else:
+					passback += lines[i].getStr()
+					if i != len(lines)-1:
+						passback+=" "
+			if i >= dialogLinesPerBox:
+				dialogLines.insert(q+1, passback)
+			
+			if GI.playerOnTopHalf():
+				pos = (0,GI.display.getWH()[1]-boxc.get_rect().height)
+			else:
+				pos = (0,0)
+			GI.window.blit(boxc, pos)
 
 			GI.renderView()
 			GI.clearWindow()
@@ -160,8 +213,8 @@ class dialog(WorldEvent):
 						if evt.dict['key'] == pg.K_RETURN:
 							gotEnter = True
 							break
+			q+=1
 
-			
 		GI.renderView()
 
 

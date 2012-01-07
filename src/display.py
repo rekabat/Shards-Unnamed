@@ -4,8 +4,8 @@ class Display:
 	def __init__(self):
 		pygame.display.init()
 
-		self.width = 640
-		self.height = 480
+		self.width = 640+32*0
+		self.height = 480+32*0
 		self.isFull=False
 		self.screen = None
 
@@ -35,7 +35,7 @@ class Display:
 		else:
 			
 			temp = pygame.display.get_surface().convert()
-			self.screen = pygame.display.set_mode((self.width, self.height), pygame.FULLSCREEN|pygame.NOFRAME)
+			self.screen = pygame.display.set_mode((self.width, self.height), pygame.FULLSCREEN)#|pygame.NOFRAME)
 			self.screen.blit(temp, (0,0))
 			# pygame.display.set_mode((self.width, self.height), pygame.FULLSCREEN|pygame.NOFRAME)
 		

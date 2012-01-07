@@ -23,6 +23,9 @@ class Player:
 
 		#the directions the player is currently going
 		self.udlr = [False, False, False, False]
+
+
+		self.name = "Bartholomew"
 	
 	def getRect(self):
 		return self.rect
@@ -110,3 +113,6 @@ class Player:
 			self.art = self.udlrFacing[3]
 
 		
+	
+	def getName(self):
+		return self.name

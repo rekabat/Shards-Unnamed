@@ -6,7 +6,7 @@ ART: 'art/items1.png'
 ART_TILE: 3:0
 > Dialog
 Clothing:] I am a tunic.
-You:] Holy fuck, a talking tunic!
+%PLAYER:] Holy shit, a talking tunic! Now this dialog is purely to demonstrate whether or not the textbox system is working. I sure hope it is.
 Clothing:] Indeed.
 }}}
 ON: 11:14
@@ -17,7 +17,7 @@ ART: 'art/items1.png'
 ART_TILE: 2:1
 > Dialog
 Das Boot:] Boot, I say.
-You:] Indubitably.
+%PLAYER:] Indubitably.
 }}}
 >>>
 ON: 11:15
@@ -27,9 +27,9 @@ ONE_TIME: 0
 ART: 'art/items1.png'
 ART_TILE: 4:0
 > Dialog
-You:] Hey potion, I be illin'.
+%PLAYER:] Hey potion, I be illin'.
 Potion:] Well, my good friend, have a swig.
-You:] Thanks, dawg.
+%PLAYER:] Thanks, dawg.
 }}}
 ON: 12:16
 BLOCKED: 1
@@ -38,8 +38,8 @@ ONE_TIME: 0
 ART: 'art/items1.png'
 ART_TILE: 4:0
 > Dialog
-You:] Hey it's you again!
+%PLAYER:] Hey it's you again!
 Slightly Evil-er Potion:] Nope, I'm the slightly evil-er twin.
-You:] That explains the goatee.
+%PLAYER:] That explains the goatee.
 }}}
 >>>
