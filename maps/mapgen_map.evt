@@ -5,9 +5,9 @@ ONE_TIME: 0
 ART: 'art/items1.png'
 ART_TILE: 3:0
 > Dialog
-NPC: I am a sword.
-You: Holy fuck, a talking sword!
-NPC: Indeed.
+Clothing:] I am a tunic.
+You:] Holy fuck, a talking tunic!
+Clothing:] Indeed.
 }}}
 ON: 11:14
 BLOCKED: 0
@@ -16,8 +16,8 @@ ONE_TIME: 0
 ART: 'art/items1.png'
 ART_TILE: 2:1
 > Dialog
-NPC: Boot, I say.
-You: Indubitably.
+Das Boot:] Boot, I say.
+You:] Indubitably.
 }}}
 >>>
 ON: 11:15
@@ -27,7 +27,8 @@ ONE_TIME: 0
 ART: 'art/items1.png'
 ART_TILE: 4:0
 > Dialog
-NPC: Boot, I say.
-You: Indubitably.
+You:] Hey potion, I be illin'.
+Potion:] Well, my good friend, have a swig.
+You:] Thanks, dawg.
 }}}
 >>>

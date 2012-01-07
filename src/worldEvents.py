@@ -121,19 +121,35 @@ class WorldEvent:
 			self.behind = WE
 		
 
-class TwoWayDialog(WorldEvent):
+class dialog(WorldEvent):
 	def __init__(self, **kwargs):
 		WorldEvent.__init__(self, **kwargs)
 	
 	def execute(self, GI):
-		new = text.Text("SUCCESS", 50)
-		new.place(GI.window, (0,0), center=False)
-		GI.renderView()
-		time.sleep(1)
-		GI.clearWindow()
-		GI.renderView()
+		# if player is on the top half of the screen or exactly in the middle, make a text box on the bottom
+		# otherwise, if player's on the bottom half, make it on the top.
+		# and wait for an enter key press to go to the next line
+		box = pg.Surface((int(GI.display.getWH()[0]), int(GI.display.getWH()[1]*.25)))
+		box.fill((96,123,139))
+		for each in self.extra[1:]:
+			speaker, words = each.split(":] ")
+			# words = words.split(' ')
+
+			GI.window.blit(box, (0,0))
+
+			speaker = text.Text(speaker+":", 20, (10,50,10))
+			speaker.place(GI.window, (3,3), center=False)
+
+			words = text.Text(words, 50, text.BLACK)
+			words.place(GI.window, (10,25), center=False)
+
+			GI.renderView()
+			time.sleep(1)
+			GI.clearWindow()
+			GI.renderView()
 
 
-EVENT_IDS = { 1: TwoWayDialog } #,
+
+EVENT_IDS = { 1: dialog } #,
 	  # 2: PickUpItem,
 	  # 3: DeathByBurning }
