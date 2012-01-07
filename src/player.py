@@ -49,3 +49,6 @@ class Player:
 	def goodFrameRect(self):
 		wh = self.screen.getWH()
 		return pg.Rect(self.lastGoodPixel[0]-wh[0]*.5, self.lastGoodPixel[1]-wh[1]*.5, wh[0], wh[1])
+	
+	def forgetMovement(self):
+		self.udlr = [False, False, False, False]

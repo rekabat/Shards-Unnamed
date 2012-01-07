@@ -117,22 +117,21 @@ class GameInterface:
 					mv = ""
 					self.player.move(playerNewRect)
 					
-					# blits a message to self.window if your in proximity to an event
+					# turns on outlines for near, blocked events
 					self.flipOutlines(self.eventForeground.getBlockedEvents(playerNewRect))
-					# if ( bool(evts) and (not self.outlinedEvents)) or ( (not bool(evts)) and self.outlinedEvents):
-					# 	self.flipOutlines(evts)
 					# activates an event with enter outside of this function
 					
 					
 					
 					#this loop triggers a chain of events that are stood on
-					while 1:
-						onEvent = self.eventForeground.onAndGetEvents(playerNewRect)
-						if onEvent:
-							onEvent.execute(self)
-							self.eventForeground.remove(onEvent)
-						else:
-							break
+					onEvent = self.eventForeground.onAndGetEvents(playerNewRect)
+					if onEvent:
+						onEvent.execute(self)
+						self.eventForeground.remove(onEvent)
+						#release player from any movements
+						self.player.forgetMovement()
+						#move the player UD to stay on the same spot and trigger any other events
+						movePlayer("UD")
 					
 					return True
 				else:
@@ -151,6 +150,8 @@ class GameInterface:
 				#execute the event
 				evt[0].execute(self)
 				self.eventForeground.remove(evt[0])
+				#release player from any movements
+				self.player.forgetMovement()
 				#so that if it's now standing on event, that event will be activated
 				movePlayer("UD")
 				

@@ -31,4 +31,15 @@ You:] Hey potion, I be illin'.
 Potion:] Well, my good friend, have a swig.
 You:] Thanks, dawg.
 }}}
+ON: 12:16
+BLOCKED: 0
+EVENT_ID: 1
+ONE_TIME: 0
+ART: 'art/items1.png'
+ART_TILE: 4:0
+> Dialog
+You:] Hey it's you again!
+Slightly Evil-er Potion:] Nope, I'm the slightly evil-er twin.
+You:] That explains the goatee.
+}}}
 >>>

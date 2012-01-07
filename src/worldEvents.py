@@ -129,6 +129,9 @@ class dialog(WorldEvent):
 		# if player is on the top half of the screen or exactly in the middle, make a text box on the bottom
 		# otherwise, if player's on the bottom half, make it on the top.
 		# and wait for an enter key press to go to the next line
+
+
+		
 		box = pg.Surface((int(GI.display.getWH()[0]), int(GI.display.getWH()[1]*.25)))
 		box.fill((96,123,139))
 		for each in self.extra[1:]:
@@ -144,9 +147,18 @@ class dialog(WorldEvent):
 			words.place(GI.window, (10,25), center=False)
 
 			GI.renderView()
-			time.sleep(1)
 			GI.clearWindow()
-			GI.renderView()
+			
+			gotEnter = False
+			while not gotEnter:
+				evt = pg.event.wait()
+				if evt.type == pg.KEYDOWN:
+					if evt.dict['key'] == pg.K_RETURN:
+						gotEnter = True
+						break
+
+			
+		GI.renderView()
 
 
 
