@@ -1,0 +1,12 @@
+Things to add (near future):
+ - Event linking and un/locked states. So world events can be present but not active until another event is activated.
+
+Things to change:
+ - Get rid of tiles. Map just needs to have a dictionary with [keys->tile position] and [value->blocked boolean].
+
+Known bugs:
+ - Can't quit during dialog because of how it's set up. This will be an issue with all events if they take over the pg event queue. Perhaps make a dispatch that registers some events no matter what "state" you're in (such as escape and "t" for toggle fullscreen). And then have events change the GI state and send all pg events to dispatch and handle any pg events that aren't handled by dispatch.
+ - It's possible to step onto an event that chains to another event that appears partly under you. If this new event is blocked, you can't move. Maybe not a problem, you just shouldn't be able to make chains that make blocked events under or around the previous event (since even if it's not under you it could be under one of your 4 corners).
+
+Things to consider:
+ - There can't be pathways over ground you can walk on since the map is flat.
