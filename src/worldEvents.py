@@ -24,9 +24,11 @@ class EventForeground:
 		#actually... same as blocked, just pass it the full sized rectangle instead of the shrunken one
 		pass
 	def getBlockedEvents(self, rect):
+		ret = []
 		for each in self.eventList:
 			if each.rect.colliderect(rect) and each.blocked:
-				return each
+				ret.append(each)
+		return ret
 	
 	def getEventsInRect(self, rect):
 		ret = []
@@ -63,6 +65,7 @@ class WorldEvent:
 
 		art = pg.image.load(art).convert_alpha()
 		self.art = art.subsurface(tileRect(art_tile, TILE_RES)).copy()
+		self.art_outlined = self.getOutlinedArt()
 
 		# self.art_tile = art_tile
 		self.extra = extra
@@ -71,6 +74,42 @@ class WorldEvent:
 
 	def getArt(self):
 		return self.art
+	
+	def getOutlinedArt(self):
+		return self.art_outlined
+	
+	def switchArt(self):
+		temp = self.art
+		self.art = self.art_outlined
+		self.art_outlined = temp
+	
+	def getOutlinedArt(self):
+		newArt = self.art.copy()
+		#sets top to red
+		for i in range(TILE_RES[0]):
+			for j in range(TILE_RES[1]):
+				if tuple(newArt.get_at((i,j)))[3] != 0:
+					newArt.set_at((i,j), (255,0,0))
+					break
+		#sets bottom to red
+		for i in range(TILE_RES[0]):
+			for j in range(TILE_RES[1])[::-1]:
+				if tuple(newArt.get_at((i,j)))[3] != 0:
+					newArt.set_at((i,j), (255,0,0))
+					break
+		#sets left to red
+		for j in range(TILE_RES[0]):
+			for i in range(TILE_RES[1]):
+				if tuple(newArt.get_at((i,j)))[3] != 0:
+					newArt.set_at((i,j), (255,0,0))
+					break
+		#sets right to red
+		for j in range(TILE_RES[0]):
+			for i in range(TILE_RES[1])[::-1]:
+				if tuple(newArt.get_at((i,j)))[3] != 0:
+					newArt.set_at((i,j), (255,0,0))
+					break
+		return newArt
 	
 	def getRect(self):
 		return self.rect

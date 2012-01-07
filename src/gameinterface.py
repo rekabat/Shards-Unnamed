@@ -28,24 +28,22 @@ class GameInterface:
 		elif state == "play":
 			self.createWorld('maps/mapgen_map')
 			
-			self.pressEnterDisplayed = False #maybe not in state play
+			self.outlinedEvents = []
 	
 	def clearWindow(self):
 		self.window = pg.Surface(self.display.getWH(), SRCALPHA, 32).convert_alpha()
 	
-	def flipPressEnterDisplayed(self):
-		# tx = text.Text("Press Enter", 50, text.RED).get()
-		# if self.pressEnterDisplayed:
-		# 	print "here"
-		# 	tx = tx.get_rect()
-		# 	tx = pg.Surface(tx, SRCALPHA, 32).convert_alpha()
-		# self.window.blit(tx, (5, self.display.getWH()[1]-55))
-		# self.pressEnterDisplayed = not self.pressEnterDisplayed
-		temp = self.player.art
-		self.player.art = self.player.art_excited
-		self.player.art_excited = temp
-		self.pressEnterDisplayed = not self.pressEnterDisplayed
-		pass
+	def flipOutlines(self, events):
+		copy = self.outlinedEvents[:]
+		for each in events:
+			if each not in self.outlinedEvents:
+				each.switchArt()
+				self.outlinedEvents.append(each)
+			else:
+				copy.remove(each)
+		for each in copy:
+			each.switchArt()
+			self.outlinedEvents.remove(each)
 		
 
 
@@ -120,9 +118,9 @@ class GameInterface:
 					self.player.move(playerNewRect)
 					
 					# blits a message to self.window if your in proximity to an event
-					bl = self.eventForeground.blocked(playerNewRect)
-					if ( bl and (not self.pressEnterDisplayed)) or ((not bl) and self.pressEnterDisplayed):
-						self.flipPressEnterDisplayed()
+					self.flipOutlines(self.eventForeground.getBlockedEvents(playerNewRect))
+					# if ( bool(evts) and (not self.outlinedEvents)) or ( (not bool(evts)) and self.outlinedEvents):
+					# 	self.flipOutlines(evts)
 					# activates an event with enter outside of this function
 					
 					
@@ -146,13 +144,13 @@ class GameInterface:
 			
 			#enter overrides movements and triggers events
 			if self.eventForeground.blocked(self.player.getRect()) and enterPressed:
+				evt = self.eventForeground.getBlockedEvents(self.player.getRect())
 				#remove the press enter dialog
-				self.flipPressEnterDisplayed()
+				self.flipOutlines(evt[1:])
 				self.renderView()
 				#execute the event
-				evt = self.eventForeground.getBlockedEvents(self.player.getRect())
-				evt.execute(self)
-				self.eventForeground.remove(evt)
+				evt[0].execute(self)
+				self.eventForeground.remove(evt[0])
 				#so that if it's now standing on event, that event will be activated
 				movePlayer("UD")
 				
