@@ -65,13 +65,13 @@ class GameInterface:
 				if event.type == pg.KEYDOWN:
 					key = event.dict['key']
 					if key == pg.K_w:
-						self.player.udlr[0] = True
+						self.player.movingDirection("U")
 					if key == pg.K_s:
-						self.player.udlr[1] = True
+						self.player.movingDirection("D")
 					if key == pg.K_a:
-						self.player.udlr[2] = True
+						self.player.movingDirection("L")
 					if key == pg.K_d:
-						self.player.udlr[3] = True
+						self.player.movingDirection("R")
 					if key == pg.K_RETURN:
 						enterPressed = True
 					if key == pg.K_t:
@@ -81,19 +81,16 @@ class GameInterface:
 				elif event.type == pg.KEYUP:
 					key = event.dict['key']
 					if key == pg.K_w:
-						self.player.udlr[0] = False
+						self.player.stoppingDirection("U")
 					if key == pg.K_s:
-						self.player.udlr[1] = False
+						self.player.stoppingDirection("D")
 					if key == pg.K_a:
-						self.player.udlr[2] = False
+						self.player.stoppingDirection("L")
 					if key == pg.K_d:
-						self.player.udlr[3] = False
+						self.player.stoppingDirection("R")
 			
-			mv = ""
-			mv += "U" if self.player.udlr[0] else ""
-			mv += "D" if self.player.udlr[1] else ""
-			mv += "L" if self.player.udlr[2] else ""
-			mv += "R" if self.player.udlr[3] else ""
+			self.player.turn()
+			mv = self.player.overallDirection()
 
 			def movePlayer(mv):
 				# Get the rect that the player would go to given the buttons pressed

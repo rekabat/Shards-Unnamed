@@ -32,7 +32,7 @@ Potion:] Well, my good friend, have a swig.
 You:] Thanks, dawg.
 }}}
 ON: 12:16
-BLOCKED: 0
+BLOCKED: 1
 EVENT_ID: 1
 ONE_TIME: 0
 ART: 'art/items1.png'

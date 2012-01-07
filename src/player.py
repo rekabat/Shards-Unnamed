@@ -11,11 +11,17 @@ class Player:
 		self.rect= pg.Rect((position[0]-size[0]*.5, position[1]-size[1]*.5), size)\
 		
 		#the image of the player
-		self.art = pg.image.load(art).convert_alpha()
-		self.art_excited = pg.image.load(art_excited).convert_alpha()
+		art = pg.image.load(art).convert_alpha() #loaded as facing up
+		#the image of the player facing in all directions
+		self.udlrFacing = (                \
+			art,                           \
+			pg.transform.rotate(art, 180), \
+			pg.transform.rotate(art, 90),  \
+			pg.transform.rotate(art, 270)  )
+		#the player defaulted to face forward
+		self.art = self.udlrFacing[0]
 
-		self.lastGoodPixel = self.rect.center
-
+		#the directions the player is currently going
 		self.udlr = [False, False, False, False]
 	
 	def getRect(self):
@@ -52,3 +58,55 @@ class Player:
 	
 	def forgetMovement(self):
 		self.udlr = [False, False, False, False]
+	
+	def movingDirection(self, dir):
+		if dir == "U":
+			self.udlr[0] = True
+		elif dir == "D":
+			self.udlr[1] = True
+		elif dir == "L":
+			self.udlr[2] = True
+		elif dir == "R":
+			self.udlr[3] = True
+	
+	def stoppingDirection(self, dir):
+		if dir == "U":
+			self.udlr[0] = False
+		elif dir == "D":
+			self.udlr[1] = False
+		elif dir == "L":
+			self.udlr[2] = False
+		elif dir == "R":
+			self.udlr[3] = False
+	
+	def overallDirection(self):
+		dir = ""
+		dir += "U" if self.udlr[0] else ""
+		dir += "D" if self.udlr[1] else ""
+		dir += "L" if self.udlr[2] else ""
+		dir += "R" if self.udlr[3] else ""
+		return dir
+	
+	def turn(self):
+		trn = self.overallDirection()
+
+		#ignore having both up and down or both left and right
+		if ("U" in trn) and ("D" in trn):
+			trn.replace("U", "")
+			trn.replace("D", "")
+		if ("L" in trn) and ("R" in trn):
+			trn.replace("L", "")
+			trn.replace("R", "")
+		
+		#in cases of diagonal, choose U or D
+		if ("U" in trn) or ("D" in trn):
+			if "U" in trn:
+				self.art = self.udlrFacing[0]
+			if "D" in trn:
+				self.art = self.udlrFacing[1]
+		elif "L" in trn:
+			self.art = self.udlrFacing[2]
+		elif "R" in trn:
+			self.art = self.udlrFacing[3]
+
+		
