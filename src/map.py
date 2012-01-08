@@ -4,8 +4,6 @@ from pygame.locals import *
 import worldEvents
 import mapParser
 
-TILE_RES = (32, 32)
-
 class Map:
     def __init__(self, file):
         self.file = file + ".map"

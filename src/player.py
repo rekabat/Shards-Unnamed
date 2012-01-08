@@ -1,14 +1,12 @@
 import pygame as pg
-
-TILE_RES = (32,32)
-PX_STEP = 3
+import general as g
 
 class Player:
 	def __init__(self, position, size= (1,1), art='art/player.png'):
 	# def __init__(self, position, size= (1,1), art='art/blog200812.png'):
 		#make a rect for where it is
-		size = (size[0]*TILE_RES[0], size[1]*TILE_RES[1]) #given in tile size, convert to pixel size 
-		position = ((position[0]+.5)*TILE_RES[0], (position[1]+.5)*TILE_RES[1]) #given in tile coordinates, convert to pixel
+		size = (size[0]*g.TILE_RES[0], size[1]*g.TILE_RES[1]) #given in tile size, convert to pixel size 
+		position = ((position[0]+.5)*g.TILE_RES[0], (position[1]+.5)*g.TILE_RES[1]) #given in tile coordinates, convert to pixel
 		self.rect= pg.Rect((position[0]-size[0]*.5, position[1]-size[1]*.5), size)\
 		
 		#the image of the player
@@ -40,13 +38,13 @@ class Player:
 		ymove = 0
 		
 		if "U" in direction:
-			ymove-=PX_STEP
+			ymove-=g.PX_STEP
 		if "D" in direction:
-			ymove+=PX_STEP
+			ymove+=g.PX_STEP
 		if "L" in direction:
-			xmove-=PX_STEP
+			xmove-=g.PX_STEP
 		if "R" in direction:
-			xmove+=PX_STEP
+			xmove+=g.PX_STEP
 		
 		newRect = self.rect.copy()
 		newRect.centerx += xmove

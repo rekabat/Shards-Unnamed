@@ -4,7 +4,7 @@ import time
 import text
 import worldEventsParser
 
-TILE_RES = (32,32)
+import general as g
 
 def tileRect((x, y), squareSize):
 	return pg.Rect((x * squareSize[0], y * squareSize[1]), squareSize)
@@ -64,12 +64,12 @@ class WorldEvent:
 		self.one_time = one_time
 
 		art = pg.image.load(art).convert_alpha()
-		self.art = art.subsurface(tileRect(art_tile, TILE_RES)).copy()
+		self.art = art.subsurface(tileRect(art_tile, g.TILE_RES)).copy()
 		self.art_outlined = self.getOutlinedArt()
 
 		# self.art_tile = art_tile
 		self.extra = extra
-		self.rect = tileRect(on, TILE_RES)
+		self.rect = tileRect(on, g.TILE_RES)
 		self.behind = None #WE get stacked behind other events on the same tile, that is, when one gets executed and removed the one behind it gets placed
 
 	def getArt(self):
@@ -86,26 +86,26 @@ class WorldEvent:
 	def getOutlinedArt(self):
 		newArt = self.art.copy()
 		#sets top to red
-		for i in range(TILE_RES[0]):
-			for j in range(TILE_RES[1]):
+		for i in range(g.TILE_RES[0]):
+			for j in range(g.TILE_RES[1]):
 				if tuple(newArt.get_at((i,j)))[3] != 0:
 					newArt.set_at((i,j), (255,0,0))
 					break
 		#sets bottom to red
-		for i in range(TILE_RES[0]):
-			for j in range(TILE_RES[1])[::-1]:
+		for i in range(g.TILE_RES[0]):
+			for j in range(g.TILE_RES[1])[::-1]:
 				if tuple(newArt.get_at((i,j)))[3] != 0:
 					newArt.set_at((i,j), (255,0,0))
 					break
 		#sets left to red
-		for j in range(TILE_RES[0]):
-			for i in range(TILE_RES[1]):
+		for j in range(g.TILE_RES[0]):
+			for i in range(g.TILE_RES[1]):
 				if tuple(newArt.get_at((i,j)))[3] != 0:
 					newArt.set_at((i,j), (255,0,0))
 					break
 		#sets right to red
-		for j in range(TILE_RES[0]):
-			for i in range(TILE_RES[1])[::-1]:
+		for j in range(g.TILE_RES[0]):
+			for i in range(g.TILE_RES[1])[::-1]:
 				if tuple(newArt.get_at((i,j)))[3] != 0:
 					newArt.set_at((i,j), (255,0,0))
 					break

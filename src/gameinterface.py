@@ -8,8 +8,7 @@ import worldEvents
 import text
 import cursor
 
-TILE_RES = (32,32)
-TRANSPARENT = (199,200,201)
+import general as g
 
 class GameInterface:
 	def __init__(self, state="main-menu"):
@@ -224,7 +223,7 @@ class GameInterface:
 			self.display.get().blit(each.getArt(), relRect)
 		
 		#gets a rect for player relative to the display screen as opposed to the map
-		relativePlayerRect = pg.Rect((0,0),TILE_RES)
+		relativePlayerRect = pg.Rect((0,0),g.TILE_RES)
 		relativePlayerRect.center = (w*.5)+(x-viewx), (h*.5)+(y-viewy)
 		#blits the player to the screen (second highest layer)
 		self.display.get().blit(self.player.getArt(), relativePlayerRect)
