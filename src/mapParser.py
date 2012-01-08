@@ -45,13 +45,16 @@ def genMap(file_base):
 		posOnMap = tuple([int(i) for i in posOnMap.split(":")])
 
 		# tile source position (type)
-		posOnTileFile, blocked = temp.split("(")
+		posOnTileFile, temp = temp.split("(")
 		posOnTileFile = tuple([int(i) for i in posOnTileFile.split(":")])
 
 		# blocked = cannot be walked on (1 is blocked)
-		blocked = True if blocked[:-1] == "1" else False
+		blocked, z = temp.split(")[")
+		blocked = True if blocked == "1" else False
 
-		setup[posOnMap] = Tile(source, posOnTileFile, blocked)
+		z = int(z[:-1])
+		
+		setup[posOnMap] = Tile(source, posOnTileFile, blocked, z)
 
 	img =  pg.Surface((mapSize[0]*g.TILE_RES[0], mapSize[1]*g.TILE_RES[1]))
 
@@ -67,13 +70,11 @@ def genMap(file_base):
 
 
 class Tile:
-	def __init__(self, source, posOnTileFile, blocked):
+	def __init__(self, source, posOnTileFile, blocked, z):
 		self.Source = source
 		self.PosOnTileFile = posOnTileFile
 		self.Blocked = blocked
-		self.Blocked_orig = blocked
-		self.under = None
-		self.mapSubsurface = None
+		self.Z = z
 	
 	def source(self):
 		return self.Source
@@ -83,6 +84,9 @@ class Tile:
 	
 	def blocked(self):
 		return self.Blocked
+	
+	def z(self):
+		return self.Z
 
 	
 class TileMap:

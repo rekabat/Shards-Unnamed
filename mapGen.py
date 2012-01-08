@@ -17,6 +17,6 @@ file.write(">>> Tile Source [size x:y]\n" + \
 for i in range(x):
 	for j in range(y):
 		if (i==0) or (j==0) or (i == x-1) or (j == y-1):
-			file.write("\n1-> "+str(i)+":"+str(j)+"/"+posborder+"(1)")
+			file.write("\n1-> "+str(i)+":"+str(j)+"/"+posborder+"(1)[0]")
 		else:
-			file.write("\n0-> "+str(i)+":"+str(j)+"/"+pos+"(0)")
+			file.write("\n0-> "+str(i)+":"+str(j)+"/"+pos+"(0)[0]")

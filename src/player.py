@@ -2,13 +2,16 @@ import pygame as pg
 import general as g
 
 class Player:
-	def __init__(self, position, size= (1,1), art='art/player.png'):
+	def __init__(self, position, z, size= (1,1), art='art/player.png'):
 	# def __init__(self, position, size= (1,1), art='art/blog200812.png'):
 		#make a rect for where it is
 		size = (size[0]*g.TILE_RES[0], size[1]*g.TILE_RES[1]) #given in tile size, convert to pixel size 
 		position = ((position[0]+.5)*g.TILE_RES[0], (position[1]+.5)*g.TILE_RES[1]) #given in tile coordinates, convert to pixel
 		self.rect= pg.Rect((position[0]-size[0]*.5, position[1]-size[1]*.5), size)\
 		
+		#what floor "level" is the player on
+		self.z = z
+
 		#the image of the player
 		art = pg.image.load(art).convert_alpha() #loaded as facing up
 

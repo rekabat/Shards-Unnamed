@@ -3,8 +3,8 @@ from pygame.locals import *
 
 import general as g
 
-def getDict(pos, evtList):
-    retDict = {'on': pos}
+def getDict(evtList):
+    retDict = {}
     for i, line in enumerate(evtList):
         if line.startswith("> "):
             retDict['extra'] = evtList[i:]
@@ -12,15 +12,6 @@ def getDict(pos, evtList):
         else:
             k, v = line.split(": ")
             retDict[k.lower()] = v
-    
-    # blocked as bool
-    retDict['blocked'] = bool(int(retDict['blocked']))
-
-    # event_id as int
-    retDict['event_id'] = int(retDict['event_id'])
-
-    # one_time as bool
-    retDict['one_time'] = bool(int(retDict['one_time']))
 
     # art as string, none if no art exists for event
     retDict['art'] = retDict['art'].replace("'", "")
@@ -28,10 +19,29 @@ def getDict(pos, evtList):
         retDict['art'] = None
     
     # art tile as tile coords (tuple)
-    if retDict['art_tile'] == "''":
+    retDict['art_tile'] = retDict['art_tile'].replace("'", "")
+    if retDict['art_tile'] == "":
         retDict['art_tile'] = None
     else:
         retDict['art_tile'] = tuple([int(i) for i in retDict['art_tile'].split(":")])
+    
+    # on as tuple
+    retDict['on'] = tuple([int(i) for i in retDict['on'].split(':')])
+
+    # z as int
+    retDict['z'] = int(retDict['z'])
+
+    # blocked as bool
+    retDict['blocked'] = bool(int(retDict['blocked']))
+
+    # enter as bool
+    retDict['enter'] = bool(int(retDict['enter']))
+
+    # one_time as bool
+    retDict['one_time'] = bool(int(retDict['one_time']))
+
+    # locked as bool
+    retDict['locked'] = bool(int(retDict['locked']))
 
     return retDict
 
@@ -65,10 +75,7 @@ def parse(evtfile, EVENT_IDS):
     for chain in chainList:
         j = 0
         for event in chain:
-            pos = event.pop(0).split(" ")[1]
-            pos = tuple([int(i) for i in pos.split(":")])
-            
-            ret = getDict(pos, event)
+            ret = getDict(event)
             eventObj = EVENT_IDS[ret['event_id']]
             
             if j == 0:

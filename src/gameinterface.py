@@ -53,7 +53,7 @@ class GameInterface:
 	def createWorld(self, mapfile):
 		self.map = map.Map(mapfile)
 		self.eventForeground = worldEvents.EventForeground(mapfile)
-		self.player = player.Player((12, 10))
+		self.player = player.Player((12, 10), [0])
 
 	
 	def dispatch(self, events):
@@ -109,7 +109,7 @@ class GameInterface:
 				# if any of the corners are on a blocked map tile or WE tile
 				cp = playerNewRect.copy()
 				smallerRect=pg.Rect((0,0),(1,1))
-				smallerRect.size = (cp.width*.9, cp.height*.9)
+				smallerRect.size = (cp.width*.87, cp.height*.87)
 				smallerRect.center = cp.center
 				cantMove = \
 					self.map.blocked(smallerRect.topleft)     or \

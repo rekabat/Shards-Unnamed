@@ -2,7 +2,7 @@ import pygame as pg
 
 #important constant
 TILE_RES = (32, 32) #the width and hight of tiles in pixels
-PX_STEP = 3 #The size steps all moving things take in pixels
+PX_STEP = 1 #The size steps all moving things take in pixels
 
 #easy references
 WHITE=(255,255,255)

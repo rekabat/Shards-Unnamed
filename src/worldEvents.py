@@ -1,4 +1,5 @@
 import pygame as pg
+from pygame.locals import *
 import time
 
 import text
@@ -57,15 +58,29 @@ class EventForeground:
 
 
 class WorldEvent:
-	def __init__(self, on, blocked, event_id, one_time, art, art_tile, extra):
-		self.on = on
-		self.blocked = blocked
+	def __init__(self, event_id, art, art_tile, on, z, blocked, enter, one_time, locked, extra):
 		self.event_id = event_id
+		self.on = on
+		self.z = z
+		self.blocked = blocked
+		self.enter = enter
 		self.one_time = one_time
+		self.locked = locked
 
-		art = pg.image.load(art).convert_alpha()
-		self.art = art.subsurface(tileRect(art_tile, g.TILE_RES)).copy()
-		self.art_outlined = self.getOutlinedArt()
+		if art is not None:
+			art = pg.image.load(art).convert_alpha()
+			self.art = art.subsurface(tileRect(art_tile, g.TILE_RES)).copy()
+			self.art_outlined = self.getOutlinedArt()
+		else:
+			self.art = pg.Surface(g.TILE_RES, SRCALPHA, 32).convert_alpha()
+			self.art_outlined = self.art.copy()
+			for i in range(g.TILE_RES[0]):
+				self.art_outlined.set_at((i, 0), g.RED)
+				self.art_outlined.set_at((i, g.TILE_RES[1]-1), g.RED)
+			for i in range(g.TILE_RES[1]):
+				self.art_outlined.set_at((0, i), g.RED)
+				self.art_outlined.set_at((g.TILE_RES[0]-1, i), g.RED)
+		
 
 		# self.art_tile = art_tile
 		self.extra = extra
@@ -219,6 +234,6 @@ class dialog(WorldEvent):
 
 
 
-EVENT_IDS = { 1: dialog } #,
+EVENT_IDS = { 'dialog': dialog } #,
 	  # 2: PickUpItem,
 	  # 3: DeathByBurning }

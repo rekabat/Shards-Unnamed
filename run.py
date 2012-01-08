@@ -12,10 +12,10 @@ def runGame():
     GI = src.gameinterface.GameInterface('play')
     
     while True:
-        clock.tick(30)
+        clock.tick(90)
 
         events = pg.event.get()
-        
+
         GI.dispatch(events)
         GI.renderView()
 

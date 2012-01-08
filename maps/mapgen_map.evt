@@ -1,42 +1,54 @@
-ON: 11:13
-BLOCKED: 1
-EVENT_ID: 1
-ONE_TIME: 0
+EVENT_ID: dialog
 ART: 'art/items1.png'
-ART_TILE: 3:0
+ART_TILE: '3:0'
+ON: 11:13
+Z: 0
+BLOCKED: 1
+ENTER: 0
+ONE_TIME: 0
+LOCKED: 0
 > Dialog
 Clothing:] I am a tunic.
 %PLAYER:] Holy shit, a talking tunic! Now this dialog is purely to demonstrate whether or not the textbox system is working. I sure hope it is.
 Clothing:] Indeed.
 }}}
-ON: 11:14
-BLOCKED: 0
-EVENT_ID: 1
-ONE_TIME: 0
+EVENT_ID: dialog
 ART: 'art/items1.png'
-ART_TILE: 2:1
+ART_TILE: '2:1'
+ON: 11:14
+Z: 0
+BLOCKED: 0
+ENTER: 0
+ONE_TIME: 0
+LOCKED: 0
 > Dialog
 Das Boot:] Boot, I say.
 %PLAYER:] Indubitably.
 }}}
 >>>
-ON: 11:15
-BLOCKED: 0
-EVENT_ID: 1
-ONE_TIME: 0
+EVENT_ID: dialog
 ART: 'art/items1.png'
-ART_TILE: 4:0
+ART_TILE: '4:0'
+ON: 11:15
+Z: 0
+BLOCKED: 0
+ENTER: 0
+ONE_TIME: 0
+LOCKED: 0
 > Dialog
 %PLAYER:] Hey potion, I be illin'.
 Potion:] Well, my good friend, have a swig.
 %PLAYER:] Thanks, dawg.
 }}}
-ON: 12:16
-BLOCKED: 1
-EVENT_ID: 1
-ONE_TIME: 0
+EVENT_ID: dialog
 ART: 'art/items1.png'
-ART_TILE: 4:0
+ART_TILE: '4:0'
+ON: 12:17
+Z: 0
+BLOCKED: 1
+ENTER: 0
+ONE_TIME: 0
+LOCKED: 0
 > Dialog
 %PLAYER:] Hey it's you again!
 Slightly Evil-er Potion:] Nope, I'm the slightly evil-er twin.
