@@ -1,12 +1,8 @@
 import pygame as pg
-
-TILE_RES = (32,32)
-
-def tileRect((x, y), squareSize):
-	return pg.Rect((x * squareSize[0], y * squareSize[1]), squareSize)
+import general as g
 
 def tileToMap(mapSurface, tileCoordsTo, tileSubsurface, squaresize):
-	toRect = tileRect(tileCoordsTo, squaresize)
+	toRect = g.tile2rect(tileCoordsTo, squaresize)
 	mapSurface.blit(tileSubsurface, toRect)
 
 def genMap(file_base):
@@ -20,8 +16,8 @@ def genMap(file_base):
 	for pos in setup.keys():
 		tileToMap(img, pos, tm.get(setup[pos].type()), tileSize)
 	
-	if tileSize != TILE_RES:
-		print tileSize, TILE_RES
+	if tileSize != g.TILE_RES:
+		print tileSize, g.TILE_RES
 		print "Warning: Tile size inconsistency"
 		raise KeyboardInterrupt
 
@@ -96,7 +92,7 @@ class Tile:
 		# place it on map
 		self.under = mapSubsurface.copy()
 		self.mapSubsurface = mapSubsurface
-		arttile = tileRect(arttile, (32,32))
+		arttile = g.tile2rect(arttile, (32,32))
 		mapSubsurface.blit(artfile.subsurface(arttile), (0,0))
 		
 		# change tile info (such as blocked)
@@ -131,7 +127,7 @@ class TileMap:
 		morey = True
 		while morey:
 			while True:
-				tile = tileRect((x, y), squareSize)
+				tile = g.tile2rect((x, y), squareSize)
 				if imgRect.contains(tile):
 					tileDict[(x, y)] = self.tileImg.subsurface(tile)
 					x += 1

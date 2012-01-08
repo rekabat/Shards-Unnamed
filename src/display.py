@@ -1,8 +1,8 @@
-import pygame
+import pygame as pg
 
 class Display:
 	def __init__(self):
-		pygame.display.init()
+		pg.display.init()
 
 		self.width = 640+32*0
 		self.height = 480+32*0
@@ -12,13 +12,13 @@ class Display:
 		self.createDisplay()
 		
 	def createDisplay(self):
-		self.screen = pygame.display.set_mode((self.width, self.height))
+		self.screen = pg.display.set_mode((self.width, self.height))
 		# self.screen = pygame.display.set_mode((self.width, self.height), pygame.FULLSCREEN|pygame.NOFRAME)
 		
 		self.screen.convert()
 		
-		pygame.display.set_icon(pygame.image.load('art/icon.png').convert())
-		pygame.display.set_caption('Shards')
+		pg.display.set_icon(pg.image.load('art/icon.png').convert())
+		pg.display.set_caption('Shards')
 	
 	def get(self):
 		return self.screen
@@ -28,14 +28,14 @@ class Display:
 	
 	def toggleFull(self):
 		if self.isFull:
-			temp = pygame.display.get_surface().convert()
-			self.screen = pygame.display.set_mode((self.width, self.height))
+			temp = pg.display.get_surface().convert()
+			self.screen = pg.display.set_mode((self.width, self.height))
 			self.screen.blit(temp, (0,0))
 			# pygame.display.set_mode((self.width, self.height))
 		else:
 			
-			temp = pygame.display.get_surface().convert()
-			self.screen = pygame.display.set_mode((self.width, self.height), pygame.FULLSCREEN)#|pygame.NOFRAME)
+			temp = pg.display.get_surface().convert()
+			self.screen = pg.display.set_mode((self.width, self.height), pg.FULLSCREEN)#|pygame.NOFRAME)
 			self.screen.blit(temp, (0,0))
 			# pygame.display.set_mode((self.width, self.height), pygame.FULLSCREEN|pygame.NOFRAME)
 		

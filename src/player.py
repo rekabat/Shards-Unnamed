@@ -4,7 +4,8 @@ TILE_RES = (32,32)
 PX_STEP = 3
 
 class Player:
-	def __init__(self, position, size= (1,1), art='art/player.png', art_excited='art/playerredline.png'):
+	def __init__(self, position, size= (1,1), art='art/player.png'):
+	# def __init__(self, position, size= (1,1), art='art/blog200812.png'):
 		#make a rect for where it is
 		size = (size[0]*TILE_RES[0], size[1]*TILE_RES[1]) #given in tile size, convert to pixel size 
 		position = ((position[0]+.5)*TILE_RES[0], (position[1]+.5)*TILE_RES[1]) #given in tile coordinates, convert to pixel
@@ -12,6 +13,7 @@ class Player:
 		
 		#the image of the player
 		art = pg.image.load(art).convert_alpha() #loaded as facing up
+
 		#the image of the player facing in all directions
 		self.udlrFacing = (                \
 			art,                           \

@@ -1,10 +1,7 @@
 import pygame as pg
 from pygame.locals import *
 
-from mapParser import tileRect
-
-TILE_RES = (32, 32)
-TRANSPARENT = (199,200,201)
+import general as g
 
 def getDict(pos, evtList):
     retDict = {'on': pos}
