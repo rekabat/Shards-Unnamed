@@ -1,49 +1,78 @@
 import pygame as pg
 from pygame.locals import *
 
-import worldEvents
+# import worldEvents
 import mapParser
+import general as g
 
 class Map:
     def __init__(self, file):
         self.file = file + ".map"
         self.evtFile = file + ".evt"
 
-        mapData = mapParser.genMap(file)
+        mapData = mapParser.parse(file)
 
-        self.tileFile = mapData['tileFile']
-        self.tileSize = mapData['tileSize']
-        self.mapSize = mapData['mapSize']
+        self.mapSizeTiles = mapData['mapSize']
+        self.mapSizePx = mapData['mapSizePx']
         self.setup = mapData['setup']
-        self.img = mapData['img']
-
-    def get(self):
-        return self.img
     
-    def get_rect(self):
-        return self.img.get_rect()
-    
-    def tile2pix(self,(x, y)):
-        if x > self.mapSize[0] or y > self.mapSize[1] or x < 0 or y < 0:
-            print "out of bounds"
-            raise KeyboardInterrupt
-        # print (x+.5), self.tileSize[0], (y+.5), self.tileSize[1], int((x+.5)*self.tileSize[0]), int((y+.5)*self.tileSize[1])
-        return (int((x+.5)*self.tileSize[0]), int((y+.5)*self.tileSize[1]))
-    
-    def pix2tile(self,(x,y)):
-        return (int(x/self.tileSize[0]), int(y/self.tileSize[1]))
-    
-    def getTileSize(self):
-        return self.tileSize
+    def getMapSizePx(self):
+        return self.mapSizePx
     
     def getTile(self, coords, pixel=True): #false means tile
         if pixel:
-            return self.setup[self.pix2tile(coords)]
+            return self.setup[g.pix2tile(coords)]
         else:
             return self.setup[coords]
     
-    def blocked(self, coords, pixel=True): #false means tile
-        if pixel:
-            return self.setup[self.pix2tile(coords)].blocked()
-        else:
-            return self.setup[coords].blocked()
+    def blocked(self, rect):#coords, pixel=True): #false means tile
+        return self.setup[g.pix2tile(rect.topleft)    ].blocked() or \
+               self.setup[g.pix2tile(rect.topright)   ].blocked() or \
+               self.setup[g.pix2tile(rect.bottomleft) ].blocked() or \
+               self.setup[g.pix2tile(rect.bottomright)].blocked()
+    
+    def getTilesInRect(self, rect):
+        tl = g.pix2tile(rect.topleft)
+        br = g.pix2tile(rect.bottomright)
+
+        ret = []
+
+        i = tl[0]
+        while i<=br[0] and i<self.mapSizeTiles[0]:
+            j = tl[1]
+            while j<=br[1] and j<self.mapSizeTiles[1]:
+                ret.append(self.setup[(i,j)])
+                j+=1
+            i+=1
+                
+        return ret
+
+class Tile:
+    def __init__(self, source, posOnTileFile, blocked, z, pos):
+        self.Source = source
+        self.PosOnTileFile = posOnTileFile
+        self.art = None
+        self.Blocked = blocked
+        self.Z = z
+        self.rect = g.tile2rect(pos)
+    
+    def source(self):
+        return self.Source
+
+    def type(self):
+        return self.PosOnTileFile
+    
+    def setArt(self, art):
+        self.art = art
+
+    def getArt(self):
+        return self.art
+
+    def blocked(self):
+        return self.Blocked
+    
+    def z(self):
+        return self.Z
+    
+    def getRect(self):
+        return self.rect

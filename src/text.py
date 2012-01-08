@@ -1,19 +1,14 @@
-import pygame
-
-WHITE=(255,255,255)
-RED=(255,0,0)
-GREEN=(0,255,0)
-BLUE=(0,0,255)
-BLACK=(0,0,0)
+import pygame as pg
+import general as g
 
 class Text:
-	def __init__(self, str, size, color=WHITE, antialiasing=True):
+	def __init__(self, str, size, color=g.WHITE, antialiasing=True):
 		self.str = str
 		self.color = color
 		self.size = size
 		self.antialiasing = antialiasing
 
-		self.img = pygame.font.Font(None, self.size).render(self.str, self.antialiasing, self.color)
+		self.img = pg.font.Font(None, self.size).render(self.str, self.antialiasing, self.color)
 	
 	def get(self):
 		return self.img

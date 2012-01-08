@@ -15,6 +15,30 @@ class EventForeground:
 		self.file = file + ".evt"
 		self.eventList = worldEventsParser.parse(self.file, EVENT_IDS)
 	
+	def unlockedEnterableEventsOn(self, tileList):
+		ret = []
+		for tile in tileList:
+			for each in self.eventList:
+				if each.enter and (not each.locked) and each.getRect().colliderect(tile.getRect()):
+					ret.append(each)
+		return ret
+
+	def unlockedEnterableBlockedEventsOn(self, tileList):
+		ret = []
+		for tile in tileList:
+			for each in self.eventList:
+				if each.enter and (not each.locked) and (each.blocked) and each.getRect().colliderect(tile.getRect()):
+					ret.append(each)
+		return ret
+	
+	def unlockedNotEnterableEventsOn(self, tileList):
+		ret = []
+		for tile in tileList:
+			for each in self.eventList:
+				if (not each.enter) and (not each.locked) and each.getRect().colliderect(tile.getRect()):
+					ret.append(each)
+		return ret
+
 	def onAndGetEvents(self, rect):
 		for each in self.eventList:
 			if each.rect.collidepoint(rect.center):
@@ -164,8 +188,8 @@ class dialog(WorldEvent):
 		dialogWidth = int(box.get_rect().width*dialogwidthfraction)
 
 		# make a space and ellipses
-		space = text.Text(" ",   dialogsize, text.BLACK)
-		ooo   = text.Text("...", dialogsize, text.BLACK)
+		space = text.Text(" ",   dialogsize, g.BLACK)
+		ooo   = text.Text("...", dialogsize, g.BLACK)
 
 		dialogLines = self.extra[1:]
 
@@ -182,7 +206,7 @@ class dialog(WorldEvent):
 
 			words = words.split(' ')
 			for i in range(len(words)):
-				words[i] = text.Text(words[i], dialogsize, text.BLACK)
+				words[i] = text.Text(words[i], dialogsize, g.BLACK)
 
 			line = 0
 			lines = []

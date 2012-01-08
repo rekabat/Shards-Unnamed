@@ -27,6 +27,8 @@ class Player:
 		#the directions the player is currently going
 		self.udlr = [False, False, False, False]
 
+		#the current direction the player is facing
+		self.facing = "U"
 
 		self.name = "Bartholomew"
 	
@@ -57,10 +59,6 @@ class Player:
 	
 	def move(self, rectTo):
 		self.rect = rectTo
-
-	def goodFrameRect(self):
-		wh = self.screen.getWH()
-		return pg.Rect(self.lastGoodPixel[0]-wh[0]*.5, self.lastGoodPixel[1]-wh[1]*.5, wh[0], wh[1])
 	
 	def forgetMovement(self):
 		self.udlr = [False, False, False, False]
@@ -108,14 +106,32 @@ class Player:
 		if ("U" in trn) or ("D" in trn):
 			if "U" in trn:
 				self.art = self.udlrFacing[0]
+				self.facing = "U"
 			if "D" in trn:
 				self.art = self.udlrFacing[1]
+				self.facing = "D"
 		elif "L" in trn:
 			self.art = self.udlrFacing[2]
+			self.facing = "L"
 		elif "R" in trn:
 			self.art = self.udlrFacing[3]
+			self.facing = "R"
 
+	def getTileOn(self):
+		return g.pix2tile(self.getRect().center)
+	
+	def getTileInFrontOf(self):
+		on = self.getTileOn()
+		if self.facing == "U":
+			inFrontOf = (on[0], on[1]-1)
+		elif self.facing == "D":
+			inFrontOf = (on[0], on[1]+1)
+		elif self.facing == "L":
+			inFrontOf = (on[0]-1, on[1])
+		elif self.facing == "R":
+			inFrontOf = (on[0]+1, on[1])
 		
+		return inFrontOf
 	
 	def getName(self):
 		return self.name

@@ -107,15 +107,10 @@ class GameInterface:
 
 				# Check if the movement is valid by making a smaller rectangle and seeing
 				# if any of the corners are on a blocked map tile or WE tile
-				cp = playerNewRect.copy()
-				smallerRect=pg.Rect((0,0),(1,1))
-				smallerRect.size = (cp.width*.87, cp.height*.87)
-				smallerRect.center = cp.center
+				smallerRect=pg.Rect((0,0),(playerNewRect.width*.87, playerNewRect.height*.87))
+				smallerRect.center = playerNewRect.center
 				cantMove = \
-					self.map.blocked(smallerRect.topleft)     or \
-					self.map.blocked(smallerRect.topright)    or \
-					self.map.blocked(smallerRect.bottomleft)  or \
-					self.map.blocked(smallerRect.bottomright) or \
+					self.map.blocked(smallerRect) or \
 					self.eventForeground.blocked(smallerRect)
 				
 				# If the movement is valid, move the player there
@@ -123,43 +118,52 @@ class GameInterface:
 					mv = ""
 					self.player.move(playerNewRect)
 					
-					# turns on outlines for near, blocked events
-					self.flipOutlines(self.eventForeground.getBlockedEvents(playerNewRect))
-					# activates an event with enter outside of this function
-					
-					
-					
+					tilePlayerOn = self.player.getTileOn()
+					tileInFrontOfPlayer = self.player.getTileInFrontOf()
+
+					tileList = [self.map.getTile(tilePlayerOn, False), self.map.getTile(tileInFrontOfPlayer, False)]
+
+					mustActivate = self.eventForeground.unlockedNotEnterableEventsOn(tileList[0:1])
+					activateIfEnterOnTopOf = self.eventForeground.unlockedEnterableEventsOn(tileList[0:1])
+					activateIfEnterInFrontOf = self.eventForeground.unlockedEnterableBlockedEventsOn(tileList[1:2])
+
 					#this loop triggers a chain of events that are stood on
-					onEvent = self.eventForeground.onAndGetEvents(playerNewRect)
-					if onEvent:
+					if len(mustActivate)>0:
 						self.state = "WE"
-						onEvent.execute(self)
+						mustActivate[0].execute(self)
 						self.state = "play"
-						self.eventForeground.remove(onEvent)
+						self.eventForeground.remove(mustActivate[0])
 						#release player from any movements
 						self.player.forgetMovement()
 						#move the player UD to stay on the same spot and trigger any other events
 						movePlayer("UD")
 					
-					return True
+						return True
+					 
+					# tilesToFlip = self.eventForeground.get
+					# turns on outlines for near, blocked events
+					self.flipOutlines(activateIfEnterOnTopOf+activateIfEnterInFrontOf)
+					# activates an event with enter outside of this function
+					
 				else:
 					if len(mv) > 1:
 						if not movePlayer(mv[0]):
 							movePlayer(mv[1:])
 					else:
-						return False
+						#this compensates for turning but not moving and having new events get outlined
+						movePlayer("UD")
 			
 			#enter overrides movements and triggers events
-			if self.eventForeground.blocked(self.player.getRect()) and enterPressed:
-				evt = self.eventForeground.getBlockedEvents(self.player.getRect())
+			if len(self.outlinedEvents)>0 and enterPressed:
+				evt = self.outlinedEvents.pop()
 				#remove the press enter dialog
-				self.flipOutlines(evt[1:])
+				self.flipOutlines(self.outlinedEvents)
 				self.renderView()
 				#execute the event
 				self.state = "WE"
-				evt[0].execute(self)
+				evt.execute(self)
 				self.state = "play"
-				self.eventForeground.remove(evt[0])
+				self.eventForeground.remove(evt)
 				#release player from any movements
 				self.player.forgetMovement()
 				#so that if it's now standing on event, that event will be activated
@@ -194,7 +198,7 @@ class GameInterface:
 
 	def renderView(self):
 		#gets optimal view frame based on player
-		mapx, mapy = self.map.get().get_size()
+		mapx, mapy = self.map.getMapSizePx()
 		x, y = self.player.getRect().center
 		w, h = self.display.getWH()
 		viewx, viewy = x+0, y+0
@@ -212,7 +216,11 @@ class GameInterface:
 		view.center = viewx, viewy
 		
 		#blits a subsurface of the map to the display (lowest layer)
-		self.display.get().blit(self.map.get().subsurface(view), (0,0))
+		tilesToDisplay = self.map.getTilesInRect(view)
+		for each in tilesToDisplay:
+			relRect=each.getRect().copy()
+			relRect.center = (w*.5)+(relRect.centerx-viewx), (h*.5)+(relRect.centery-viewy)
+			self.display.get().blit(each.getArt(), relRect)
 		
 		#retrieves all the events that happen to coincide with the view
 		evtsToDisplay = self.eventForeground.getEventsInRect(view)

@@ -1,11 +1,8 @@
 import pygame as pg
 import general as g
+import map
 
-def tileToMap(mapSurface, tileCoordsTo, tileSubsurface, squaresize):
-	toRect = g.tile2rect(tileCoordsTo, squaresize)
-	mapSurface.blit(tileSubsurface, toRect)
-
-def genMap(file_base):
+def parse(file_base):
 	file = file_base + '.map'
 
 	theMap = [line.strip() for line in open(file, 'r').readlines()]
@@ -54,39 +51,18 @@ def genMap(file_base):
 
 		z = int(z[:-1])
 		
-		setup[posOnMap] = Tile(source, posOnTileFile, blocked, z)
+		setup[posOnMap] = map.Tile(source, posOnTileFile, blocked, z, posOnMap)
 
-	img =  pg.Surface((mapSize[0]*g.TILE_RES[0], mapSize[1]*g.TILE_RES[1]))
+	mapSizePx = (mapSize[0]*g.TILE_RES[0], mapSize[1]*g.TILE_RES[1])
+	img =  pg.Surface(mapSizePx)
 
 	for i in range(len(tileFiles)):
 		tileFiles[i] = TileMap(tileFiles[i], g.TILE_RES)
 
 	for pos in setup.keys():
-		tileToMap(img, pos, tileFiles[setup[pos].source()].get(setup[pos].type()), g.TILE_RES)
+		setup[pos].setArt(tileFiles[setup[pos].source()].get(setup[pos].type()))
 
-	return {'img':img, 'tileFile':tileFiles, 'tileSize':g.TILE_RES, 
-			'mapSize':mapSize, 'setup':setup}
-
-
-
-class Tile:
-	def __init__(self, source, posOnTileFile, blocked, z):
-		self.Source = source
-		self.PosOnTileFile = posOnTileFile
-		self.Blocked = blocked
-		self.Z = z
-	
-	def source(self):
-		return self.Source
-
-	def type(self):
-		return self.PosOnTileFile
-	
-	def blocked(self):
-		return self.Blocked
-	
-	def z(self):
-		return self.Z
+	return {'mapSize':mapSize, 'mapSizePx': mapSizePx, 'setup':setup}
 
 	
 class TileMap:
@@ -105,7 +81,7 @@ class TileMap:
 		morey = True
 		while morey:
 			while True:
-				tile = g.tile2rect((x, y), squareSize)
+				tile = g.tile2rect((x, y))
 				if imgRect.contains(tile):
 					tileDict[(x, y)] = self.tileImg.subsurface(tile)
 					x += 1
