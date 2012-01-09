@@ -216,11 +216,13 @@ class GameInterface:
 		view.center = viewx, viewy
 		
 		#blits a subsurface of the map to the display (lowest layer)
-		tilesToDisplay = self.map.getTilesInRect(view)
-		for each in tilesToDisplay:
-			relRect=each.getRect().copy()
-			relRect.center = (w*.5)+(relRect.centerx-viewx), (h*.5)+(relRect.centery-viewy)
-			self.display.get().blit(each.getArt(), relRect)
+		playerOnZ = max(self.player.getZs())
+		self.display.get().blit(self.map.getImageOfAndBelowZ(playerOnZ, view), (0,0))
+		# tilesToDisplay = self.map.getTilesInRect(view)
+		# for each in tilesToDisplay:
+		# 	relRect=each.getRect().copy()
+		# 	relRect.center = (w*.5)+(relRect.centerx-viewx), (h*.5)+(relRect.centery-viewy)
+		# 	self.display.get().blit(each.getArt(), relRect)
 		
 		#retrieves all the events that happen to coincide with the view
 		evtsToDisplay = self.eventForeground.getEventsInRect(view)
@@ -236,6 +238,10 @@ class GameInterface:
 		#blits the player to the screen (second highest layer)
 		self.display.get().blit(self.player.getArt(), relativePlayerRect)
 		
+		mapAbovePlayersZ = self.map.getImageOfAndAboveZ(playerOnZ+1, view) #returns false if player is on map's highest z
+		if mapAbovePlayersZ:
+			self.display.get().blit(mapAbovePlayersZ, (0,0))
+
 		#blits the window to the display over everything else (top layer)
 		self.display.get().blit(self.window, (0,0))
 		

@@ -24,43 +24,47 @@ def parse(file_base):
 		if xy != g.TILE_RES:
 			print "Warning: Tile size inconsistency from tile files"
 			raise KeyboardInterrupt
+	
+	for i in range(len(tileFiles)):
+		tileFiles[i] = TileMap(tileFiles[i], g.TILE_RES)
 
 	line+=1
 
 	mapSize = tuple([int(i) for i in theMap[line].split(":")])
 
 	line+=2
-	
-	setup = {}
-	for each in theMap[line:]:
-		source, temp = each.split("-> ")
-		source = int(source)
 
-		posOnMap, temp = temp.split("/")
+	onward = line
 
-		# construct map position x,y coords
-		posOnMap = tuple([int(i) for i in posOnMap.split(":")])
+	setup={}
+	for line in theMap[onward:]:
+		posOnMap, tiles = line.split("+")
+		posOnMap = posOnMap.split(":")
+		posOnMap = (int(posOnMap[0]), int(posOnMap[1]))
 
-		# tile source position (type)
-		posOnTileFile, temp = temp.split("(")
-		posOnTileFile = tuple([int(i) for i in posOnTileFile.split(":")])
+		tiles = tiles.split("|")
 
-		# blocked = cannot be walked on (1 is blocked)
-		blocked, z = temp.split(")[")
-		blocked = True if blocked == "1" else False
+		setup[posOnMap] = []
+		for each in tiles:
+			source, temp = each.split("->")
+			source = int(source)
 
-		z = int(z[:-1])
+			posOnTileFile, temp = temp.split("(")
+			posOnTileFile = posOnTileFile.split(":")
+			posOnTileFile = (int(posOnTileFile[0]), int(posOnTileFile[1]))
+
+			blocked, zs = temp.split(")[")
+			blocked = True if blocked == "1" else False
+
+			zs=[int(z) for z in zs[:-1].split(",")]
+
+			setup[posOnMap].append(map.Tile(source, posOnTileFile, blocked, zs, posOnMap))
 		
-		setup[posOnMap] = map.Tile(source, posOnTileFile, blocked, z, posOnMap)
+	for pos in setup.keys():
+		for each in setup[pos]:
+			each.setArt(tileFiles[each.source()].get(each.type()))
 
 	mapSizePx = (mapSize[0]*g.TILE_RES[0], mapSize[1]*g.TILE_RES[1])
-	img =  pg.Surface(mapSizePx)
-
-	for i in range(len(tileFiles)):
-		tileFiles[i] = TileMap(tileFiles[i], g.TILE_RES)
-
-	for pos in setup.keys():
-		setup[pos].setArt(tileFiles[setup[pos].source()].get(setup[pos].type()))
 
 	return {'mapSize':mapSize, 'mapSizePx': mapSizePx, 'setup':setup}
 

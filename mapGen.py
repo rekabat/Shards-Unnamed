@@ -16,7 +16,11 @@ file.write(">>> Tile Source [size x:y]\n" + \
 	">>> Setup (Source-> Map col:row/Tile col:row)")
 for i in range(x):
 	for j in range(y):
+		line = "\n"+str(i)+":"+str(j)+"+"
 		if (i==0) or (j==0) or (i == x-1) or (j == y-1):
-			file.write("\n1-> "+str(i)+":"+str(j)+"/"+posborder+"(1)[0]")
+			line+=("1->"+posborder+"(1)")
 		else:
-			file.write("\n0-> "+str(i)+":"+str(j)+"/"+pos+"(0)[0]")
+			line+=("0->"+pos+"(0)")
+		line += "[0]"
+
+		file.write(line)

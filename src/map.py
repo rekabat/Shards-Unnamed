@@ -1,7 +1,6 @@
 import pygame as pg
 from pygame.locals import *
 
-# import worldEvents
 import mapParser
 import general as g
 
@@ -14,8 +13,83 @@ class Map:
 
         self.mapSizeTiles = mapData['mapSize']
         self.mapSizePx = mapData['mapSizePx']
-        self.setup = mapData['setup']
+        self.setup = mapData['setup']   
+        
+        self.zsetup = {} #key is z, return is setup dict for that z. 
+                        #key for setup dict is pos, returns is the tile there (at the given z)
+        for pos in self.setup:
+            for each in self.setup[pos]:
+                drawOnZ = min(each.getZs())
+                if drawOnZ not in self.zsetup.keys():
+                    self.zsetup[drawOnZ] = []
+                self.zsetup[drawOnZ].append(each)
+        maxz = max(self.zsetup.keys())
+        for z in range(maxz+1):
+            if z not in self.zsetup.keys():
+                self.zsetup[z] = []
+        
+
+
+        for pos in self.setup:
+            self.setup[pos] = self.setup[pos][0]
+
+        #a dict whose key is z and the return is the image of this z and all those belowed it layered
+        self.layersOfAndBelow = self.makeLayersOfAndBelow()
+        #a dict whose key is z and the return is the image of this z and all those above it layered 
+        self.layersOfAndAbove = self.makeLayersOfAndAbove()
     
+    def makeLayersOfAndBelow(self):
+        ret = {}
+
+        zimg = pg.Surface(self.mapSizePx, SRCALPHA, 32)
+        zs = self.zsetup.keys()
+        zs.sort()
+        
+        for z in zs:
+            for tile in self.zsetup[z]:
+                zimg.blit(tile.getArt(), tile.getRect())
+            ret[z]=zimg.copy()
+        
+        return ret
+
+    def makeLayersOfAndAbove(self):
+        ret = {}
+
+        zs = self.zsetup.keys()
+        zs.sort()
+        zs = zs[::-1]
+
+        maxz = max(zs)
+        ret[maxz] = pg.Surface(self.mapSizePx, SRCALPHA, 32)
+        for tile in self.zsetup[maxz]:
+            ret[maxz].blit(tile.getArt(), tile.getRect())
+        
+        for z in zs[1:]:
+            ret[z] = pg.Surface(self.mapSizePx, SRCALPHA, 32)
+            for tile in self.zsetup[z]:
+                ret[z].blit(tile.getArt(), tile.getRect())
+            ret[z].blit(ret[z+1], (0,0))
+        
+        return ret
+
+    def getImageOfAndBelowZ(self, z, partial = False):
+        if z not in self.layersOfAndBelow.keys():
+            return False
+        
+        if not partial:
+            return self.layersOfAndBelow[z]
+        else:
+            return self.layersOfAndBelow[z].subsurface(partial)
+    
+    def getImageOfAndAboveZ(self, z, partial = False):
+        if z not in self.layersOfAndAbove.keys():
+            return False
+        
+        if not partial:
+            return self.layersOfAndAbove[z]
+        else:
+            return self.layersOfAndAbove[z].subsurface(partial)
+
     def getMapSizePx(self):
         return self.mapSizePx
     
@@ -71,7 +145,7 @@ class Tile:
     def blocked(self):
         return self.Blocked
     
-    def z(self):
+    def getZs(self):
         return self.Z
     
     def getRect(self):
