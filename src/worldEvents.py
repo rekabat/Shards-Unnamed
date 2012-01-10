@@ -14,7 +14,58 @@ class EventForeground:
 	def __init__(self, file):
 		self.file = file + ".evt"
 		self.eventList = worldEventsParser.parse(self.file, EVENT_IDS)
+
+		self.zsetup = {} #key is z, returns a list of all events on that z.
+		self.zSetup()
 	
+	def zSetup(self):
+		self.zsetup = {}
+		for each in self.eventList:
+			z = each.getZ()
+			if z not in self.zsetup.keys():
+				self.zsetup[z] = []
+			self.zsetup[z].append(each)
+		
+		maxz = max(self.zsetup.keys())
+		for i in range(maxz)[::-1]:
+			if i not in self.zsetup.keys():
+				self.zsetup[i] = []
+		
+		print self.zsetup
+
+	def getEventsOfAndBelow(self, z, partial = False):
+		if z not in self.zsetup.keys():
+			return False
+		else:
+			ret = []
+			for i in range(z+1):
+				ret += self.zsetup[i]
+			if partial:
+				newRet = []
+				for each in ret:
+					if partial.colliderect(each.getRect()):
+						newRet.append(each)
+				return newRet
+			else:
+				return ret
+	
+	def getEventsOfAndAbove(self, z, partial = False):
+		if z not in self.zsetup.keys():
+			return False
+		else:
+			ret = []
+			for i in self.zsetup.keys():
+				if i>=z:
+					ret += self.zsetup[i]
+			if partial:
+				newRet = []
+				for each in ret:
+					if partial.colliderect(each.getRect()):
+						newRet.append(each)
+				return newRet
+			else:
+				return ret
+
 	def unlockedEnterableEventsOn(self, tileList):
 		ret = []
 		for tile in tileList:
@@ -72,13 +123,16 @@ class EventForeground:
 	def remove(self, event):
 		#activate the event beind it
 		if event.behind != None:
-			self.activate(event.behind)
+			#add event to the list
+			self.eventList.append(event.behind)
 		#remove the event
 		self.eventList.remove(event)
+		self.zSetup()
+
+
 	
 	def activate(self, event):
-		#add event to the list
-		self.eventList.append(event)
+		pass
 
 
 class WorldEvent:
@@ -152,6 +206,9 @@ class WorldEvent:
 	
 	def getRect(self):
 		return self.rect
+
+	def getZ(self):
+		return self.z
 	
 	def setDeepest(self, WE):
 		if self.behind is not None:

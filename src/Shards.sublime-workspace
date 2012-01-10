@@ -11,15 +11,103 @@
 			"file": "/C/Users/Troy/Desktop/Game/Shards/Shards-Unnamed/ThingsToDo.txt",
 			"settings":
 			{
-				"buffer_size": 1134,
+				"buffer_size": 1635,
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"file": "/C/Users/Troy/Desktop/Programming/FORTRAN/bs2.f95",
+			"file": "/C/Users/Troy/Desktop/Game/Shards/Shards-Unnamed/run.py",
 			"settings":
 			{
-				"buffer_size": 5643,
+				"buffer_size": 417,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "general.py",
+			"settings":
+			{
+				"buffer_size": 685,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "player.py",
+			"settings":
+			{
+				"buffer_size": 3427,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "gameinterface.py",
+			"settings":
+			{
+				"buffer_size": 7373,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "map.py",
+			"settings":
+			{
+				"buffer_size": 4507,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "worldEvents.py",
+			"settings":
+			{
+				"buffer_size": 7400,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "mapParser.py",
+			"settings":
+			{
+				"buffer_size": 2402,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "display.py",
+			"settings":
+			{
+				"buffer_size": 1161,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "text.py",
+			"settings":
+			{
+				"buffer_size": 1180,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/C/Users/Troy/Desktop/Game/Shards/Shards-Unnamed/maps/mapgen_map.evt",
+			"settings":
+			{
+				"buffer_size": 974,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/C/Users/Troy/Desktop/Game/Shards/Shards-Unnamed/mapGen.py",
+			"settings":
+			{
+				"buffer_size": 626,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/C/Users/Troy/Desktop/Game/Shards/Shards-Unnamed/maps/mapgen_map.map",
+			"settings":
+			{
+				"buffer_size": 16679,
 				"line_ending": "Windows"
 			}
 		}
@@ -48,22 +136,24 @@
 	},
 	"file_history":
 	[
+		"/C/Users/Troy/Desktop/Game/Shards/Shards-Unnamed/maps/mapgen_map.evt",
+		"/C/Users/Troy/Desktop/Game/Shards/Shards-Unnamed/src/worldEventsParser.py",
+		"/C/Users/Troy/Desktop/Game/Shards/Shards-Unnamed/src/mapParser.py",
+		"/C/Users/Troy/Desktop/Game/Shards/Shards-Unnamed/maps/mapgen_map-old.evt",
+		"/C/Users/Troy/Desktop/Game/Shards/Shards-Unnamed/maps/mapgen_map.map",
+		"/C/Users/Troy/Desktop/Game/Shards/Shards-Unnamed/mapGen.py",
+		"/C/Users/Troy/Desktop/Game/Shards/Shards-Unnamed/src/map.py",
+		"/C/Users/Troy/Desktop/Game/Shards/Shards-Unnamed/src/text.py",
+		"/C/Users/Troy/Desktop/Programming/FORTRAN/bs2.f95",
 		"/C/Users/Troy/AppData/Roaming/Sublime Text 2/Packages/Fortran/Fortran.tmLanguage",
 		"/C/Users/Troy/AppData/Roaming/Sublime Text 2/Packages/Python/if.sublime-snippet",
-		"/C/Users/Troy/Desktop/Programming/FORTRAN/bs2.f95",
 		"/C/Users/Troy/Desktop/Game/Shards/Shards-Unnamed/run.py",
 		"/C/Users/Troy/Desktop/Game/Shards/Shards-Unnamed/src/gameinterface.py",
 		"/C/Users/Troy/Desktop/Game/Shards/Shards-Unnamed/src/player.py",
 		"/C/Users/Troy/Desktop/Game/Shards/Shards-Unnamed/src/worldEvents.py",
-		"/C/Users/Troy/Desktop/Game/Shards/Shards-Unnamed/src/text.py",
-		"/C/Users/Troy/Desktop/Game/Shards/Shards-Unnamed/src/worldEventsParser.py",
 		"/C/Users/Troy/Desktop/Game/Shards/Shards-Unnamed/src/cursor.py",
 		"/C/Users/Troy/Desktop/Game/Shards/Shards-Unnamed/src/display.py",
-		"/C/Users/Troy/Desktop/Game/Shards/Shards-Unnamed/mapGen.py",
-		"/C/Users/Troy/Desktop/Game/Shards/Shards-Unnamed/maps/mapgen_map.map",
-		"/C/Users/Troy/Desktop/Game/Shards/Shards-Unnamed/maps/mapgen_map.evt",
 		"/C/Users/Troy/Desktop/Game/Shards/Shards-Unnamed/mainmenu.py",
-		"/C/Users/Troy/Desktop/Game/Shards/Shards-Unnamed/src/mapParser.py",
 		"/C/Users/Troy/Desktop/Game/Shards/Shards-Unnamed/art/brick.png"
 	],
 	"find":
@@ -72,9 +162,10 @@
 	},
 	"find_in_files":
 	{
-		"height": 0.0,
+		"height": 88.0,
 		"where_history":
 		[
+			""
 		]
 	},
 	"find_state":
@@ -82,6 +173,20 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"text",
+			"pygame",
+			"tile",
+			"map",
+			"tile2rec",
+			"tile2rect",
+			"map.get",
+			"tiletomap",
+			"q",
+			"print",
+			"PX_STEP",
+			"TILE_RES",
+			"tileRect",
+			"TILE_RES",
 			"95",
 			"pressEnterDisplayed"
 		],
@@ -91,6 +196,11 @@
 		"regex": false,
 		"replace_history":
 		[
+			"pg",
+			"g.PX_STEP",
+			"g.TILE_RES",
+			"g.tile2rect",
+			"g.TILE_RES",
 			"outlinedEvents"
 		],
 		"reverse": false,
@@ -102,7 +212,7 @@
 	"groups":
 	[
 		{
-			"selected": 1,
+			"selected": 12,
 			"sheets":
 			[
 				{
@@ -110,15 +220,15 @@
 					"file": "/C/Users/Troy/Desktop/Game/Shards/Shards-Unnamed/ThingsToDo.txt",
 					"settings":
 					{
-						"buffer_size": 1134,
+						"buffer_size": 1635,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1134,
-								1134
+								694,
+								694
 							]
 						],
 						"settings":
@@ -133,27 +243,321 @@
 				},
 				{
 					"buffer": 1,
-					"file": "/C/Users/Troy/Desktop/Programming/FORTRAN/bs2.f95",
+					"file": "/C/Users/Troy/Desktop/Game/Shards/Shards-Unnamed/run.py",
 					"settings":
 					{
-						"buffer_size": 5643,
+						"buffer_size": 417,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								531,
-								531
+								292,
+								292
 							]
 						],
 						"settings":
 						{
-							"syntax": "Packages/Fortran/Fortran.tmLanguage",
+							"syntax": "Packages/Python/Python.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "general.py",
+					"settings":
+					{
+						"buffer_size": 685,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								112,
+								112
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "player.py",
+					"settings":
+					{
+						"buffer_size": 3427,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1258,
+								1258
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 1056.0,
+						"translation.y": 384.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "gameinterface.py",
+					"settings":
+					{
+						"buffer_size": 7373,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								5935,
+								5935
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 3256.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "map.py",
+					"settings":
+					{
+						"buffer_size": 4507,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2235,
+								2235
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 672.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 6,
+					"file": "worldEvents.py",
+					"settings":
+					{
+						"buffer_size": 7400,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								790,
+								790
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 104.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 7,
+					"file": "mapParser.py",
+					"settings":
+					{
+						"buffer_size": 2402,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1431,
+								1431
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 672.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 8,
+					"file": "display.py",
+					"settings":
+					{
+						"buffer_size": 1161,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								634,
+								634
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 9,
+					"file": "text.py",
+					"settings":
+					{
+						"buffer_size": 1180,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								804,
+								804
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 10,
+					"file": "/C/Users/Troy/Desktop/Game/Shards/Shards-Unnamed/maps/mapgen_map.evt",
+					"settings":
+					{
+						"buffer_size": 974,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								600,
+								600
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 11,
+					"file": "/C/Users/Troy/Desktop/Game/Shards/Shards-Unnamed/mapGen.py",
+					"settings":
+					{
+						"buffer_size": 626,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								11,
+								11
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 12,
+					"file": "/C/Users/Troy/Desktop/Game/Shards/Shards-Unnamed/maps/mapgen_map.map",
+					"settings":
+					{
+						"buffer_size": 16679,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								15595,
+								15579
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 14172.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
@@ -167,7 +571,7 @@
 	},
 	"input":
 	{
-		"height": 0.0
+		"height": 29.0
 	},
 	"layout":
 	{

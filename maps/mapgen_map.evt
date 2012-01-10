@@ -1,8 +1,8 @@
 EVENT_ID: dialog
 ART: 'art/items1.png'
 ART_TILE: '3:0'
-ON: 11:13
-Z: 0
+ON: 28:1
+Z: 1
 BLOCKED: 1
 ENTER: 1
 ONE_TIME: 0

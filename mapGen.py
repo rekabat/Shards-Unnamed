@@ -1,5 +1,5 @@
-x=30
-y=30
+x=100
+y=100
 
 floortilefile = 'art/floors.png'
 pos = "3:0"

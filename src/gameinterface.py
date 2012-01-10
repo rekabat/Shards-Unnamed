@@ -225,7 +225,7 @@ class GameInterface:
 		# 	self.display.get().blit(each.getArt(), relRect)
 		
 		#retrieves all the events that happen to coincide with the view
-		evtsToDisplay = self.eventForeground.getEventsInRect(view)
+		evtsToDisplay = self.eventForeground.getEventsOfAndBelow(playerOnZ, view)
 		#it goes through each and finds their relative position on the display based on their relative position to the map
 		for each in evtsToDisplay:
 			relRect=each.getRect().copy()
@@ -241,6 +241,15 @@ class GameInterface:
 		mapAbovePlayersZ = self.map.getImageOfAndAboveZ(playerOnZ+1, view) #returns false if player is on map's highest z
 		if mapAbovePlayersZ:
 			self.display.get().blit(mapAbovePlayersZ, (0,0))
+		
+		#retrieves all the events that happen to coincide with the view
+		evtsToDisplay = self.eventForeground.getEventsOfAndAbove(playerOnZ+1, view)
+		#it goes through each and finds their relative position on the display based on their relative position to the map
+		if evtsToDisplay:
+			for each in evtsToDisplay:
+				relRect=each.getRect().copy()
+				relRect.center = (w*.5)+(relRect.centerx-viewx), (h*.5)+(relRect.centery-viewy)
+				self.display.get().blit(each.getArt(), relRect)
 
 		#blits the window to the display over everything else (top layer)
 		self.display.get().blit(self.window, (0,0))
