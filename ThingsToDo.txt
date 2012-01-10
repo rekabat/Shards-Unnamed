@@ -8,6 +8,7 @@ Things to change:
 
 Known bugs:
  - It's possible to step onto an event that chains to another event that appears partly under you. If this new event is blocked, you can't move. Maybe not a problem, you just shouldn't be able to make chains that make blocked events under or around the previous event (since even if it's not under you it could be under one of your 4 corners).
+ - all the map below the player gets drawn, then all the events, then the player, then all the map above the player, then all the events above the player. This means that if player is on 2, an event is on 3, but z 4 map is supposed to be above it, the z3 event will be drawn on top of the z4 maptile. But that's a pretty complex map...
 
 Things to consider:
  - There can't be pathways over ground you can walk on since the map is flat. -ADDRESSING WITH "Z"

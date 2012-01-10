@@ -13,7 +13,7 @@ class Map:
 
         self.mapSizeTiles = mapData['mapSize']
         self.mapSizePx = mapData['mapSizePx']
-        self.setup = mapData['setup']   
+        self.setup = mapData['setup']
         
         self.zsetup = {} #key is z, return is setup dict for that z. 
                         #key for setup dict is pos, returns is the tile there (at the given z)
@@ -99,11 +99,12 @@ class Map:
         else:
             return self.setup[coords]
     
-    def blocked(self, rect):#coords, pixel=True): #false means tile
-        return self.setup[g.pix2tile(rect.topleft)    ].blocked() or \
-               self.setup[g.pix2tile(rect.topright)   ].blocked() or \
-               self.setup[g.pix2tile(rect.bottomleft) ].blocked() or \
-               self.setup[g.pix2tile(rect.bottomright)].blocked()
+    def blocked(self, rect, zlist):#coords, pixel=True): #false means tile
+        # for each in zlist
+        return self.setup[g.pix2tile(rect.topleft)    ].blocked(zlist) or \
+               self.setup[g.pix2tile(rect.topright)   ].blocked(zlist) or \
+               self.setup[g.pix2tile(rect.bottomleft) ].blocked(zlist) or \
+               self.setup[g.pix2tile(rect.bottomright)].blocked(zlist)
     
     def getTilesInRect(self, rect):
         tl = g.pix2tile(rect.topleft)
@@ -127,7 +128,7 @@ class Tile:
         self.PosOnTileFile = posOnTileFile
         self.art = None
         self.Blocked = blocked
-        self.Z = z
+        self.Z = z #list
         self.rect = g.tile2rect(pos)
     
     def source(self):
@@ -142,8 +143,11 @@ class Tile:
     def getArt(self):
         return self.art
 
-    def blocked(self):
-        return self.Blocked
+    def blocked(self, zlist):
+        for each in self.getZs():
+            if each in zlist:
+                return self.Blocked
+        return False
     
     def getZs(self):
         return self.Z

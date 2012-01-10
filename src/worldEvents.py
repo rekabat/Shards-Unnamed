@@ -13,111 +13,51 @@ def tileRect((x, y), squareSize):
 class EventForeground:
 	def __init__(self, file):
 		self.file = file + ".evt"
-		self.eventList = worldEventsParser.parse(self.file, EVENT_IDS)
-
-		self.zsetup = {} #key is z, returns a list of all events on that z.
-		self.zSetup()
-	
-	def zSetup(self):
-		self.zsetup = {}
-		for each in self.eventList:
-			z = each.getZ()
-			if z not in self.zsetup.keys():
-				self.zsetup[z] = []
-			self.zsetup[z].append(each)
-		
-		maxz = max(self.zsetup.keys())
-		for i in range(maxz)[::-1]:
-			if i not in self.zsetup.keys():
-				self.zsetup[i] = []
-		
-		print self.zsetup
+		self.eventList = worldEventsParser.parse(self.file, EVENT_
 
 	def getEventsOfAndBelow(self, z, partial = False):
-		if z not in self.zsetup.keys():
-			return False
-		else:
-			ret = []
-			for i in range(z+1):
-				ret += self.zsetup[i]
-			if partial:
-				newRet = []
-				for each in ret:
-					if partial.colliderect(each.getRect()):
-						newRet.append(each)
-				return newRet
-			else:
-				return ret
+		ret=[]
+		for each in self.eventList:
+			if each.getZ() <= z:
+				ret.append(each)
+		return ret
 	
 	def getEventsOfAndAbove(self, z, partial = False):
-		if z not in self.zsetup.keys():
-			return False
-		else:
-			ret = []
-			for i in self.zsetup.keys():
-				if i>=z:
-					ret += self.zsetup[i]
-			if partial:
-				newRet = []
-				for each in ret:
-					if partial.colliderect(each.getRect()):
-						newRet.append(each)
-				return newRet
-			else:
-				return ret
-
-	def unlockedEnterableEventsOn(self, tileList):
-		ret = []
-		for tile in tileList:
-			for each in self.eventList:
-				if each.enter and (not each.locked) and each.getRect().colliderect(tile.getRect()):
-					ret.append(each)
-		return ret
-
-	def unlockedEnterableBlockedEventsOn(self, tileList):
-		ret = []
-		for tile in tileList:
-			for each in self.eventList:
-				if each.enter and (not each.locked) and (each.blocked) and each.getRect().colliderect(tile.getRect()):
-					ret.append(each)
-		return ret
-	
-	def unlockedNotEnterableEventsOn(self, tileList):
-		ret = []
-		for tile in tileList:
-			for each in self.eventList:
-				if (not each.enter) and (not each.locked) and each.getRect().colliderect(tile.getRect()):
-					ret.append(each)
-		return ret
-
-	def onAndGetEvents(self, rect):
+		ret=[]
 		for each in self.eventList:
-			if each.rect.collidepoint(rect.center):
-				return each
-		return False
-	
-	def nearAndGetBlockedEvents(self, rect):
-		#actually... same as blocked, just pass it the full sized rectangle instead of the shrunken one
-		pass
-	def getBlockedEvents(self, rect):
-		ret = []
-		for each in self.eventList:
-			if each.rect.colliderect(rect) and each.blocked:
-				ret.append(each)
-		return ret
-	
-	def getEventsInRect(self, rect):
-		ret = []
-		for each in self.eventList:
-			if each.rect.colliderect(rect):
+			if each.getZ() >= z:
 				ret.append(each)
 		return ret
 
+	def unlockedEnterableEventsOn(self, tileList, zlist):
+		ret = []
+		for tile in tileList:
+			for each in self.eventList:
+				if each.enter and (not each.locked) and (each.z in zlist) and each.getRect().colliderect(tile.getRect()):
+					ret.append(each)
+		return ret
+
+	def unlockedEnterableBlockedEventsOn(self, tileList, zlist):
+		ret = []
+		for tile in tileList:
+			for each in self.eventList:
+				if each.enter and (not each.locked) and (each.blocked) and (each.z in zlist) and each.getRect().colliderect(tile.getRect()):
+					ret.append(each)
+		return ret
 	
-	def blocked(self, rect):
+	def unlockedNotEnterableEventsOn(self, tileList, zlist):
+		ret = []
+		for tile in tileList:
+			for each in self.eventList:
+				if (not each.enter) and (not each.locked) and (each.z in zlist) and each.getRect().colliderect(tile.getRect()):
+					ret.append(each)
+		return ret
+	
+	def blocked(self, rect, zlist):
 		for each in self.eventList:
-			if each.rect.colliderect(rect) and each.blocked:
-				return True
+			if each.getZ() in zlist:
+				if each.rect.colliderect(rect) and each.blocked:
+					return True
 		return False
 	
 	def remove(self, event):
@@ -127,7 +67,6 @@ class EventForeground:
 			self.eventList.append(event.behind)
 		#remove the event
 		self.eventList.remove(event)
-		self.zSetup()
 
 
 	

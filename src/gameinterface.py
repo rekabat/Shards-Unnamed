@@ -19,7 +19,7 @@ class GameInterface:
 		self.window = None
 		self.clearWindow()
 		self.cursr = cursor.Cursor()
-		self.view = None
+		self.view = None #primarily used to determine if player is on top or bottom half of the screen for events
 
 
 		self.state = state
@@ -53,7 +53,7 @@ class GameInterface:
 	def createWorld(self, mapfile):
 		self.map = map.Map(mapfile)
 		self.eventForeground = worldEvents.EventForeground(mapfile)
-		self.player = player.Player((12, 10), [0])
+		self.player = player.Player((12, 10), [0,1])
 
 	
 	def dispatch(self, events):
@@ -110,8 +110,8 @@ class GameInterface:
 				smallerRect=pg.Rect((0,0),(playerNewRect.width*.87, playerNewRect.height*.87))
 				smallerRect.center = playerNewRect.center
 				cantMove = \
-					self.map.blocked(smallerRect) or \
-					self.eventForeground.blocked(smallerRect)
+					self.map.blocked(smallerRect, self.player.getZs()) or \
+					self.eventForeground.blocked(smallerRect, self.player.getZs())
 				
 				# If the movement is valid, move the player there
 				if not cantMove:
@@ -123,9 +123,9 @@ class GameInterface:
 
 					tileList = [self.map.getTile(tilePlayerOn, False), self.map.getTile(tileInFrontOfPlayer, False)]
 
-					mustActivate = self.eventForeground.unlockedNotEnterableEventsOn(tileList[0:1])
-					activateIfEnterOnTopOf = self.eventForeground.unlockedEnterableEventsOn(tileList[0:1])
-					activateIfEnterInFrontOf = self.eventForeground.unlockedEnterableBlockedEventsOn(tileList[1:2])
+					mustActivate = self.eventForeground.unlockedNotEnterableEventsOn(tileList[0:1], self.player.getZs())
+					activateIfEnterOnTopOf = self.eventForeground.unlockedEnterableEventsOn(tileList[0:1], self.player.getZs())
+					activateIfEnterInFrontOf = self.eventForeground.unlockedEnterableBlockedEventsOn(tileList[1:2], self.player.getZs())
 
 					#this loop triggers a chain of events that are stood on
 					if len(mustActivate)>0:
@@ -159,11 +159,12 @@ class GameInterface:
 				#remove the press enter dialog
 				self.flipOutlines(self.outlinedEvents)
 				self.renderView()
-				#execute the event
+				#execute the event while in the "WE" state
 				self.state = "WE"
 				evt.execute(self)
-				self.state = "play"
+				#remove the event and return to the "play" state
 				self.eventForeground.remove(evt)
+				self.state = "play"
 				#release player from any movements
 				self.player.forgetMovement()
 				#so that if it's now standing on event, that event will be activated
@@ -172,14 +173,6 @@ class GameInterface:
 			
 			if len(mv) > 0:
 				movePlayer(mv)
-			
-
-			# WE = self.player.move(mv)
-
-			# if WE is not None:
-			#     for each in WE:
-			#         each.execute(self)
-			#         self.player.place(self.player.rect, True)
 
 		elif self.state == "pause":
 			pass
@@ -190,8 +183,8 @@ class GameInterface:
 		#it returns all events that are not executed in the general state
 		return events
 	
-	def playerOnTopHalf(self):
-		if self.view.centery+5 < self.player.getRect().centery:
+	def playerOnTopHalf(self): #with a slight tolerance
+		if self.view.centery+5 < self.player.getRect().centery: 
 			return False
 		else:
 			return True
@@ -215,28 +208,30 @@ class GameInterface:
 		view = pg.Rect((0, 0), (w, h))
 		view.center = viewx, viewy
 		
+		# #if recta and b are defined relative to rectc, get a relative to b
+		# def getRelRect(recta, rectb):
+		# 	relRect = recta.copy()
+		# 	relRect.center = (w*.5)+(relRect.centerx-rectb.centerx), (h*.5)+(relRect.centery-rectb.centery)
+		# 	return relRect
+		
+		#get rect relactive to view assuming it's also relative to map (like view is) and blit it to the screen with the art
+		def blitRelRect(rect, art):
+			relRect = rect.copy()
+			relRect.center = (w*.5)+(relRect.centerx-viewx), (h*.5)+(relRect.centery-viewy)
+			self.display.get().blit(art, relRect)
+
 		#blits a subsurface of the map to the display (lowest layer)
 		playerOnZ = max(self.player.getZs())
 		self.display.get().blit(self.map.getImageOfAndBelowZ(playerOnZ, view), (0,0))
-		# tilesToDisplay = self.map.getTilesInRect(view)
-		# for each in tilesToDisplay:
-		# 	relRect=each.getRect().copy()
-		# 	relRect.center = (w*.5)+(relRect.centerx-viewx), (h*.5)+(relRect.centery-viewy)
-		# 	self.display.get().blit(each.getArt(), relRect)
 		
 		#retrieves all the events that happen to coincide with the view
 		evtsToDisplay = self.eventForeground.getEventsOfAndBelow(playerOnZ, view)
-		#it goes through each and finds their relative position on the display based on their relative position to the map
-		for each in evtsToDisplay:
-			relRect=each.getRect().copy()
-			relRect.center = (w*.5)+(relRect.centerx-viewx), (h*.5)+(relRect.centery-viewy)
-			self.display.get().blit(each.getArt(), relRect)
+		if evtsToDisplay:
+			# print "below", evtsToDisplay
+			for each in evtsToDisplay:
+				blitRelRect(each.getRect(), each.getArt())
 		
-		#gets a rect for player relative to the display screen as opposed to the map
-		relativePlayerRect = pg.Rect((0,0),g.TILE_RES)
-		relativePlayerRect.center = (w*.5)+(x-viewx), (h*.5)+(y-viewy)
-		#blits the player to the screen (second highest layer)
-		self.display.get().blit(self.player.getArt(), relativePlayerRect)
+		blitRelRect(self.player.getRect(), self.player.getArt())
 		
 		mapAbovePlayersZ = self.map.getImageOfAndAboveZ(playerOnZ+1, view) #returns false if player is on map's highest z
 		if mapAbovePlayersZ:
@@ -244,12 +239,10 @@ class GameInterface:
 		
 		#retrieves all the events that happen to coincide with the view
 		evtsToDisplay = self.eventForeground.getEventsOfAndAbove(playerOnZ+1, view)
-		#it goes through each and finds their relative position on the display based on their relative position to the map
 		if evtsToDisplay:
+			# print "above", evtsToDisplay
 			for each in evtsToDisplay:
-				relRect=each.getRect().copy()
-				relRect.center = (w*.5)+(relRect.centerx-viewx), (h*.5)+(relRect.centery-viewy)
-				self.display.get().blit(each.getArt(), relRect)
+				blitRelRect(each.getRect(), each.getArt())
 
 		#blits the window to the display over everything else (top layer)
 		self.display.get().blit(self.window, (0,0))
