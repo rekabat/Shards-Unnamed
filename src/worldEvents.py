@@ -13,7 +13,7 @@ def tileRect((x, y), squareSize):
 class EventForeground:
 	def __init__(self, file):
 		self.file = file + ".evt"
-		self.eventList = worldEventsParser.parse(self.file, EVENT_
+		self.eventList = worldEventsParser.parse(self.file, EVENT_IDS)
 
 	def getEventsOfAndBelow(self, z, partial = False):
 		ret=[]
@@ -148,6 +148,9 @@ class WorldEvent:
 
 	def getZ(self):
 		return self.z
+	
+	def getOneTime(self):
+		return self.one_time
 	
 	def setDeepest(self, WE):
 		if self.behind is not None:

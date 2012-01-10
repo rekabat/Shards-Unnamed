@@ -2,9 +2,8 @@ Things to add (near future):
  - Event linking (not added) and un/locked states (added). So world events can be present but not active until another event is activated.
 
 Things to change:
- - Make map->events->player be blitted to screen based on z. (eg. map[0]->events[0]->player[0]->map[1]). This way map elements can be over player. This means checking for "blocked" around the player will require checking on his own z level. Also, it's important to note player's z is a list, so that while transitioning from say 1 to 2, he is both 1 and 2, but as soon as he's on a tile that's purely 1 or 2 he changes to that. (i guess this means tiles can have lists of zs... that needs changing - CHANGED)
- - Don't remove events if one_time is false.
- - Make tiles just floating rects that collide with the view to be printed (in ascending z order)
+ - While player is transitioning from say z 1 to 2, he is both 1 and 2, but as soon as he's on a tile that's purely 1 or 2 he changes to that.
+ - PROBABLY NOT GOING TO DO THIS, NEW SYSTEM SEEMS GOOD. Make tiles just floating rects that collide with the view to be printed (in ascending z order)
 
 Known bugs:
  - It's possible to step onto an event that chains to another event that appears partly under you. If this new event is blocked, you can't move. Maybe not a problem, you just shouldn't be able to make chains that make blocked events under or around the previous event (since even if it's not under you it could be under one of your 4 corners).

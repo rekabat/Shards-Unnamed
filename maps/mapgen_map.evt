@@ -5,7 +5,7 @@ ON: 28:1
 Z: 1
 BLOCKED: 1
 ENTER: 1
-ONE_TIME: 0
+ONE_TIME: 1
 LOCKED: 0
 > Dialog
 Clothing:] I am a tunic.
@@ -19,7 +19,7 @@ ON: 11:14
 Z: 0
 BLOCKED: 0
 ENTER: 1
-ONE_TIME: 0
+ONE_TIME: 1
 LOCKED: 0
 > Dialog
 Das Boot:] Boot, I say.
@@ -33,7 +33,7 @@ ON: 11:15
 Z: 0
 BLOCKED: 0
 ENTER: 0
-ONE_TIME: 0
+ONE_TIME: 1
 LOCKED: 0
 > Dialog
 %PLAYER:] Hey potion, I be illin'.

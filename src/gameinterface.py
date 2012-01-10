@@ -131,8 +131,9 @@ class GameInterface:
 					if len(mustActivate)>0:
 						self.state = "WE"
 						mustActivate[0].execute(self)
+						if mustActivate[0].getOneTime():
+							self.eventForeground.remove(mustActivate[0])
 						self.state = "play"
-						self.eventForeground.remove(mustActivate[0])
 						#release player from any movements
 						self.player.forgetMovement()
 						#move the player UD to stay on the same spot and trigger any other events
@@ -155,15 +156,17 @@ class GameInterface:
 			
 			#enter overrides movements and triggers events
 			if len(self.outlinedEvents)>0 and enterPressed:
-				evt = self.outlinedEvents.pop()
-				#remove the press enter dialog
-				self.flipOutlines(self.outlinedEvents)
-				self.renderView()
+				evt = self.outlinedEvents[0]
 				#execute the event while in the "WE" state
 				self.state = "WE"
 				evt.execute(self)
-				#remove the event and return to the "play" state
-				self.eventForeground.remove(evt)
+				
+				if evt.getOneTime():
+					#remove the event and return to the "play" state
+					self.eventForeground.remove(evt)
+					#remove the red outline
+					self.outlinedEvents.remove(evt)
+					self.flipOutlines(self.outlinedEvents)
 				self.state = "play"
 				#release player from any movements
 				self.player.forgetMovement()
