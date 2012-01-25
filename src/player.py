@@ -31,6 +31,8 @@ class Player:
 		self.facing = "U"
 
 		self.name = "Bartholomew"
+
+		self.stats = {'lvl': 0, 'hp': 10, 'def': 1, 'mag': 1, 'atk': 1}
 	
 	def getRect(self):
 		return self.rect
@@ -60,8 +62,9 @@ class Player:
 		
 		return newRect
 	
-	def move(self, rectTo):
+	def move(self, rectTo, zs):
 		self.rect = rectTo
+		self.zs = zs
 	
 	def forgetMovement(self):
 		self.udlr = [False, False, False, False]

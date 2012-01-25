@@ -15,8 +15,7 @@ class Map:
         self.mapSizePx = mapData['mapSizePx']
         self.setup = mapData['setup']
         
-        self.zsetup = {} #key is z, return is setup dict for that z. 
-                        #key for setup dict is pos, returns is the tile there (at the given z)
+        self.zsetup = {} #key is z, return is a list of tiles on that z level
         for pos in self.setup:
             for each in self.setup[pos]:
                 drawOnZ = min(each.getZs())
@@ -28,6 +27,18 @@ class Map:
             if z not in self.zsetup.keys():
                 self.zsetup[z] = []
         
+        self.zsetup2 = {} #key is z, return is setup dict for that z. 
+                        #key for setup dict is pos, returns is the tile there (at the given z)
+        for pos in self.setup:
+            for each in self.setup[pos]:
+                for drawOnZ in each.getZs():
+                    if drawOnZ not in self.zsetup2.keys():
+                        self.zsetup2[drawOnZ] = {}
+                    self.zsetup2[drawOnZ][pos] = each
+        maxz = max(self.zsetup2.keys())
+        for z in range(maxz+1):
+            if z not in self.zsetup2.keys():
+                self.zsetup2[z] = {}
 
 
         for pos in self.setup:
@@ -93,19 +104,50 @@ class Map:
     def getMapSizePx(self):
         return self.mapSizePx
     
-    def getTile(self, coords, pixel=True): #false means tile
+    def getTile(self, coords, z, pixel=True): #false means tile
         if pixel:
-            return self.setup[g.pix2tile(coords)]
+            coords = g.pix2tile(coords)
+        # print coords
+        if coords in self.zsetup2[z].keys():
+            return self.zsetup2[z][coords]
         else:
-            return self.setup[coords]
+            return False
     
     def blocked(self, rect, zlist):#coords, pixel=True): #false means tile
-        # for each in zlist
-        return self.setup[g.pix2tile(rect.topleft)    ].blocked(zlist) or \
-               self.setup[g.pix2tile(rect.topright)   ].blocked(zlist) or \
-               self.setup[g.pix2tile(rect.bottomleft) ].blocked(zlist) or \
-               self.setup[g.pix2tile(rect.bottomright)].blocked(zlist)
+        corners = (g.pix2tile(rect.topleft), \
+            g.pix2tile(rect.topright), \
+            g.pix2tile(rect.bottomleft), \
+            g.pix2tile(rect.bottomright) )
+        ret = True
+        for z in zlist:
+            blockedAtThisZ = False
+            for corner in corners:
+                try: #if a tile exists at this z and IS blocked, return true
+                    bl = self.zsetup2[z][corner].blocked()
+                    blockedAtThisZ = blockedAtThisZ or bl
+                except: #if a tile doesn't exist at this z, return true (it is blocked here)
+                    blockedAtThisZ = True
+                if blockedAtThisZ:
+                    break
+            ret = ret and blockedAtThisZ
+        return ret
+
+        # return self.setup[g.pix2tile(rect.topleft)    ].blocked(zlist) or \
+        #        self.setup[g.pix2tile(rect.topright)   ].blocked(zlist) or \
+        #        self.setup[g.pix2tile(rect.bottomleft) ].blocked(zlist) or \
+        #        self.setup[g.pix2tile(rect.bottomright)].blocked(zlist)
     
+    def tileExists(self,rect,zlist):
+        corners = (g.pix2tile(rect.topleft), \
+            g.pix2tile(rect.topright), \
+            g.pix2tile(rect.bottomleft), \
+            g.pix2tile(rect.bottomright) )
+        for z in zlist:
+            for corner in corners:
+                if corner not in self.zsetup2[z].keys():
+                    return False
+        return True
+
     def getTilesInRect(self, rect):
         tl = g.pix2tile(rect.topleft)
         br = g.pix2tile(rect.bottomright)
@@ -143,11 +185,8 @@ class Tile:
     def getArt(self):
         return self.art
 
-    def blocked(self, zlist):
-        for each in self.getZs():
-            if each in zlist:
-                return self.Blocked
-        return False
+    def blocked(self):
+        return self.Blocked
     
     def getZs(self):
         return self.Z

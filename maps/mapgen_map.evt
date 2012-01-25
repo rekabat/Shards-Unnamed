@@ -1,8 +1,8 @@
 EVENT_ID: dialog
 ART: 'art/items1.png'
 ART_TILE: '3:0'
-ON: 28:1
-Z: 1
+ON: 28:4
+Z: 0
 BLOCKED: 1
 ENTER: 1
 ONE_TIME: 1
@@ -53,5 +53,19 @@ LOCKED: 0
 %PLAYER:] Hey it's you again!
 Slightly Evil-er Potion:] Nope, I'm the slightly evil-er twin.
 %PLAYER:] That explains the goatee.
+}}}
+>>>
+EVENT_ID: teleport
+ART: 'art/items1.png'
+ART_TILE: '1:1'
+ON: 13:19
+Z: 0
+BLOCKED: 0
+ENTER: 0
+ONE_TIME: 0
+LOCKED: 0
+> Teleport
+2:1
+0
 }}}
 >>>

@@ -8,28 +8,42 @@ import worldEvents
 import text
 import cursor
 
+import pauseMenu as pm
+
 import general as g
 
 class GameInterface:
 	def __init__(self, state="main-menu"):
 		self.display = display.Display()
+		self.cursr = cursor.Cursor()
+
+
+		self.state = state
+		##########
+		# stuff for "main-menu"
+		##########
+			#
+		
+		##########
+		# Stuff for "play"
+		##########
 		self.map = None
 		self.eventForeground = None
 		self.player = None
 		self.window = None
 		self.clearWindow()
-		self.cursr = cursor.Cursor()
+
+		self.outlinedEvents = []
+
+		self.createWorld('maps/mapgen_map')
+		self.renderView()
+
 		self.view = None #primarily used to determine if player is on top or bottom half of the screen for events
-
-
-		self.state = state
-		if state == "main-menu":
-			print "Not quite there yet"
-		elif state == "play":
-			self.outlinedEvents = []
-
-			self.createWorld('maps/mapgen_map')
-			self.renderView()
+		
+		##########
+		# Stuff for "pause"
+		##########
+		self.pmenu = pm.PMenu(self.display.getWH())
 			
 			
 	
@@ -48,13 +62,10 @@ class GameInterface:
 			each.switchArt()
 			self.outlinedEvents.remove(each)
 		
-
-
 	def createWorld(self, mapfile):
 		self.map = map.Map(mapfile)
 		self.eventForeground = worldEvents.EventForeground(mapfile)
-		self.player = player.Player((12, 10), [0,1])
-
+		self.player = player.Player((12, 10), [0])
 	
 	def dispatch(self, events):
 		#some things are handled the same way in all states:
@@ -81,11 +92,22 @@ class GameInterface:
 						self.player.movingDirection("L")
 					if key == pg.K_d:
 						self.player.movingDirection("R")
+					
 					if key == pg.K_RETURN:
 						enterPressed = True
+					
 					if key == pg.K_t:
 						self.display.toggleFull()
 						self.cursr.flipVisible()
+					
+					if key == pg.K_ESCAPE:
+						self.state = "pause"
+						#release player from any movements
+						self.player.forgetMovement()
+
+						#launches the menu into its last opened state (or player state if this is the first time opening it)
+						self.pmenu.changeState(self.pmenu.getState())
+						return
 				
 				elif event.type == pg.KEYUP:
 					key = event.dict['key']
@@ -106,43 +128,76 @@ class GameInterface:
 				playerNewRect = self.player.ifMoved(mv)
 
 				# Check if the movement is valid by making a smaller rectangle and seeing
-				# if any of the corners are on a blocked map tile or WE tile
 				smallerRect=pg.Rect((0,0),(playerNewRect.width*.87, playerNewRect.height*.87))
 				smallerRect.center = playerNewRect.center
+				# if any of the corners are on a blocked map tile or WE tile
 				cantMove = \
 					self.map.blocked(smallerRect, self.player.getZs()) or \
 					self.eventForeground.blocked(smallerRect, self.player.getZs())
 				
+
+				
 				# If the movement is valid, move the player there
 				if not cantMove:
 					mv = ""
-					self.player.move(playerNewRect)
+					playerZs = self.player.getZs()
+					playerZs.sort()
+					playerZs.reverse()
+
+					#try to to get a tile from the highest z the player is on, if nothing work your way down to lower zs the player's on
+					for z in playerZs:
+						atile = self.map.getTile(self.player.getRect().center, z)
+						if atile:
+							self.player.move(playerNewRect, atile.getZs())
+							break
 					
+					playerZs = self.player.getZs()
+
 					tilePlayerOn = self.player.getTileOn()
+					# for z in playerZs:
+					#   atile = self.map.getTile(tilePlayerOn, z, False)
+					#   if atile:
+					#       tilePlayerOn = atile
+					#       break
+					tilePlayerOn = self.map.getTile(tilePlayerOn, max(playerZs), False)
+
 					tileInFrontOfPlayer = self.player.getTileInFrontOf()
-
-					tileList = [self.map.getTile(tilePlayerOn, False), self.map.getTile(tileInFrontOfPlayer, False)]
-
-					mustActivate = self.eventForeground.unlockedNotEnterableEventsOn(tileList[0:1], self.player.getZs())
-					activateIfEnterOnTopOf = self.eventForeground.unlockedEnterableEventsOn(tileList[0:1], self.player.getZs())
-					activateIfEnterInFrontOf = self.eventForeground.unlockedEnterableBlockedEventsOn(tileList[1:2], self.player.getZs())
-
+					for z in playerZs:
+						atile = self.map.getTile(tileInFrontOfPlayer, z, False)
+						if atile:
+							tileInFrontOfPlayer = atile
+							break
+					if type(tileInFrontOfPlayer) is tuple: #then no tile was found in front of player on the z he's on
+						tileInFrontOfPlayer = False
+					
+					if tilePlayerOn:
+						mustActivate = self.eventForeground.unlockedNotEnterableEventsOn([tilePlayerOn], playerZs)
+						activateIfEnterOnTopOf = self.eventForeground.unlockedEnterableEventsOn([tilePlayerOn], playerZs)
+					else:
+						mustActivate = []
+						activateIfEnterOnTopOf = []
+					
+					if tileInFrontOfPlayer:
+						activateIfEnterInFrontOf = self.eventForeground.unlockedEnterableBlockedEventsOn([tileInFrontOfPlayer], playerZs)
+					else:
+						activateIfEnterInFrontOf = []
+					
 					#this loop triggers a chain of events that are stood on
 					if len(mustActivate)>0:
 						self.state = "WE"
+						#release player from any movements
+						self.player.forgetMovement()
+
 						mustActivate[0].execute(self)
 						if mustActivate[0].getOneTime():
 							self.eventForeground.remove(mustActivate[0])
 						self.state = "play"
-						#release player from any movements
-						self.player.forgetMovement()
 						#move the player UD to stay on the same spot and trigger any other events
 						movePlayer("UD")
 					
 						return True
 					 
-					# tilesToFlip = self.eventForeground.get
-					# turns on outlines for near, blocked events
+					# turns on outlines for events
 					self.flipOutlines(activateIfEnterOnTopOf+activateIfEnterInFrontOf)
 					# activates an event with enter outside of this function
 					
@@ -178,7 +233,16 @@ class GameInterface:
 				movePlayer(mv)
 
 		elif self.state == "pause":
-			pass
+			for event in events:
+				if event.type == pg.KEYDOWN:
+					key = event.dict['key']
+					if key == pg.K_ESCAPE:
+						self.state = "play"
+						self.pmenu.clearall()
+						return
+				
+				# elif event.type == pg.KEYUP:
+			
 		
 		elif self.state == "WE":
 			pass
@@ -193,63 +257,71 @@ class GameInterface:
 			return True
 
 	def renderView(self):
-		#gets optimal view frame based on player
-		mapx, mapy = self.map.getMapSizePx()
-		x, y = self.player.getRect().center
-		w, h = self.display.getWH()
-		viewx, viewy = x+0, y+0
-		
-		if (x < (w*.5)):
-			viewx = w*.5
-		elif (x > (mapx - (w*.5))):
-			viewx = mapx - (w*.5)
-		if (y < (h*.5)):
-			viewy = h*.5
-		elif (y > (mapy - (h*.5))):
-			viewy = mapy - (h*.5)
+		if self.state == "main-menu":
+			pass
 
-		view = pg.Rect((0, 0), (w, h))
-		view.center = viewx, viewy
-		
-		# #if recta and b are defined relative to rectc, get a relative to b
-		# def getRelRect(recta, rectb):
-		# 	relRect = recta.copy()
-		# 	relRect.center = (w*.5)+(relRect.centerx-rectb.centerx), (h*.5)+(relRect.centery-rectb.centery)
-		# 	return relRect
-		
-		#get rect relactive to view assuming it's also relative to map (like view is) and blit it to the screen with the art
-		def blitRelRect(rect, art):
-			relRect = rect.copy()
-			relRect.center = (w*.5)+(relRect.centerx-viewx), (h*.5)+(relRect.centery-viewy)
-			self.display.get().blit(art, relRect)
+		elif self.state == "play" or self.state == "WE":
+			#gets optimal view frame based on player
+			mapx, mapy = self.map.getMapSizePx()
+			x, y = self.player.getRect().center
+			w, h = self.display.getWH()
+			viewx, viewy = x+0, y+0
+			
+			if (x < (w*.5)):
+				viewx = w*.5
+			elif (x > (mapx - (w*.5))):
+				viewx = mapx - (w*.5)
+			if (y < (h*.5)):
+				viewy = h*.5
+			elif (y > (mapy - (h*.5))):
+				viewy = mapy - (h*.5)
 
-		#blits a subsurface of the map to the display (lowest layer)
-		playerOnZ = max(self.player.getZs())
-		self.display.get().blit(self.map.getImageOfAndBelowZ(playerOnZ, view), (0,0))
-		
-		#retrieves all the events that happen to coincide with the view
-		evtsToDisplay = self.eventForeground.getEventsOfAndBelow(playerOnZ, view)
-		if evtsToDisplay:
-			# print "below", evtsToDisplay
-			for each in evtsToDisplay:
-				blitRelRect(each.getRect(), each.getArt())
-		
-		blitRelRect(self.player.getRect(), self.player.getArt())
-		
-		mapAbovePlayersZ = self.map.getImageOfAndAboveZ(playerOnZ+1, view) #returns false if player is on map's highest z
-		if mapAbovePlayersZ:
-			self.display.get().blit(mapAbovePlayersZ, (0,0))
-		
-		#retrieves all the events that happen to coincide with the view
-		evtsToDisplay = self.eventForeground.getEventsOfAndAbove(playerOnZ+1, view)
-		if evtsToDisplay:
-			# print "above", evtsToDisplay
-			for each in evtsToDisplay:
-				blitRelRect(each.getRect(), each.getArt())
+			view = pg.Rect((0, 0), (w, h))
+			view.center = viewx, viewy
+			
+			# #if recta and b are defined relative to rectc, get a relative to b
+			# def getRelRect(recta, rectb):
+			#   relRect = recta.copy()
+			#   relRect.center = (w*.5)+(relRect.centerx-rectb.centerx), (h*.5)+(relRect.centery-rectb.centery)
+			#   return relRect
+			
+			#get rect relactive to view assuming it's also relative to map (like view is) and blit it to the screen with the art
+			def blitRelRect(rect, art):
+				relRect = rect.copy()
+				relRect.center = (w*.5)+(relRect.centerx-viewx), (h*.5)+(relRect.centery-viewy)
+				self.display.get().blit(art, relRect)
 
-		#blits the window to the display over everything else (top layer)
-		self.display.get().blit(self.window, (0,0))
-		
-		pg.display.flip()
+			#blits a subsurface of the map to the display (lowest layer)
+			playerOnZ = max(self.player.getZs())
+			self.display.get().blit(self.map.getImageOfAndBelowZ(playerOnZ, view), (0,0))
+			
+			#retrieves all the events that happen to coincide with the view
+			evtsToDisplay = self.eventForeground.getEventsOfAndBelow(playerOnZ, view)
+			if evtsToDisplay:
+				# print "below", evtsToDisplay
+				for each in evtsToDisplay:
+					blitRelRect(each.getRect(), each.getArt())
+			
+			blitRelRect(self.player.getRect(), self.player.getArt())
+			
+			mapAbovePlayersZ = self.map.getImageOfAndAboveZ(playerOnZ+1, view) #returns false if player is on map's highest z
+			if mapAbovePlayersZ:
+				self.display.get().blit(mapAbovePlayersZ, (0,0))
+			
+			#retrieves all the events that happen to coincide with the view
+			evtsToDisplay = self.eventForeground.getEventsOfAndAbove(playerOnZ+1, view)
+			if evtsToDisplay:
+				# print "above", evtsToDisplay
+				for each in evtsToDisplay:
+					blitRelRect(each.getRect(), each.getArt())
 
-		self.view = view
+			#blits the window to the display over everything else (top layer)
+			self.display.get().blit(self.window, (0,0))
+			
+			pg.display.flip()
+
+			self.view = view
+		
+		elif self.state == "pause":
+			self.display.get().blit(self.pmenu.getDisp(), (0,0))
+			pg.display.flip()

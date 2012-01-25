@@ -255,8 +255,21 @@ class dialog(WorldEvent):
 
 		GI.renderView()
 
+class teleport(WorldEvent):
+	def __init__(self, **kwargs):
+		WorldEvent.__init__(self, **kwargs)
+	
+	def execute(self, GI):
+		tileTo = tuple([int(each) for each in self.extra[1].split(":")])
+		tileTo = g.tile2rect(tileTo)
+
+		zTo = [int(each) for each in self.extra[2].split(",")]
+
+		GI.player.move(tileTo, zTo)
 
 
-EVENT_IDS = { 'dialog': dialog } #,
+
+EVENT_IDS = {	'dialog': dialog,
+				'teleport': teleport } #,
 	  # 2: PickUpItem,
 	  # 3: DeathByBurning }
