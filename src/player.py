@@ -14,6 +14,7 @@ class Player:
 
 		#the image of the player
 		art = pg.image.load(art).convert_alpha() #loaded as facing up
+		# art = pg.transform.scale(art, (100,100))
 
 		#the image of the player facing in all directions
 		self.udlrFacing = (                \

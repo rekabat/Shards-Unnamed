@@ -21,7 +21,12 @@ class PMenu:
 	
 	# def genDisp(self):
 		
-	
+	def getState(self):
+		return self.state
+
+	def changeState(self, newstate):
+		self.state = newstate
+
 	def getDisp(self):
 		if self.displayed is None:
 			self.displayed = pg.Surface(self.wh).convert_alpha()
@@ -30,3 +35,4 @@ class PMenu:
 	
 	def clearall(self):
 		self.displayed = None
+
