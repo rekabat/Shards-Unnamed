@@ -1,0 +1,3 @@
+letters.png - ABCDEFGHIJKLMNOPQRSTUVWXYZ
+numbers.png - 1234567890
+symbols.png - !@#$%^&*()_-+=[]{}|\"':;<>,.?/
