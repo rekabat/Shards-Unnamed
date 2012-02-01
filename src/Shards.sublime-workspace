@@ -27,7 +27,7 @@
 			"file": "/C/Users/Troy/Desktop/Game/Shards/Shards-Unnamed/ThingsToDo.txt",
 			"settings":
 			{
-				"buffer_size": 1506,
+				"buffer_size": 1510,
 				"line_ending": "Windows"
 			}
 		},
@@ -254,15 +254,15 @@
 					"file": "/C/Users/Troy/Desktop/Game/Shards/Shards-Unnamed/ThingsToDo.txt",
 					"settings":
 					{
-						"buffer_size": 1506,
+						"buffer_size": 1510,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1186,
-								1186
+								1190,
+								1190
 							]
 						],
 						"settings":
@@ -323,7 +323,7 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 32.0,
-						"translation.y": 1008.0,
+						"translation.y": 3552.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
@@ -485,7 +485,7 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 576.0,
+						"translation.y": 912.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
@@ -512,7 +512,7 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 32.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
@@ -539,7 +539,7 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 48.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
@@ -556,8 +556,8 @@
 						"selection":
 						[
 							[
-								11,
-								11
+								12,
+								12
 							]
 						],
 						"settings":
@@ -618,7 +618,7 @@
 							"syntax": "Packages/Text/Plain text.tmLanguage"
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 13628.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
