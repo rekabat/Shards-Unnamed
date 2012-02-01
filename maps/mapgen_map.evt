@@ -8,7 +8,7 @@ ENTER: 1
 ONE_TIME: 1
 LOCKED: 0
 > Dialog
-Clothing:] I am a tunic.
+Clothing:] I am a tunic. Also, 1 is the loneliest 234567890.
 %PLAYER:] Holy shit, a talking tunic! Now this dialog is purely to demonstrate whether or not the textbox system is working. I sure hope it is.
 Clothing:] Indeed.
 }}}
@@ -53,6 +53,7 @@ LOCKED: 0
 %PLAYER:] Hey it's you again!
 Slightly Evil-er Potion:] Nope, I'm the slightly evil-er twin.
 %PLAYER:] That explains the goatee.
+Slightly Evil-er Potion:] By the way, ! @ # $ % ^ & * ( ) - _ + = [ ] { } | \ : ; " " ' ' < > , . ? /
 }}}
 >>>
 EVENT_ID: teleport

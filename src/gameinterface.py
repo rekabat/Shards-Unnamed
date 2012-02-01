@@ -5,7 +5,7 @@ import display
 import map
 import player
 import worldEvents
-import text
+import font
 import cursor
 
 import pauseMenu as pm
@@ -16,6 +16,7 @@ class GameInterface:
 	def __init__(self, state="main-menu"):
 		self.display = display.Display()
 		self.cursr = cursor.Cursor()
+		self.font = font.Font()
 
 
 		self.state = state

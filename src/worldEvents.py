@@ -2,7 +2,6 @@ import pygame as pg
 from pygame.locals import *
 import time
 
-import text
 import worldEventsParser
 
 import general as g
@@ -176,7 +175,7 @@ class dialog(WorldEvent):
 		box = pg.Surface((int(GI.display.getWH()[0]), int(GI.display.getWH()[1]*.25)))
 		box.fill((96,123,139))
 
-		enter = text.Text("PRESS ENTER", namesize, (10,50,10))
+		enter = GI.font.text("PRESS ENTER", namesize)
 		enter.place(box, (box.get_rect().width-namepadding-enter.getLength(), namepadding), center=False)
 
 		dialogLinesPerBox = (box.get_rect().height - namesize - namepadding*2) / dialogsize
@@ -187,8 +186,8 @@ class dialog(WorldEvent):
 		dialogWidth = int(box.get_rect().width*dialogwidthfraction)
 
 		# make a space and ellipses
-		space = text.Text(" ",   dialogsize, g.BLACK)
-		ooo   = text.Text("...", dialogsize, g.BLACK)
+		space = GI.font.text(" ",   dialogsize)
+		ooo   = GI.font.text("...", dialogsize)
 
 		dialogLines = self.extra[1:]
 
@@ -200,12 +199,12 @@ class dialog(WorldEvent):
 
 			if speaker == "%PLAYER":
 				speaker = GI.player.getName()
-			speaker = text.Text(speaker+":", namesize, (10,50,10))
+			speaker = GI.font.text(speaker+":", namesize)
 			speaker.place(boxc, (namepadding,namepadding), center=False)
 
 			words = words.split(' ')
 			for i in range(len(words)):
-				words[i] = text.Text(words[i], dialogsize, g.BLACK)
+				words[i] = GI.font.text(words[i], dialogsize)
 
 			line = 0
 			lines = []
