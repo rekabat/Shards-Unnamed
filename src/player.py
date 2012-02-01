@@ -3,7 +3,10 @@ import general as g
 
 class Player:
 	def __init__(self, position, zs, size= (1,1), art='art/player.png'):
-	# def __init__(self, position, size= (1,1), art='art/blog200812.png'):
+		#####################################
+		# Avatar info #######################
+		#####################################
+
 		#make a rect for where it is
 		size = (size[0]*g.TILE_RES[0], size[1]*g.TILE_RES[1]) #given in tile size, convert to pixel size 
 		position = ((position[0]+.5)*g.TILE_RES[0], (position[1]+.5)*g.TILE_RES[1]) #given in tile coordinates, convert to pixel
@@ -31,10 +34,37 @@ class Player:
 		#the current direction the player is facing
 		self.facing = "U"
 
-		self.name = "Bartholomew"
+		#####################################
+		# Avatar info #######################
+		#####################################
 
-		self.stats = {'lvl': 0, 'hp': 10, 'def': 1, 'mag': 1, 'atk': 1}
-	
+
+
+
+		#####################################
+		# Character info ####################
+		#####################################
+
+		self.name = "Bartholomew"
+		self.stats = {	'lvl': 	0,	\
+						'hp': 	10,	\
+						'def': 	1,	\
+						'mag': 	1,	\
+						'atk': 	1	} #stats
+		self.inventory = {} #armor, weapons, potions, shards, runes, misc
+		self.spells = {} #all available spells for crafting
+		self.belt = {} #spells and potions currently chosen for battle + equipped weapon
+		self.equipped = {	"head":		None,	\
+							"chest":	None,	\
+							"legs":		None,	\
+							"shield":	None,	\
+							"weapon":	None	} #currently equipped armor and weapons
+
+		#####################################
+		# Character info ####################
+		#####################################
+		
+		
 	def getRect(self):
 		return self.rect
 		

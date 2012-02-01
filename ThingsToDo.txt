@@ -4,6 +4,7 @@ Things to add (near future):
 Things to change:
  - PROBABLY NOT GOING TO DO THIS, NEW SYSTEM SEEMS GOOD. Make tiles just floating rects that collide with the view to be printed (in ascending z order)
  - make one "get" function for WE so you just say WE.get("z") and it returns the z. Also, store all attributes as a dictionary stuff.
+ - Make font thicker so that it can be visible at 10 pixels height
 
 Known bugs:
  - It's possible to step onto an event that chains to another event that appears partly under you. If this new event is blocked, you can't move. Maybe not a problem, you just shouldn't be able to make chains that make blocked events under or around the previous event (since even if it's not under you it could be under one of your 4 corners).
