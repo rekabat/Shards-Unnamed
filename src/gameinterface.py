@@ -7,6 +7,7 @@ import player
 import worldEvents
 import font
 import cursor
+import item
 
 import pauseMenu as pm
 
@@ -67,6 +68,9 @@ class GameInterface:
 		self.map = map.Map(mapfile)
 		self.eventForeground = worldEvents.EventForeground(mapfile)
 		self.player = player.Player((12, 10), [0])
+
+		self.player.giveItem(item.Item("weapon", "weapon", 3))
+		print self.player.getSortedInv()
 	
 	def dispatch(self, events):
 		#some things are handled the same way in all states:

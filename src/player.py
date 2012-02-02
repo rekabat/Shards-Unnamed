@@ -51,13 +51,13 @@ class Player:
 						'def': 	1,	\
 						'mag': 	1,	\
 						'atk': 	1	} #stats
-		self.inventory = {} #armor, weapons, potions, shards, runes, misc
-		self.spells = {} #all available spells for crafting
+		self.inv = [] #armor, weapons, potions, shards, runes, misc
+		self.spells = [] #all available spells for crafting
 		self.belt = {} #spells and potions currently chosen for battle + equipped weapon
 		self.equipped = {	"head":		None,	\
 							"chest":	None,	\
 							"legs":		None,	\
-							"shield":	None,	\
+							"offhand":	None,	\
 							"weapon":	None	} #currently equipped armor and weapons
 
 		#####################################
@@ -172,3 +172,15 @@ class Player:
 	
 	def getName(self):
 		return self.name
+	
+	def giveItem(self, item):
+		self.inv.append(item)
+	
+	def takeItem(self, item):
+		self.inv.remove(item)
+	
+	def getSortedInv(self):
+		ret = {}
+		for each in self.inv:
+			ret.update({each.getType(): each})
+		return ret

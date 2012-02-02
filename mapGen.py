@@ -1,10 +1,10 @@
 x=100
 y=100
 
-floortilefile = 'art/floors.png'
+floortilefile = 'art/map/floors.png'
 pos = "3:0"
 
-bordertilefile = "art/dark brick.jpg"
+bordertilefile = "art/map/dark brick.jpg"
 posborder = "0:0"
 
 file = open("maps/mapgen_map.map", "w")
