@@ -45,7 +45,7 @@ class GameInterface:
 		##########
 		# Stuff for "pause"
 		##########
-		self.pmenu = pm.PMenu(self.display.getWH())
+		self.pmenu = pm.PMenu(self)
 			
 			
 	
@@ -245,6 +245,8 @@ class GameInterface:
 						self.state = "play"
 						self.pmenu.clearall()
 						return
+					else:
+						self.pmenu.dispatch(key)
 				
 				# elif event.type == pg.KEYUP:
 			
