@@ -101,10 +101,6 @@ class GameInterface:
 					if key == pg.K_RETURN:
 						enterPressed = True
 					
-					if key == pg.K_t:
-						self.display.toggleFull()
-						self.cursr.flipVisible()
-					
 					if key == pg.K_ESCAPE:
 						self.state = "pause"
 						#release player from any movements
