@@ -115,41 +115,6 @@ class PMenu:
 		
 		toDispatch[1](key, toDispatch[2])
 
-
-		# if self.state == "player":
-		# 	if key == pg.K_q: #show inventory
-		# 		self.displayed = self.menus["player"].copy()
-		# 		t = self.GI.font.text(str(self.GI.player.getSortedInv()), 20)
-		# 		t.place(self.displayed, (0, 75), center=False)
-		# 	elif key == pg.K_w:
-		# 		self.displayed = self.menus["player"].copy()
-		# 		t = self.GI.font.text(str(self.GI.player.belt)+" - Belt Stuff!", 20)
-		# 		t.place(self.displayed, (0, 75), center=False)
-		# 	elif key == pg.K_e:
-		# 		self.displayed = self.menus["player"].copy()
-		# 		t = self.GI.font.text(str(self.GI.player.stats)+" - yo' stats!", 20)
-		# 		t.place(self.displayed, (0, 75), center=False)
-		
-		# elif self.state == "saveload":
-		# 	if key == pg.K_q: #saving
-		# 		self.displayed = self.menus["saveload"].copy()
-		# 		t = self.GI.font.text("There ain't no stinking saves.", 20)
-		# 		t.place(self.displayed, (0, 75), center=False)
-		# 	if key == pg.K_w: #loading
-		# 		self.displayed = self.menus["saveload"].copy()
-		# 		t = self.GI.font.text("There ain't no stinking loads.", 20)
-		# 		t.place(self.displayed, (0, 75), center=False)
-
-		# elif self.state == "options":
-		# 	if key == pg.K_q: #screen options
-		# 		self.displayed = self.menus["options"].copy()
-		# 		t = self.GI.font.text("A) Toggle Fullscreen On/Off", 20)
-		# 		t.place(self.displayed, (int(self.wh[0]/2.), 75), center=True)
-		# 	if key == pg.K_w: #sound options
-		# 		self.displayed = self.menus["options"].copy()
-		# 		t = self.GI.font.text("A) Toggle Mute On/Off", 20)
-		# 		t.place(self.displayed, (int(self.wh[0]/2.), 75), center=True)
-
 	def generalDispatch(self, key, choices):
 		if key in choices.keys():
 			self.state = [key]
