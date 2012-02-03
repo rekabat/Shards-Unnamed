@@ -65,9 +65,9 @@ class GameInterface:
 			self.outlinedEvents.remove(each)
 		
 	def createWorld(self, mapfile):
-		self.map = map.Map(mapfile)
+		self.map = map.Map(mapfile, self.display.getWH())
 		self.eventForeground = worldEvents.EventForeground(mapfile)
-		self.player = player.Player((12, 10), [0])
+		self.player = player.Player((12,10), [0])
 
 		self.player.giveItem(item.Item("weapon", "weapon", 3))
 		print self.player.getSortedInv()
@@ -265,7 +265,10 @@ class GameInterface:
 
 		elif self.state == "play" or self.state == "WE":
 			#gets optimal view frame based on player
-			mapx, mapy = self.map.getMapSizePx()
+			
+			mapx, mapy = self.map.getDrawingSize()
+
+			# mapx, mapy = self.map.getMapSizePx()
 			x, y = self.player.getRect().center
 			w, h = self.display.getWH()
 			viewx, viewy = x+0, y+0
@@ -281,17 +284,12 @@ class GameInterface:
 
 			view = pg.Rect((0, 0), (w, h))
 			view.center = viewx, viewy
-			
-			# #if recta and b are defined relative to rectc, get a relative to b
-			# def getRelRect(recta, rectb):
-			#   relRect = recta.copy()
-			#   relRect.center = (w*.5)+(relRect.centerx-rectb.centerx), (h*.5)+(relRect.centery-rectb.centery)
-			#   return relRect
-			
+
 			#get rect relactive to view assuming it's also relative to map (like view is) and blit it to the screen with the art
+			mapdifx, mapdify = self.map.getMapDrawingDif()
 			def blitRelRect(rect, art):
 				relRect = rect.copy()
-				relRect.center = (w*.5)+(relRect.centerx-viewx), (h*.5)+(relRect.centery-viewy)
+				relRect.center = (w*.5)+(relRect.centerx-viewx)+mapdifx, (h*.5)+(relRect.centery-viewy)+mapdify
 				self.display.get().blit(art, relRect)
 
 			#blits a subsurface of the map to the display (lowest layer)

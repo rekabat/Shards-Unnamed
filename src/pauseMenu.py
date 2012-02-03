@@ -10,7 +10,7 @@ class PMenu:
 		self.states = ("general", self.generalDispatch, { 
 			pg.K_1: ("player", self.playerDispatch, {
 				pg.K_q: ("inventory", self.inventoryDispatch, {} ),
-				pg.K_w: ("belt", self.beltDispatch, {} ),
+				pg.K_w: ("equipped", self.equippedDispatch, {} ),
 				pg.K_e: ("stats", self.statsDispatch, {} )
 			} ),
 			pg.K_2: ("saveload", self.saveloadDispatch, {
@@ -76,7 +76,7 @@ class PMenu:
 		########################################
 		temp = disp.copy()
 		tempy = y
-		t = self.GI.font.text("Q) Inventory || W) Belt || E) Stats", 30)
+		t = self.GI.font.text("Q) Inventory || W) Equipped || E) Stats", 30)
 		t.place(temp, (int(self.wh[0]/2.), tempy+15))
 		tempy+=30
 		pg.draw.line(temp, (255,255,255), (0, tempy+1), (self.wh[0], tempy+1), 3)
@@ -124,7 +124,7 @@ class PMenu:
 
 	
 	def playerDispatch(self, key, choices):
-		change = choices[key][0]
+		# change = choices[key][0]
 
 		if key == pg.K_q: #show inventory
 			self.displayed = self.menus["player"].copy()
@@ -150,7 +150,7 @@ class PMenu:
 	def inventoryDispatch(self, key, choices):
 		pass
 
-	def beltDispatch(self, key, choices):
+	def equippedDispatch(self, key, choices):
 		pass
 
 	def statsDispatch(self, key, choices):

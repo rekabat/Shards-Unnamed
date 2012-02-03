@@ -10,7 +10,7 @@ class Player:
 		#make a rect for where it is
 		size = (size[0]*g.TILE_RES[0], size[1]*g.TILE_RES[1]) #given in tile size, convert to pixel size 
 		position = ((position[0]+.5)*g.TILE_RES[0], (position[1]+.5)*g.TILE_RES[1]) #given in tile coordinates, convert to pixel
-		self.rect= pg.Rect((position[0]-size[0]*.5, position[1]-size[1]*.5), size)\
+		self.rect= pg.Rect((position[0]-size[0]*.5, position[1]-size[1]*.5), size)
 		
 		#what floor "level" is the player on
 		self.zs = zs

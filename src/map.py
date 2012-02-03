@@ -5,7 +5,8 @@ import mapParser
 import general as g
 
 class Map:
-    def __init__(self, file):
+    def __init__(self, file, screenres):
+        self.screenres = screenres
         self.file = file + ".map"
         self.evtFile = file + ".evt"
 
@@ -13,6 +14,24 @@ class Map:
 
         self.mapSizeTiles = mapData['mapSize']
         self.mapSizePx = mapData['mapSizePx']
+
+        if self.screenres[0] > self.mapSizePx[0]:
+            x = int((self.screenres[0]-self.mapSizePx[0])/2.)
+            w = self.screenres[0]
+        else:
+            x = 0
+            w = self.mapSizePx[0]
+        if self.screenres[1] > self.mapSizePx[1]:
+            y = int((self.screenres[1]-self.mapSizePx[1])/2.)
+            h = self.screenres[1]
+        else:
+            y=0
+            h = self.mapSizePx[1]
+        self.drawingSize = (w,h)
+        self.mapDrawingDif = (x,y)
+        self.mapRectOnImg = pg.Rect((x,y), self.mapSizePx)
+
+
         self.setup = mapData['setup']
         
         self.zsetup = {} #key is z, return is a list of tiles on that z level
@@ -52,14 +71,17 @@ class Map:
     def makeLayersOfAndBelow(self):
         ret = {}
 
-        zimg = pg.Surface(self.mapSizePx, SRCALPHA, 32)
+        img = pg.Surface(self.drawingSize)
+        zimg = img.subsurface(self.mapRectOnImg)
+
+        # zimg = pg.Surface(self.mapSizePx, SRCALPHA, 32)
         zs = self.zsetup.keys()
         zs.sort()
         
         for z in zs:
             for tile in self.zsetup[z]:
                 zimg.blit(tile.getArt(), tile.getRect())
-            ret[z]=zimg.copy()
+            ret[z]=img.copy()
         
         return ret
 
@@ -71,16 +93,30 @@ class Map:
         zs = zs[::-1]
 
         maxz = max(zs)
-        ret[maxz] = pg.Surface(self.mapSizePx, SRCALPHA, 32)
+
+        # ret[maxz] = pg.Surface(self.mapSizePx, SRCALPHA, 32)
+        # for tile in self.zsetup[maxz]:
+            # ret[maxz].blit(tile.getArt(), tile.getRect())
+        # for z in zs[1:]:
+            # ret[z] = pg.Surface(self.mapSizePx, SRCALPHA, 32)
+            # for tile in self.zsetup[z]:
+                # ret[z].blit(tile.getArt(), tile.getRect())
+            # ret[z].blit(ret[z+1], (0,0))
+        
+        ret[maxz] = pg.Surface(self.drawingSize, SRCALPHA, 32)
+        img = ret[maxz].subsurface(self.mapRectOnImg)
         for tile in self.zsetup[maxz]:
-            ret[maxz].blit(tile.getArt(), tile.getRect())
-        
+            img.blit(tile.getArt(), tile.getRect())
+
         for z in zs[1:]:
-            ret[z] = pg.Surface(self.mapSizePx, SRCALPHA, 32)
+            ret[z] = pg.Surface(self.drawingSize, SRCALPHA, 32)
+            img = ret[z].subsurface(self.mapRectOnImg)
             for tile in self.zsetup[z]:
-                ret[z].blit(tile.getArt(), tile.getRect())
-            ret[z].blit(ret[z+1], (0,0))
-        
+                img.blit(tile.getArt(), tile.getRect())
+            img.blit(ret[z+1].subsurface(self.mapRectOnImg), (0,0))
+            
+            
+
         return ret
 
     def getImageOfAndBelowZ(self, z, partial = False):
@@ -103,7 +139,16 @@ class Map:
 
     def getMapSizePx(self):
         return self.mapSizePx
+    def getDrawingSize(self):
+        return self.drawingSize
+    def getMapDrawingDif(self):
+        return self.mapDrawingDif
     
+    def pix2tile(self, pix):
+        return g.pix2tile((pix[0]-self.mapDrawingDif[0], pix[1]-self.mapDrawingDif[1]))
+    def tile2rect(self, (x,y)):
+        return pg.Rect((x * g.TILE_RES[0] + self.mapDrawingDif[0], y * g.TILE_RES[1] + self.mapDrawingDif[1]), g.TILE_RES)
+
     def getTile(self, coords, z, pixel=True): #false means tile
         if pixel:
             coords = g.pix2tile(coords)
@@ -132,10 +177,6 @@ class Map:
             ret = ret and blockedAtThisZ
         return ret
 
-        # return self.setup[g.pix2tile(rect.topleft)    ].blocked(zlist) or \
-        #        self.setup[g.pix2tile(rect.topright)   ].blocked(zlist) or \
-        #        self.setup[g.pix2tile(rect.bottomleft) ].blocked(zlist) or \
-        #        self.setup[g.pix2tile(rect.bottomright)].blocked(zlist)
     
     def tileExists(self,rect,zlist):
         corners = (g.pix2tile(rect.topleft), \
