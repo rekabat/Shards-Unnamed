@@ -4,10 +4,10 @@ class Display:
 	def __init__(self):
 		pg.display.init()
 
-		# self.width = 640+32*0
-		# self.height = 480+32*0
-		self.width = 1366 #
-		self.height = 768 #
+		self.width = 640+32*0
+		self.height = 480+32*0
+		# self.width = 1366 #
+		# self.height = 768 #
 		self.isFull=False
 		self.screen = None
 

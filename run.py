@@ -14,11 +14,11 @@ def runGame():
     GI = src.gameinterface.GameInterface('play')
     
     while True:
-        clock.tick(g.FRAME_RATE)
+        dt = clock.tick(g.FRAME_RATE)
 
         events = pg.event.get()
 
-        GI.dispatch(events)
+        GI.dispatch(events, dt/1000.)
         GI.renderView()
 
 if __name__ == '__main__': runGame()

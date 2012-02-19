@@ -74,22 +74,22 @@ class Player:
 	def getZs(self):
 	 	return self.zs
 	
-	def ifMoved(self, direction):
+	def ifMoved(self, direction, dt):
 		xmove = 0
 		ymove = 0
 		
 		if "U" in direction:
-			ymove-=g.PX_STEP
+			ymove-=(g.PX_STEP*dt)
 		if "D" in direction:
-			ymove+=g.PX_STEP
+			ymove+=(g.PX_STEP*dt)
 		if "L" in direction:
-			xmove-=g.PX_STEP
+			xmove-=(g.PX_STEP*dt)
 		if "R" in direction:
-			xmove+=g.PX_STEP
+			xmove+=(g.PX_STEP*dt)
 		
 		newRect = self.rect.copy()
-		newRect.centerx += xmove
-		newRect.centery += ymove
+		newRect.centerx += int(xmove)
+		newRect.centery += int(ymove)
 		
 		return newRect
 	

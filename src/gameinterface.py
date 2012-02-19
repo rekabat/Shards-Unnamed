@@ -70,9 +70,8 @@ class GameInterface:
 		self.player = player.Player((12,10), [0])
 
 		self.player.giveItem(item.Item("weapon", "weapon", 3))
-		print self.player.getSortedInv()
 	
-	def dispatch(self, events):
+	def dispatch(self, events, dt=0):
 		#some things are handled the same way in all states:
 		for event in events:
 			if event.type == pg.QUIT:
@@ -89,13 +88,13 @@ class GameInterface:
 			for event in events:
 				if event.type == pg.KEYDOWN:
 					key = event.dict['key']
-					if key == pg.K_w:
+					if key == pg.K_UP:
 						self.player.movingDirection("U")
-					if key == pg.K_s:
+					if key == pg.K_DOWN:
 						self.player.movingDirection("D")
-					if key == pg.K_a:
+					if key == pg.K_LEFT:
 						self.player.movingDirection("L")
-					if key == pg.K_d:
+					if key == pg.K_RIGHT:
 						self.player.movingDirection("R")
 					
 					if key == pg.K_RETURN:
@@ -112,21 +111,21 @@ class GameInterface:
 				
 				elif event.type == pg.KEYUP:
 					key = event.dict['key']
-					if key == pg.K_w:
+					if key == pg.K_UP:
 						self.player.stoppingDirection("U")
-					if key == pg.K_s:
+					if key == pg.K_DOWN:
 						self.player.stoppingDirection("D")
-					if key == pg.K_a:
+					if key == pg.K_LEFT:
 						self.player.stoppingDirection("L")
-					if key == pg.K_d:
+					if key == pg.K_RIGHT:
 						self.player.stoppingDirection("R")
 			
 			self.player.turn()
 			mv = self.player.overallDirection()
 
-			def movePlayer(mv):
+			def movePlayer(mv ,dt):
 				# Get the rect that the player would go to given the buttons pressed
-				playerNewRect = self.player.ifMoved(mv)
+				playerNewRect = self.player.ifMoved(mv, dt)
 
 				# Check if the movement is valid by making a smaller rectangle and seeing
 				smallerRect=pg.Rect((0,0),(playerNewRect.width*.87, playerNewRect.height*.87))
@@ -155,11 +154,6 @@ class GameInterface:
 					playerZs = self.player.getZs()
 
 					tilePlayerOn = self.player.getTileOn()
-					# for z in playerZs:
-					#   atile = self.map.getTile(tilePlayerOn, z, False)
-					#   if atile:
-					#       tilePlayerOn = atile
-					#       break
 					tilePlayerOn = self.map.getTile(tilePlayerOn, max(playerZs), False)
 
 					tileInFrontOfPlayer = self.player.getTileInFrontOf()
@@ -194,7 +188,7 @@ class GameInterface:
 							self.eventForeground.remove(mustActivate[0])
 						self.state = "play"
 						#move the player UD to stay on the same spot and trigger any other events
-						movePlayer("UD")
+						movePlayer("UD", dt)
 					
 						return True
 					 
@@ -204,11 +198,11 @@ class GameInterface:
 					
 				else:
 					if len(mv) > 1:
-						if not movePlayer(mv[0]):
-							movePlayer(mv[1:])
+						if not movePlayer(mv[0], dt):
+							movePlayer(mv[1:], dt)
 					else:
 						#this compensates for turning but not moving and having new events get outlined
-						movePlayer("UD")
+						movePlayer("UD", dt)
 			
 			#enter overrides movements and triggers events
 			if len(self.outlinedEvents)>0 and enterPressed:
@@ -227,11 +221,11 @@ class GameInterface:
 				#release player from any movements
 				self.player.forgetMovement()
 				#so that if it's now standing on event, that event will be activated
-				movePlayer("UD")
+				movePlayer("UD", dt)
 				
 			
 			if len(mv) > 0:
-				movePlayer(mv)
+				movePlayer(mv, dt)
 
 		elif self.state == "pause":
 			for event in events:
