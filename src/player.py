@@ -1,4 +1,6 @@
 import pygame as pg
+import math
+
 import general as g
 
 class Player:
@@ -53,7 +55,16 @@ class Player:
 						'atk': 	1	} #stats
 		self.inv = [] #armor, weapons, potions, shards, runes, misc
 		self.spells = [] #all available spells for crafting
-		self.belt = {} #spells and potions currently chosen for battle + equipped weapon
+		self.belt = { 	0: None, 
+						1: None, 
+						2: None, 
+						3: None,
+						4: None, 
+						5: None, 
+						6: None, 
+						7: None, 
+						8: None, 
+						9: None } #spells and potions currently chosen for battle + equipped weapon
 		self.equipped = {	"head":		None,	\
 							"chest":	None,	\
 							"legs":		None,	\
@@ -88,8 +99,8 @@ class Player:
 			xmove+=(g.PX_STEP*dt)
 		
 		newRect = self.rect.copy()
-		newRect.centerx += int(xmove)
-		newRect.centery += int(ymove)
+		newRect.centerx += xmove
+		newRect.centery += ymove
 		
 		return newRect
 	
@@ -153,22 +164,19 @@ class Player:
 		elif "R" in trn:
 			self.art = self.udlrFacing[3]
 			self.facing = "R"
-
-	def getTileOn(self):
-		return g.pix2tile(self.getRect().center)
 	
-	def getTileInFrontOf(self):
-		on = self.getTileOn()
+	def getTilePixInFrontOf(self): #players center + half a tile in the direction he faces
+		ret = self.rect.center
 		if self.facing == "U":
-			inFrontOf = (on[0], on[1]-1)
+			ret = (ret[0], ret[1]-g.TILE_RES[1])
 		elif self.facing == "D":
-			inFrontOf = (on[0], on[1]+1)
+			ret = (ret[0], ret[1]+g.TILE_RES[1])
 		elif self.facing == "L":
-			inFrontOf = (on[0]-1, on[1])
+			ret = (ret[0]-g.TILE_RES[0], ret[1])
 		elif self.facing == "R":
-			inFrontOf = (on[0]+1, on[1])
+			ret = (ret[0]+g.TILE_RES[0], ret[1])
 		
-		return inFrontOf
+		return ret
 	
 	def getName(self):
 		return self.name

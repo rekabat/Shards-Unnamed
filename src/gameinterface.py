@@ -120,90 +120,15 @@ class GameInterface:
 					if key == pg.K_RIGHT:
 						self.player.stoppingDirection("R")
 			
-			self.player.turn()
+
+
 			mv = self.player.overallDirection()
 
-			def movePlayer(mv ,dt):
-				# Get the rect that the player would go to given the buttons pressed
-				playerNewRect = self.player.ifMoved(mv, dt)
 
-				# Check if the movement is valid by making a smaller rectangle and seeing
-				smallerRect=pg.Rect((0,0),(playerNewRect.width*.87, playerNewRect.height*.87))
-				smallerRect.center = playerNewRect.center
-				# if any of the corners are on a blocked map tile or WE tile
-				cantMove = \
-					self.map.blocked(smallerRect, self.player.getZs()) or \
-					self.eventForeground.blocked(smallerRect, self.player.getZs())
-				
+			############################################
+			# Deal with "enter" ########################
+			############################################
 
-				
-				# If the movement is valid, move the player there
-				if not cantMove:
-					mv = ""
-					playerZs = self.player.getZs()
-					playerZs.sort()
-					playerZs.reverse()
-
-					#try to to get a tile from the highest z the player is on, if nothing work your way down to lower zs the player's on
-					for z in playerZs:
-						atile = self.map.getTile(self.player.getRect().center, z)
-						if atile:
-							self.player.move(playerNewRect, atile.getZs())
-							break
-					
-					playerZs = self.player.getZs()
-
-					tilePlayerOn = self.player.getTileOn()
-					tilePlayerOn = self.map.getTile(tilePlayerOn, max(playerZs), False)
-
-					tileInFrontOfPlayer = self.player.getTileInFrontOf()
-					for z in playerZs:
-						atile = self.map.getTile(tileInFrontOfPlayer, z, False)
-						if atile:
-							tileInFrontOfPlayer = atile
-							break
-					if type(tileInFrontOfPlayer) is tuple: #then no tile was found in front of player on the z he's on
-						tileInFrontOfPlayer = False
-					
-					if tilePlayerOn:
-						mustActivate = self.eventForeground.unlockedNotEnterableEventsOn([tilePlayerOn], playerZs)
-						activateIfEnterOnTopOf = self.eventForeground.unlockedEnterableEventsOn([tilePlayerOn], playerZs)
-					else:
-						mustActivate = []
-						activateIfEnterOnTopOf = []
-					
-					if tileInFrontOfPlayer:
-						activateIfEnterInFrontOf = self.eventForeground.unlockedEnterableBlockedEventsOn([tileInFrontOfPlayer], playerZs)
-					else:
-						activateIfEnterInFrontOf = []
-					
-					#this loop triggers a chain of events that are stood on
-					if len(mustActivate)>0:
-						self.state = "WE"
-						#release player from any movements
-						self.player.forgetMovement()
-
-						mustActivate[0].execute(self)
-						if mustActivate[0].getOneTime():
-							self.eventForeground.remove(mustActivate[0])
-						self.state = "play"
-						#move the player UD to stay on the same spot and trigger any other events
-						movePlayer("UD", dt)
-					
-						return True
-					 
-					# turns on outlines for events
-					self.flipOutlines(activateIfEnterOnTopOf+activateIfEnterInFrontOf)
-					# activates an event with enter outside of this function
-					
-				else:
-					if len(mv) > 1:
-						if not movePlayer(mv[0], dt):
-							movePlayer(mv[1:], dt)
-					else:
-						#this compensates for turning but not moving and having new events get outlined
-						movePlayer("UD", dt)
-			
 			#enter overrides movements and triggers events
 			if len(self.outlinedEvents)>0 and enterPressed:
 				evt = self.outlinedEvents[0]
@@ -221,11 +146,119 @@ class GameInterface:
 				#release player from any movements
 				self.player.forgetMovement()
 				#so that if it's now standing on event, that event will be activated
-				movePlayer("UD", dt)
+				mv = "UD"
+
+			############################################
+			############################################
+			############################################
+
+			self.player.turn()
+
+			############################################
+			# Move player ##############################
+			############################################
+			def mvPlayer(mv, dt):
+				couldntMove = True
+				for m in mv:
+					# Get the rect that the player would go to given the buttons pressed
+					playerNewRect = self.player.ifMoved(m, dt)
+
+					# Check if the movement is valid by making a smaller rectangle and seeing
+					smallerRect=pg.Rect((0,0),(playerNewRect.width*.87, playerNewRect.height*.87))
+					smallerRect.center = playerNewRect.center
+					# if any of the corners are on a blocked map tile or WE tile
+					cantMove = \
+					self.map.blocked(smallerRect, self.player.getZs()) or \
+					self.eventForeground.blocked(smallerRect, self.player.getZs())
+
+					# cantMove = \
+					# self.map.blocked(playerNewRect, self.player.getZs()) or \
+					# self.eventForeground.blocked(playerNewRect, self.player.getZs())
 				
-			
+
+				
+					# If the movement is valid, move the player there
+					if not cantMove:
+						couldntMove = False
+
+						playerZs = self.player.getZs()
+						playerZs.sort()
+						playerZs.reverse()
+
+						#try to to get a tile from the highest z the player is on, if nothing work your way down to lower zs the player's on
+						for z in playerZs:
+							atile = self.map.getTile(self.player.getRect().center, z)
+							if atile:
+								self.player.move(playerNewRect, atile.getZs())
+								break
+				
+				if couldntMove:
+					pass #implement sliding
+					#######################
+					#######################
+					#get rid of smallerRect
 			if len(mv) > 0:
-				movePlayer(mv, dt)
+				mvPlayer(mv, dt)
+			############################################
+			############################################
+			############################################
+			
+
+
+
+			############################################
+			############################################
+			############################################
+
+			def checkForEventsAndTriggerStandOns(dt):
+				playerZs = self.player.getZs()
+
+				tilePlayerOn = self.map.getTile(self.player.getRect().center, max(playerZs))
+
+				for z in playerZs:
+					# will return false if there's no tile at those coords and z
+					tileInFrontOfPlayer = self.map.getTile(self.player.getTilePixInFrontOf(), z)
+					if tileInFrontOfPlayer:
+						break
+
+				if tilePlayerOn:
+					mustActivate = self.eventForeground.unlockedNotEnterableEventsOn([tilePlayerOn], playerZs)
+					activateIfEnterOnTopOf = self.eventForeground.unlockedEnterableEventsOn([tilePlayerOn], playerZs)
+				else:
+					mustActivate = []
+					activateIfEnterOnTopOf = []
+				
+				if tileInFrontOfPlayer:
+					activateIfEnterInFrontOf = self.eventForeground.unlockedEnterableBlockedEventsOn([tileInFrontOfPlayer], playerZs)
+				else:
+					activateIfEnterInFrontOf = []
+			
+				#this loop triggers a chain of events that are stood on
+				if len(mustActivate)>0:
+					self.state = "WE"
+					#release player from any movements
+					self.player.forgetMovement()
+
+					mustActivate[0].execute(self)
+					if mustActivate[0].getOneTime():
+						self.eventForeground.remove(mustActivate[0])
+					self.state = "play"
+					#move the player UD to stay on the same spot and trigger any other events
+					mvPlayer("UD", dt)
+					checkForEventsAndTriggerStandOns(dt)
+				
+					return True
+				 
+				# turns on outlines for events
+				self.flipOutlines(activateIfEnterOnTopOf+activateIfEnterInFrontOf)
+				# activates an event with enter outside of this function
+			if (len(mv)>0):
+				checkForEventsAndTriggerStandOns(dt)
+			############################################
+			############################################
+			############################################
+			
+				
 
 		elif self.state == "pause":
 			for event in events:
