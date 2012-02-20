@@ -37,6 +37,7 @@ class GameInterface:
 		self.clearWindow()
 
 		self.outlinedEvents = []
+		self.curAttacks = []
 
 		self.createWorld('maps/mapgen_map')
 		self.renderView()
@@ -112,7 +113,7 @@ class GameInterface:
 						return
 					
 					if key == pg.K_q:
-						attacks.fireball().cast(self.player.getRect(), "U")
+						self.curAttacks.append(attacks.fireball().cast(self.player.getRect(), self.player.getDirectionFacing()))
 				
 				elif event.type == pg.KEYUP:
 					key = event.dict['key']
@@ -274,6 +275,20 @@ class GameInterface:
 					triggerStandOns(dt, mustActivate)
 			doit(mv, dt)
 
+
+
+			############################################
+			############################################
+			############################################
+			#handle attacks
+			for a in self.curAttacks:
+				keepA = a.tick(dt)
+				if not keepA:
+					self.curAttacks.remove(a)
+			############################################
+			############################################
+			############################################
+
 				
 
 		elif self.state == "pause":
@@ -342,10 +357,15 @@ class GameInterface:
 			#retrieves all the events that happen to coincide with the view
 			evtsToDisplay = self.eventForeground.getEventsOfAndBelow(playerOnZ, view)
 			if evtsToDisplay:
-				# print "below", evtsToDisplay
 				for each in evtsToDisplay:
 					blitRelRect(each.getRect(), each.getArt())
 			
+			#blit all the attacks to the screen
+			for a in self.curAttacks:
+				if a.getRect().colliderect(view):
+					blitRelRect(a.getRect(), a.getImg())
+
+			#blit player to screen
 			blitRelRect(self.player.getRect(), self.player.getArt())
 			
 			mapAbovePlayersZ = self.map.getImageOfAndAboveZ(playerOnZ+1, view) #returns false if player is on map's highest z
@@ -355,7 +375,6 @@ class GameInterface:
 			#retrieves all the events that happen to coincide with the view
 			evtsToDisplay = self.eventForeground.getEventsOfAndAbove(playerOnZ+1, view)
 			if evtsToDisplay:
-				# print "above", evtsToDisplay
 				for each in evtsToDisplay:
 					blitRelRect(each.getRect(), each.getArt())
 

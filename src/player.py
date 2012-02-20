@@ -85,6 +85,8 @@ class Player:
 		return self.belt
 	def getName(self):
 		return self.name
+	def getDirectionFacing(self):
+		return self.facing
 	
 	def getSortedInv(self):
 		ret = {}

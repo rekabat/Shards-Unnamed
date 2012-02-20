@@ -19,13 +19,13 @@ class fireball(Attack):
 	def __init__(self):#, **kwargs):
 		Attack.__init__(self)#, **kwargs)
 		# self.duration 
-		self.speed 		= 400 	#how fast it moves forward (pixels/second)
-		self.distance 	= 5 	#how many tiles it goes forward
+		self.speed 		= 400 			#how fast it moves forward (pixels/second)
+		self.distance 	= 5*g.TILE_RES[0] 	#how many tiles it goes forward
 		self.img		= pg.image.load('art/player.png').convert_alpha()
 	
 	def cast(self, playerRect, direction):
 		return fireball_cast(	
-			playerRect.center, 	#start at player's center
+			playerRect.topleft,	#start at player's center
 			direction,			#the direction it travels
 			self.speed,
 			self.distance,
@@ -39,20 +39,26 @@ class fireball_cast(fireball):
 		self.speed = speed
 		self.distance = distance
 		self.img = img
-		self.rect = self.tick(0)
+		self.rect = None
+		self.tick(0)
+
+	def getRect(self):
+		return self.rect
+	def getImg(self):
+		return self.img
 	def tick(self, dt):
 		self.distance -= self.speed*dt
 		if self.distance<=0:
 			return False #handle this by terminating the cast
 		
 		if self.dir=="U":
-			self.loc = (self.loc[0]-self.speed*dt, self.loc[1])
-		elif self.dir=="D":
-			self.loc = (self.loc[0]+self.speed*dt, self.loc[1])
-		elif self.dir=="L":
 			self.loc = (self.loc[0], self.loc[1]-self.speed*dt)
-		elif self.dir=="R":
+		elif self.dir=="D":
 			self.loc = (self.loc[0], self.loc[1]+self.speed*dt)
+		elif self.dir=="L":
+			self.loc = (self.loc[0]-self.speed*dt, self.loc[1])
+		elif self.dir=="R":
+			self.loc = (self.loc[0]+self.speed*dt, self.loc[1])
 		
 		self.rect = pg.Rect(self.loc, g.TILE_RES)
 
