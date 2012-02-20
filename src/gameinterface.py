@@ -68,6 +68,7 @@ class GameInterface:
 		self.map = map.Map(mapfile, self.display.getWH())
 		self.eventForeground = worldEvents.EventForeground(mapfile)
 		self.player = player.Player((12,10), [0])
+		self.player.takeHP(7)
 
 		self.player.giveItem(item.Item("weapon", "weapon", 3))
 	
@@ -161,7 +162,7 @@ class GameInterface:
 				couldntMove = True
 				for m in mv:
 					# Get the rect that the player would go to given the buttons pressed
-					playerNewRect = self.player.ifMoved(m, dt)
+					playerNewRect, playerPosPix = self.player.ifMoved(m, dt)
 
 					# Check if the movement is valid by making a smaller rectangle and seeing
 					smallerRect=pg.Rect((0,0),(playerNewRect.width*.87, playerNewRect.height*.87))
@@ -189,7 +190,7 @@ class GameInterface:
 						for z in playerZs:
 							atile = self.map.getTile(self.player.getRect().center, z)
 							if atile:
-								self.player.move(playerNewRect, atile.getZs())
+								self.player.move(playerNewRect, atile.getZs(), playerPosPix)
 								break
 				
 				if couldntMove:
@@ -197,8 +198,6 @@ class GameInterface:
 					#######################
 					#######################
 					#get rid of smallerRect
-			if len(mv) > 0:
-				mvPlayer(mv, dt)
 			############################################
 			############################################
 			############################################
@@ -209,55 +208,68 @@ class GameInterface:
 			############################################
 			############################################
 			############################################
-
-			def checkForEventsAndTriggerStandOns(dt):
+			def checkForEvents():
 				playerZs = self.player.getZs()
 
+				#tile the player's center pix is on
 				tilePlayerOn = self.map.getTile(self.player.getRect().center, max(playerZs))
+				#the events on that tile
+				mustActivate = self.eventForeground.unlockedNotEnterableEventsOn([tilePlayerOn], playerZs)
+				activateIfEnterOnTopOf = self.eventForeground.unlockedEnterableEventsOn([tilePlayerOn], playerZs)
 
+				#the tile in front of the player (based on the way he faces)
 				for z in playerZs:
 					# will return false if there's no tile at those coords and z
 					tileInFrontOfPlayer = self.map.getTile(self.player.getTilePixInFrontOf(), z)
 					if tileInFrontOfPlayer:
 						break
-
-				if tilePlayerOn:
-					mustActivate = self.eventForeground.unlockedNotEnterableEventsOn([tilePlayerOn], playerZs)
-					activateIfEnterOnTopOf = self.eventForeground.unlockedEnterableEventsOn([tilePlayerOn], playerZs)
-				else:
-					mustActivate = []
-					activateIfEnterOnTopOf = []
-				
+				#the events on that tile
 				if tileInFrontOfPlayer:
 					activateIfEnterInFrontOf = self.eventForeground.unlockedEnterableBlockedEventsOn([tileInFrontOfPlayer], playerZs)
 				else:
 					activateIfEnterInFrontOf = []
-			
-				#this loop triggers a chain of events that are stood on
-				if len(mustActivate)>0:
-					self.state = "WE"
-					#release player from any movements
-					self.player.forgetMovement()
-
-					mustActivate[0].execute(self)
-					if mustActivate[0].getOneTime():
-						self.eventForeground.remove(mustActivate[0])
-					self.state = "play"
-					#move the player UD to stay on the same spot and trigger any other events
-					mvPlayer("UD", dt)
-					checkForEventsAndTriggerStandOns(dt)
 				
-					return True
-				 
+
 				# turns on outlines for events
 				self.flipOutlines(activateIfEnterOnTopOf+activateIfEnterInFrontOf)
 				# activates an event with enter outside of this function
-			if (len(mv)>0):
-				checkForEventsAndTriggerStandOns(dt)
+
+				return mustActivate
 			############################################
 			############################################
 			############################################
+
+
+
+			############################################
+			############################################
+			############################################
+			def triggerStandOns(dt, mustActivate):
+				#this loop triggers a chain of events that are stood on
+				self.state = "WE"
+				#release player from any movements
+				self.player.forgetMovement()
+
+				mustActivate[0].execute(self)
+				if mustActivate[0].getOneTime():
+					self.eventForeground.remove(mustActivate[0])
+				self.state = "play"
+
+				doit("UD", dt)
 			
+				return True
+			############################################
+			############################################
+			############################################
+			def doit(mv, dt):
+				if (len(mv)>0):
+					mvPlayer(mv, dt)
+				if (len(mv)>0):
+					mustActivate = checkForEvents()
+				if (len(mv)>0) and (len(mustActivate)>0):
+					triggerStandOns(dt, mustActivate)
+			doit(mv, dt)
+
 				
 
 		elif self.state == "pause":
@@ -342,6 +354,10 @@ class GameInterface:
 				# print "above", evtsToDisplay
 				for each in evtsToDisplay:
 					blitRelRect(each.getRect(), each.getArt())
+
+			# then the players belt is blitted
+			belt = self.player.getBelt().getImg()
+			self.display.get().blit(belt, ((w-belt.get_width())/2.,h-g.TILE_RES[1]))
 
 			#blits the window to the display over everything else (top layer)
 			self.display.get().blit(self.window, (0,0))

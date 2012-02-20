@@ -10,9 +10,9 @@ class Player:
 		#####################################
 
 		#make a rect for where it is
-		size = (size[0]*g.TILE_RES[0], size[1]*g.TILE_RES[1]) #given in tile size, convert to pixel size 
-		position = ((position[0]+.5)*g.TILE_RES[0], (position[1]+.5)*g.TILE_RES[1]) #given in tile coordinates, convert to pixel
-		self.rect= pg.Rect((position[0]-size[0]*.5, position[1]-size[1]*.5), size)
+		self.size = (size[0]*g.TILE_RES[0], size[1]*g.TILE_RES[1]) #given in tile size, convert to pixel size 
+		self.pos = (position[0]*g.TILE_RES[0], position[1]*g.TILE_RES[1]) #given in tile coordinates, convert to pixel
+		self.rect= pg.Rect(self.pos, size)
 		
 		#what floor "level" is the player on
 		self.zs = zs
@@ -55,16 +55,15 @@ class Player:
 						'atk': 	1	} #stats
 		self.inv = [] #armor, weapons, potions, shards, runes, misc
 		self.spells = [] #all available spells for crafting
-		self.belt = { 	0: None, 
+		self.belt = Belt({ 	0: None, 
 						1: None, 
 						2: None, 
 						3: None,
 						4: None, 
 						5: None, 
 						6: None, 
-						7: None, 
-						8: None, 
-						9: None } #spells and potions currently chosen for battle + equipped weapon
+						7: None }, #spells and potions currently chosen for battle + equipped weapon
+						self.stats['hp'])
 		self.equipped = {	"head":		None,	\
 							"chest":	None,	\
 							"legs":		None,	\
@@ -84,6 +83,18 @@ class Player:
 	
 	def getZs(self):
 	 	return self.zs
+	 
+	def getBelt(self):
+		return self.belt
+
+	def getName(self):
+		return self.name
+	
+	def getSortedInv(self):
+		ret = {}
+		for each in self.inv:
+			ret.update({each.getType(): each})
+		return ret
 	
 	def ifMoved(self, direction, dt):
 		xmove = 0
@@ -97,16 +108,18 @@ class Player:
 			xmove-=(g.PX_STEP*dt)
 		if "R" in direction:
 			xmove+=(g.PX_STEP*dt)
-		
-		newRect = self.rect.copy()
-		newRect.centerx += xmove
-		newRect.centery += ymove
-		
-		return newRect
-	
-	def move(self, rectTo, zs):
+
+		posPix = (self.pos[0]+xmove, self.pos[1]+ymove)
+		return pg.Rect(posPix, self.size), posPix
+
+	def move(self, rectTo, zs, posPix=None):
 		self.rect = rectTo
 		self.zs = zs
+		if posPix is None:
+			self.pos = rectTo.topleft
+		else:
+			self.pos = posPix
+		
 	
 	def forgetMovement(self):
 		self.udlr = [False, False, False, False]
@@ -178,17 +191,89 @@ class Player:
 		
 		return ret
 	
-	def getName(self):
-		return self.name
-	
 	def giveItem(self, item):
 		self.inv.append(item)
 	
 	def takeItem(self, item):
 		self.inv.remove(item)
 	
-	def getSortedInv(self):
-		ret = {}
-		for each in self.inv:
-			ret.update({each.getType(): each})
-		return ret
+	def takeHP(self, amt):
+		self.stats['hp'] -= amt
+		if self.stats['hp']<=0:
+			return True
+		self.belt.adjustCurrentHP(self.stats['hp'])
+		return False
+
+
+class Belt:
+	def __init__(self, eq, hp):
+		self.eq = eq
+		self.hp = hp
+		self.img = self.genImg(eq, hp)
+	
+	def genImg(self, eq, hp):
+		img = pg.Surface((g.TILE_RES[0]*10, g.TILE_RES[1]))
+
+		#for the equipped items
+		for i in range(10):
+			if i is 4 or i is 5:
+				pass
+			else:
+				if i<4:
+					j=i
+				elif i>5:
+					j=i-2
+				rect = pg.Rect((i*g.TILE_RES[1], 0), g.TILE_RES)
+
+				if self.eq[j] is None:
+					surf = pg.Surface(g.TILE_RES)
+					surf.fill(g.WHITE)
+				else:
+					surf = self.eq[j].getImg()
+
+				for x in range(g.TILE_RES[0]):
+					for y in range(g.TILE_RES[1]):
+						if (x == 0) or (y == 0) or (x == g.TILE_RES[0]-1) or (y == g.TILE_RES[1]-1):
+							surf.set_at((x,y),g.BLACK)
+				img.subsurface(rect).blit(surf, (0,0))
+		
+		self.img = img
+
+		#for the health bar
+		self.adjustCurrentHP(self.getTotalHP())
+
+		return img
+	
+	def getImg(self):
+		return self.img
+	
+	def getTotalHP(self):
+		return self.hp
+	
+	def adjustCurrentHP(self, amt): # needs to be amt/total (not -amt)
+		img = self.getImg()
+
+		#make it all white
+		dim = (g.TILE_RES[0]*2, g.TILE_RES[1])
+		rect = pg.Rect((4*g.TILE_RES[1], 0), dim)
+		surfw = pg.Surface(dim)
+		surfw.fill(g.WHITE)
+
+		#give it a red outline
+		for x in range(g.TILE_RES[0]*2):
+			for y in range(g.TILE_RES[1]):
+					if (x == 0) or (y == 0) or (x == g.TILE_RES[0]*2-1) or (y == g.TILE_RES[1]-1):
+						surfw.set_at((x,y), g.RED)
+
+		#make part red
+		width = (float(amt)/self.getTotalHP()) * g.TILE_RES[0]*2
+		surfr = pg.Surface((width, g.TILE_RES[1]))
+		surfr.fill(g.RED)
+		x = (g.TILE_RES[0]*2 - width) / 2.
+		surfw.blit(surfr, (x,0))
+
+
+		img.subsurface(rect).blit(surfw, (0,0))
+
+
+
