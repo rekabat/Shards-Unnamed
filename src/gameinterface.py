@@ -8,6 +8,7 @@ import worldEvents
 import font
 import cursor
 import item
+import attacks
 
 import pauseMenu as pm
 
@@ -68,7 +69,7 @@ class GameInterface:
 		self.map = map.Map(mapfile, self.display.getWH())
 		self.eventForeground = worldEvents.EventForeground(mapfile)
 		self.player = player.Player((12,10), [0])
-		self.player.takeHP(7)
+		# self.player.takeHP(0)
 
 		self.player.giveItem(item.Item("weapon", "weapon", 3))
 	
@@ -109,6 +110,9 @@ class GameInterface:
 						#launches the menu into its last opened state (or player state if this is the first time opening it)
 						self.pmenu.changeState(self.pmenu.getState())
 						return
+					
+					if key == pg.K_q:
+						attacks.fireball().cast(self.player.getRect(), "U")
 				
 				elif event.type == pg.KEYUP:
 					key = event.dict['key']

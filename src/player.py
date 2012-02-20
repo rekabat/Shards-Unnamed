@@ -77,16 +77,12 @@ class Player:
 		
 	def getRect(self):
 		return self.rect
-		
 	def getArt(self):
 		return self.art
-	
 	def getZs(self):
 	 	return self.zs
-	 
 	def getBelt(self):
 		return self.belt
-
 	def getName(self):
 		return self.name
 	
@@ -120,7 +116,6 @@ class Player:
 		else:
 			self.pos = posPix
 		
-	
 	def forgetMovement(self):
 		self.udlr = [False, False, False, False]
 	
@@ -271,7 +266,6 @@ class Belt:
 		surfr.fill(g.RED)
 		x = (g.TILE_RES[0]*2 - width) / 2.
 		surfw.blit(surfr, (x,0))
-
 
 		img.subsurface(rect).blit(surfw, (0,0))
 
