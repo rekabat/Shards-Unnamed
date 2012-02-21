@@ -45,16 +45,14 @@ class PMenu:
 	
 	# def genDisp(self):
 		
-	def getState(self):
-		return self.state
-
-	def changeState(self, newstate):
-		self.state = newstate
-
+	def getState(self): return self.state
 	def getDisp(self):
 		if self.displayed is None:
 			self.dispatch(pg.K_1)
 		return self.displayed
+	
+	def changeState(self, newstate):
+		self.state = newstate
 
 	def clearall(self):
 		self.displayed = None

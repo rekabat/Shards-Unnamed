@@ -67,6 +67,10 @@ class Map:
         self.layersOfAndBelow = self.makeLayersOfAndBelow()
         #a dict whose key is z and the return is the image of this z and all those above it layered 
         self.layersOfAndAbove = self.makeLayersOfAndAbove()
+
+    def getMapSizePx(self): return self.mapSizePx
+    def getDrawingSize(self): return self.drawingSize
+    def getMapDrawingDif(self): return self.mapDrawingDif
     
     def makeLayersOfAndBelow(self):
         ret = {}
@@ -136,13 +140,6 @@ class Map:
             return self.layersOfAndAbove[z]
         else:
             return self.layersOfAndAbove[z].subsurface(partial)
-
-    def getMapSizePx(self):
-        return self.mapSizePx
-    def getDrawingSize(self):
-        return self.drawingSize
-    def getMapDrawingDif(self):
-        return self.mapDrawingDif
     
     def pix2tile(self, pix):
         return g.pix2tile((pix[0]-self.mapDrawingDif[0], pix[1]-self.mapDrawingDif[1]))
@@ -214,23 +211,12 @@ class Tile:
         self.Z = z #list
         self.rect = g.tile2rect(pos)
     
-    def source(self):
-        return self.Source
-
-    def type(self):
-        return self.PosOnTileFile
+    def source(self): return self.Source
+    def type(self): return self.PosOnTileFile
+    def getArt(self): return self.art
+    def blocked(self): return self.Blocked
+    def getZs(self): return self.Z
+    def getRect(self): return self.rect
     
     def setArt(self, art):
         self.art = art
-
-    def getArt(self):
-        return self.art
-
-    def blocked(self):
-        return self.Blocked
-    
-    def getZs(self):
-        return self.Z
-    
-    def getRect(self):
-        return self.rect

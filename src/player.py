@@ -75,18 +75,12 @@ class Player:
 		#####################################
 		
 		
-	def getRect(self):
-		return self.rect
-	def getArt(self):
-		return self.art
-	def getZs(self):
-	 	return self.zs
-	def getBelt(self):
-		return self.belt
-	def getName(self):
-		return self.name
-	def getDirectionFacing(self):
-		return self.facing
+	def getRect(self): return self.rect
+	def getArt(self): return self.art
+	def getZs(self): return self.zs
+	def getBelt(self): return self.belt
+	def getName(self): return self.name
+	def getDirectionFacing(self): return self.facing
 	
 	def getSortedInv(self):
 		ret = {}
@@ -122,24 +116,16 @@ class Player:
 		self.udlr = [False, False, False, False]
 	
 	def movingDirection(self, dir):
-		if dir == "U":
-			self.udlr[0] = True
-		elif dir == "D":
-			self.udlr[1] = True
-		elif dir == "L":
-			self.udlr[2] = True
-		elif dir == "R":
-			self.udlr[3] = True
+		if   dir == "U": self.udlr[0] = True
+		elif dir == "D": self.udlr[1] = True
+		elif dir == "L": self.udlr[2] = True
+		elif dir == "R": self.udlr[3] = True
 	
 	def stoppingDirection(self, dir):
-		if dir == "U":
-			self.udlr[0] = False
-		elif dir == "D":
-			self.udlr[1] = False
-		elif dir == "L":
-			self.udlr[2] = False
-		elif dir == "R":
-			self.udlr[3] = False
+		if   dir == "U": self.udlr[0] = False
+		elif dir == "D": self.udlr[1] = False
+		elif dir == "L": self.udlr[2] = False
+		elif dir == "R": self.udlr[3] = False
 	
 	def overallDirection(self):
 		dir = ""
@@ -177,15 +163,10 @@ class Player:
 	
 	def getTilePixInFrontOf(self): #players center + half a tile in the direction he faces
 		ret = self.rect.center
-		if self.facing == "U":
-			ret = (ret[0], ret[1]-g.TILE_RES[1])
-		elif self.facing == "D":
-			ret = (ret[0], ret[1]+g.TILE_RES[1])
-		elif self.facing == "L":
-			ret = (ret[0]-g.TILE_RES[0], ret[1])
-		elif self.facing == "R":
-			ret = (ret[0]+g.TILE_RES[0], ret[1])
-		
+		if   self.facing == "U": ret = (ret[0], ret[1]-g.TILE_RES[1])
+		elif self.facing == "D": ret = (ret[0], ret[1]+g.TILE_RES[1])
+		elif self.facing == "L": ret = (ret[0]-g.TILE_RES[0], ret[1])
+		elif self.facing == "R": ret = (ret[0]+g.TILE_RES[0], ret[1])
 		return ret
 	
 	def giveItem(self, item):
@@ -247,11 +228,8 @@ class Belt:
 
 		return img
 	
-	def getImg(self):
-		return self.img
-	
-	def getTotalHP(self):
-		return self.hp
+	def getImg(self): return self.img
+	def getTotalHP(self): return self.hp
 	
 	def adjustCurrentHP(self, amt): # needs to be amt/total (not -amt)
 		img = self.getImg()

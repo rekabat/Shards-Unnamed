@@ -6,9 +6,6 @@ import worldEventsParser
 
 import general as g
 
-def tileRect((x, y), squareSize):
-	return pg.Rect((x * squareSize[0], y * squareSize[1]), squareSize)
-
 class EventForeground:
 	def __init__(self, file):
 		self.file = file + ".evt"
@@ -75,18 +72,19 @@ class EventForeground:
 
 class WorldEvent:
 	def __init__(self, event_id, art, art_tile, on, z, blocked, enter, one_time, locked, extra):
-		self.event_id = event_id
-		self.on = on
-		self.z = z
-		self.blocked = blocked
-		self.enter = enter
-		self.one_time = one_time
-		self.locked = locked
+		self.event_id 	= event_id 	#the type of event
+		# self.art_tile	= art_tile 	#tile location in the 
+		self.on 		= on 		#tile location on map
+		self.z 			= z 		#z level
+		self.blocked 	= blocked 	#whether or not the event causes the tile to be blocked
+		self.enter 		= enter 	#whether it's activated by enter or stepping on (T/F)
+		self.one_time 	= one_time 	#whther it can be activated once or inifinite times (T/F)
+		self.locked 	= locked 	#whether the event is currently available (T)
 
 		if art is not None:
 			art = pg.image.load(art).convert_alpha()
-			self.art = art.subsurface(tileRect(art_tile, g.TILE_RES)).copy()
-			self.art_outlined = self.getOutlinedArt()
+			self.art = art.subsurface(g.tile2rect(art_tile)).copy()
+			self.art_outlined = self.makeOutlinedArt()
 		else:
 			self.art = pg.Surface(g.TILE_RES, SRCALPHA, 32).convert_alpha()
 			self.art_outlined = self.art.copy()
@@ -98,23 +96,23 @@ class WorldEvent:
 				self.art_outlined.set_at((g.TILE_RES[0]-1, i), g.RED)
 		
 
-		# self.art_tile = art_tile
+		
 		self.extra = extra
-		self.rect = tileRect(on, g.TILE_RES)
+		self.rect = g.tile2rect(on)
 		self.behind = None #WE get stacked behind other events on the same tile, that is, when one gets executed and removed the one behind it gets placed
 
-	def getArt(self):
-		return self.art
-	
-	def getOutlinedArt(self):
-		return self.art_outlined
+	def getArt(self): return self.art
+	def getOutlinedArt(self): return self.art_outlined
+	def getRect(self): return self.rect
+	def getZ(self): return self.z
+	def getOneTime(self): return self.one_time
 	
 	def switchArt(self):
 		temp = self.art
 		self.art = self.art_outlined
 		self.art_outlined = temp
 	
-	def getOutlinedArt(self):
+	def makeOutlinedArt(self):
 		newArt = self.art.copy()
 		#sets top to red
 		for i in range(g.TILE_RES[0]):
@@ -141,15 +139,6 @@ class WorldEvent:
 					newArt.set_at((i,j), (255,0,0))
 					break
 		return newArt
-	
-	def getRect(self):
-		return self.rect
-
-	def getZ(self):
-		return self.z
-	
-	def getOneTime(self):
-		return self.one_time
 	
 	def setDeepest(self, WE):
 		if self.behind is not None:

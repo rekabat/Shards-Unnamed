@@ -20,8 +20,7 @@ class Item:
 		self.type = type
 		self.value = value
 	
-	def getType(self):
-		return self.type
+	def getType(self): return self.type
 
 
 def genRandWeapon(self):

@@ -32,8 +32,7 @@ class fireball(Attack):
 			self.img
 			)
 	
-	def getImg(self):
-		return self.img
+	def getImg(self): return self.img
 		
 class fireball_cast(fireball):
 	def __init__(self, start, dir, speed, distance, img):
@@ -45,10 +44,9 @@ class fireball_cast(fireball):
 		self.rect = None
 		self.tick(0)
 
-	def getRect(self):
-		return self.rect
-	def getImg(self):
-		return self.img
+	def getRect(self): return self.rect
+	def getImg(self): return self.img
+
 	def tick(self, dt):
 		self.distance -= self.speed*dt
 		if self.distance<=0:

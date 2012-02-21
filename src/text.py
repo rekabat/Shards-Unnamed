@@ -10,23 +10,12 @@ class Text:
 
 		self.img = pg.font.Font(None, self.size).render(self.str, self.antialiasing, self.color)
 	
-	def get(self):
-		return self.img
-	
-	def getSize(self):
-		return self.size
-	
-	def getStr(self):
-		return self.str
-	
-	def getColor(self):
-		return self.color
-	
-	def getAA(self):
-		return self.antialiasing
-	
-	def getLength(self):
-		return self.get().get_rect().width
+	def get(self): return self.img
+	def getSize(self): return self.size
+	def getStr(self): return self.str
+	def getColor(self): return self.color
+	def getAA(self): return self.antialiasing
+	def getLength(self): return self.get().get_rect().width
 
 	def place(self, surface, position, center=True):
 		strSurface = self.get()

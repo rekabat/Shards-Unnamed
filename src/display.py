@@ -12,7 +12,10 @@ class Display:
 		self.screen = None
 
 		self.createDisplay()
-		
+	
+	def get(self): return self.screen
+	def getWH(self): return (self.width, self.height)
+	
 	def createDisplay(self):
 		self.screen = pg.display.set_mode((self.width, self.height))
 		# self.screen = pygame.display.set_mode((self.width, self.height), pygame.FULLSCREEN|pygame.NOFRAME)
@@ -21,12 +24,6 @@ class Display:
 		
 		pg.display.set_icon(pg.image.load('art/icon.png').convert())
 		pg.display.set_caption('Shards')
-	
-	def get(self):
-		return self.screen
-		
-	def getWH(self):
-		return (self.width, self.height)
 	
 	def toggleFull(self):
 		if self.isFull:
