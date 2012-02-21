@@ -49,10 +49,13 @@ class GameInterface:
 		##########
 		self.pmenu = pm.PMenu(self)
 			
-			
-	
-	def clearWindow(self):
-		self.window = pg.Surface(self.display.getWH(), SRCALPHA, 32).convert_alpha()
+	def createWorld(self, mapfile):
+		self.map = map.Map(mapfile, self.display.getWH())
+		self.eventForeground = worldEvents.EventForeground(mapfile)
+		self.player = player.Player((12,10), [0])
+		self.player.setBeltSlot(0,attacks.fireball())
+
+		self.player.giveItem(item.Item("weapon", "weapon", 3))
 	
 	def flipOutlines(self, events):
 		copy = self.outlinedEvents[:]
@@ -65,14 +68,6 @@ class GameInterface:
 		for each in copy:
 			each.switchArt()
 			self.outlinedEvents.remove(each)
-		
-	def createWorld(self, mapfile):
-		self.map = map.Map(mapfile, self.display.getWH())
-		self.eventForeground = worldEvents.EventForeground(mapfile)
-		self.player = player.Player((12,10), [0])
-		self.player.setBeltSlot(0,attacks.fireball())
-
-		self.player.giveItem(item.Item("weapon", "weapon", 3))
 	
 	def dispatch(self, events, dt=0):
 		#some things are handled the same way in all states:
@@ -313,6 +308,9 @@ class GameInterface:
 		
 		#it returns all events that are not executed in the general state
 		return events
+	
+	def clearWindow(self):
+		self.window = pg.Surface(self.display.getWH(), SRCALPHA, 32).convert_alpha()
 	
 	def playerOnTopHalf(self): #with a slight tolerance
 		if self.view.centery+5 < self.player.getRect().centery: 
