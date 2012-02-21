@@ -200,6 +200,12 @@ class Player:
 			return True
 		self.belt.adjustCurrentHP(self.stats['hp'])
 		return False
+	
+	def setBeltSlot(self, slot, set):
+		self.getBelt().setBeltSlot(slot, set)
+	
+	def cast(self, slot, *args):
+		return self.getBelt().cast(slot, *args)
 
 
 class Belt:
@@ -270,6 +276,24 @@ class Belt:
 		surfw.blit(surfr, (x,0))
 
 		img.subsurface(rect).blit(surfw, (0,0))
+	
+	def setBeltSlot(self, slot, set):
+		if slot>7:
+			raise KeyboardInterrupt("Belt slot out of range.")
+		
+		self.eq[slot]=set
+
+		if (slot is 4) or (slot is 5):
+			slot += 2
+
+		self.img.blit(set.getImg(), (slot*g.TILE_RES[1], 0))
+	
+	def cast(self, slot, *args):
+		if self.eq[slot] is not None:
+			return self.eq[slot].cast(*args)
+		return False
+		
+
 
 
 

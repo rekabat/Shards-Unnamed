@@ -70,7 +70,7 @@ class GameInterface:
 		self.map = map.Map(mapfile, self.display.getWH())
 		self.eventForeground = worldEvents.EventForeground(mapfile)
 		self.player = player.Player((12,10), [0])
-		# self.player.takeHP(0)
+		self.player.setBeltSlot(0,attacks.fireball())
 
 		self.player.giveItem(item.Item("weapon", "weapon", 3))
 	
@@ -91,43 +91,46 @@ class GameInterface:
 			for event in events:
 				if event.type == pg.KEYDOWN:
 					key = event.dict['key']
-					if key == pg.K_UP:
-						self.player.movingDirection("U")
-					if key == pg.K_DOWN:
-						self.player.movingDirection("D")
-					if key == pg.K_LEFT:
-						self.player.movingDirection("L")
-					if key == pg.K_RIGHT:
-						self.player.movingDirection("R")
-					
+
+					casted = False
+
 					if key == pg.K_RETURN:
 						enterPressed = True
 					
-					if key == pg.K_ESCAPE:
+					elif key == pg.K_ESCAPE:
 						self.state = "pause"
 						#release player from any movements
 						self.player.forgetMovement()
-
 						#launches the menu into its last opened state (or player state if this is the first time opening it)
 						self.pmenu.changeState(self.pmenu.getState())
 						return
 					
-					if key == pg.K_q:
-						self.curAttacks.append(attacks.fireball().cast(self.player.getRect(), self.player.getDirectionFacing()))
+					#movement control
+					elif key == pg.K_UP: 	self.player.movingDirection("U")
+					elif key == pg.K_DOWN: 	self.player.movingDirection("D")
+					elif key == pg.K_LEFT: 	self.player.movingDirection("L")
+					elif key == pg.K_RIGHT: self.player.movingDirection("R")
+					
+					#casting of belt items
+					elif key == pg.K_q:		casted = self.player.cast(0, self.player.getRect(), self.player.getDirectionFacing())
+					elif key == pg.K_w: 	casted = self.player.cast(1, self.player.getRect(), self.player.getDirectionFacing())
+					elif key == pg.K_e: 	casted = self.player.cast(2, self.player.getRect(), self.player.getDirectionFacing())
+					elif key == pg.K_r: 	casted = self.player.cast(3, self.player.getRect(), self.player.getDirectionFacing())
+					elif key == pg.K_a: 	casted = self.player.cast(4, self.player.getRect(), self.player.getDirectionFacing())
+					elif key == pg.K_s: 	casted = self.player.cast(5, self.player.getRect(), self.player.getDirectionFacing())
+					elif key == pg.K_d: 	casted = self.player.cast(6, self.player.getRect(), self.player.getDirectionFacing())
+					elif key == pg.K_f: 	casted = self.player.cast(7, self.player.getRect(), self.player.getDirectionFacing())
+					if casted: #will be false if nothing is casted or an empty belt slot is used
+						self.curAttacks.append(casted)
 				
 				elif event.type == pg.KEYUP:
 					key = event.dict['key']
-					if key == pg.K_UP:
-						self.player.stoppingDirection("U")
-					if key == pg.K_DOWN:
-						self.player.stoppingDirection("D")
-					if key == pg.K_LEFT:
-						self.player.stoppingDirection("L")
-					if key == pg.K_RIGHT:
-						self.player.stoppingDirection("R")
+
+					if key == pg.K_UP: self.player.stoppingDirection("U")
+					elif key == pg.K_DOWN: self.player.stoppingDirection("D")
+					elif key == pg.K_LEFT: self.player.stoppingDirection("L")
+					elif key == pg.K_RIGHT: self.player.stoppingDirection("R")
 			
-
-
 			mv = self.player.overallDirection()
 
 

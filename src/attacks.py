@@ -21,16 +21,19 @@ class fireball(Attack):
 		# self.duration 
 		self.speed 		= 400 			#how fast it moves forward (pixels/second)
 		self.distance 	= 5*g.TILE_RES[0] 	#how many tiles it goes forward
-		self.img		= pg.image.load('art/player.png').convert_alpha()
+		self.img		= pg.image.load('art/attacks/fireball.png').convert_alpha()
 	
-	def cast(self, playerRect, direction):
+	def cast(self, *args): #playerRect, direction):
 		return fireball_cast(	
-			playerRect.topleft,	#start at player's center
-			direction,			#the direction it travels
+			args[0].topleft,	#start at player's center
+			args[1],			#the direction it travels
 			self.speed,
 			self.distance,
 			self.img
 			)
+	
+	def getImg(self):
+		return self.img
 		
 class fireball_cast(fireball):
 	def __init__(self, start, dir, speed, distance, img):
