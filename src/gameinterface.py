@@ -54,6 +54,13 @@ class GameInterface:
 		self.eventForeground = worldEvents.EventForeground(mapfile)
 		self.player = player.Player((12,10), [0])
 		self.player.setBeltSlot(0,attacks.fireball())
+		self.player.setBeltSlot(1,attacks.icefield())
+		self.player.setBeltSlot(2,attacks.fireball())
+		self.player.setBeltSlot(3,attacks.icefield())
+		self.player.setBeltSlot(4,attacks.fireball())
+		self.player.setBeltSlot(5,attacks.icefield())
+		self.player.setBeltSlot(6,attacks.fireball())
+		self.player.setBeltSlot(7,attacks.icefield())
 
 		self.player.giveItem(item.Item("weapon", "weapon", 3))
 	
@@ -70,6 +77,8 @@ class GameInterface:
 			self.outlinedEvents.remove(each)
 	
 	def dispatch(self, events, dt=0):
+		froze = False
+
 		#some things are handled the same way in all states:
 		for event in events:
 			if event.type == pg.QUIT:
@@ -147,6 +156,7 @@ class GameInterface:
 					self.outlinedEvents.remove(evt)
 					self.flipOutlines(self.outlinedEvents)
 				self.state = "play"
+				froze = True
 				#release player from any movements
 				self.player.forgetMovement()
 				#so that if it's now standing on event, that event will be activated
@@ -260,7 +270,7 @@ class GameInterface:
 
 				doit("UD", dt)
 			
-				return True
+				return dt
 			############################################
 			############################################
 			############################################
@@ -271,6 +281,7 @@ class GameInterface:
 					mustActivate = checkForEvents()
 				if (len(mv)>0) and (len(mustActivate)>0):
 					triggerStandOns(dt, mustActivate)
+					froze = True
 			doit(mv, dt)
 
 
@@ -307,7 +318,7 @@ class GameInterface:
 			pass
 		
 		#it returns all events that are not executed in the general state
-		return events
+		return events, froze
 	
 	def clearWindow(self):
 		self.window = pg.Surface(self.display.getWH(), SRCALPHA, 32).convert_alpha()

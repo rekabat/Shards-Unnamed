@@ -45,7 +45,7 @@ class EventForeground:
 		ret = []
 		for tile in tileList:
 			for each in self.eventList:
-				if (not each.enter) and (not each.locked) and (each.z in zlist) and each.getRect().colliderect(tile.getRect()):
+				if (not each.enter) and (not each.locked) and (each.z in zlist) and (each.getRect().colliderect(tile.getRect())):
 					ret.append(each)
 		return ret
 	
@@ -232,7 +232,7 @@ class dialog(WorldEvent):
 			while not gotEnter:
 				#wait only gets the first event that happens, so it's not a list
 				evt = pg.event.wait()
-				evt = GI.dispatch([evt])
+				evt, trash0 = GI.dispatch([evt])
 				if len(evt) > 0:
 					evt = evt[0]
 					if evt.type == pg.KEYDOWN:

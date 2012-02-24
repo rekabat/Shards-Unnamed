@@ -4,7 +4,7 @@ import math
 import general as g
 
 class Player:
-	def __init__(self, position, zs, size= (1,1), art='art/player.png'):
+	def __init__(self, position, zs, size= (1,1), img='art/player.png'):
 		#####################################
 		# Avatar info #######################
 		#####################################
@@ -18,23 +18,23 @@ class Player:
 		self.zs = zs
 
 		#the image of the player
-		art = pg.image.load(art).convert_alpha() #loaded as facing up
+		img = pg.image.load(img).convert_alpha() #loaded as facing up
 		# art = pg.transform.scale(art, (100,100))
 
 		#the image of the player facing in all directions
-		self.udlrFacing = (                \
-			art,                           \
-			pg.transform.rotate(art, 180), \
-			pg.transform.rotate(art, 90),  \
-			pg.transform.rotate(art, 270)  )
+		self.udlrFacing = {                \
+			"U": img,                           \
+			"D": pg.transform.rotate(img, 180), \
+			"L": pg.transform.rotate(img, 90),  \
+			"R": pg.transform.rotate(img, 270)  }
+		#the current direction the player is facing
+		self.facing = "U"
+
 		#the player defaulted to face forward
-		self.art = self.udlrFacing[0]
+		self.art = self.udlrFacing[self.facing]
 
 		#the directions the player is currently going
 		self.udlr = [False, False, False, False]
-
-		#the current direction the player is facing
-		self.facing = "U"
 
 		#####################################
 		# Avatar info #######################
@@ -149,16 +149,16 @@ class Player:
 		#in cases of diagonal, choose U or D
 		if ("U" in trn) or ("D" in trn):
 			if "U" in trn:
-				self.art = self.udlrFacing[0]
+				self.art = self.udlrFacing["U"]
 				self.facing = "U"
 			if "D" in trn:
-				self.art = self.udlrFacing[1]
+				self.art = self.udlrFacing["D"]
 				self.facing = "D"
 		elif "L" in trn:
-			self.art = self.udlrFacing[2]
+			self.art = self.udlrFacing["L"]
 			self.facing = "L"
 		elif "R" in trn:
-			self.art = self.udlrFacing[3]
+			self.art = self.udlrFacing["R"]
 			self.facing = "R"
 	
 	def getTilePixInFrontOf(self): #players center + half a tile in the direction he faces
@@ -261,10 +261,10 @@ class Belt:
 		
 		self.eq[slot]=set
 
-		if (slot is 4) or (slot is 5):
+		if slot >= 4:
 			slot += 2
 
-		self.img.blit(set.getImg(), (slot*g.TILE_RES[1], 0))
+		self.img.blit(set.getIcon(), (slot*g.TILE_RES[1], 0))
 	
 	def cast(self, slot, *args):
 		if self.eq[slot] is not None:
