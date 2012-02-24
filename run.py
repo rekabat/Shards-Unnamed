@@ -12,6 +12,7 @@ clock = pg.time.Clock()
 def runGame():
 
     GI = src.gameinterface.GameInterface('play')
+    
     froze = False
 
     while True:

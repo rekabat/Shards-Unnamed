@@ -53,6 +53,7 @@ class GameInterface:
 		self.map = map.Map(mapfile, self.display.getWH())
 		self.eventForeground = worldEvents.EventForeground(mapfile)
 		self.player = player.Player((12,10), [0])
+		print self.player.getRect(), self.player.getRect().center, self.player.getRect().topleft
 		self.player.setBeltSlot(0,attacks.fireball())
 		self.player.setBeltSlot(1,attacks.icefield())
 		self.player.setBeltSlot(2,attacks.fireball())
