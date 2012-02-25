@@ -43,6 +43,7 @@ class GameInterface:
 		self.renderView()
 
 		self.view = None #primarily used to determine if player is on top or bottom half of the screen for events
+		self.tabHeld = False #true if tab is currently pressed
 		
 		##########
 		# Stuff for "pause"
@@ -84,6 +85,17 @@ class GameInterface:
 		for event in events:
 			if event.type == pg.QUIT:
 				quit()
+			elif event.type == pg.KEYDOWN:
+				key = event.dict['key']
+
+				if key == pg.K_TAB:
+					self.tabHeld = True
+			elif event.type == pg.KEYUP:
+				key = event.dict['key']
+
+				if key == pg.K_TAB:
+					self.tabHeld = False
+
 
 
 		if self.state == "main-menu":
@@ -167,7 +179,8 @@ class GameInterface:
 			############################################
 			############################################
 
-			self.player.turn()
+			if not self.tabHeld:
+				self.player.turn()
 
 			############################################
 			# Move player ##############################

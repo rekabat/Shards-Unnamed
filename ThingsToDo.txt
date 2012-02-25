@@ -15,7 +15,7 @@ Things to consider:
  - 
 
 
-
+- hold d+l then add r and you go slowly left while facing down
 
 
 

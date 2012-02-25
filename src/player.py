@@ -147,6 +147,8 @@ class Player:
 				self.currentImg	+= 1
 			else:
 				self.currentImg = 0
+
+			self.art = self.udlrFacing[self.facing][self.currentImg]
 		
 	def forgetMovement(self):
 		self.udlr = [False, False, False, False]
