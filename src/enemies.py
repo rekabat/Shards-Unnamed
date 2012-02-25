@@ -7,11 +7,22 @@ class Enemy(moveables.Moveable):
 	def __init__(self, position, zs, size= (1,1), img='art/playersprite.png', pixStep = 75):
 		moveables.Moveable.__init__(self, position, zs, size, img, pixStep)
 
+		self.aggroRange = 7 #tiles (width)
+		self.origin = self.rect.center
+
 	def tick(self, dt, player):
-		rel = (player.getRect().topleft[0] - self.getRect().topleft[0], player.getRect().topleft[1] - self.getRect().topleft[1])
+		if g.distance(player.getRect().center, self.getRect().center)>= self.aggroRange*g.TILE_RES[0]:
+			if g.distance(self.origin, self.getRect().center) > 5: #tolerance of 5 pixels from the origin
+				xp, yp = self.origin
+			else:
+				return
+		else:
+			xp, yp = player.getRect().center
 
 		xs, ys = self.getRect().center
-		xp, yp = player.getRect().center
+
+		rel = (xp-xs, yp-ys)
+
 
 		#distance between a point (x0, y0) and line (ax+by+c=0)
 			# |a*x0 + b*y0 + c| / sqrt(a^2 + b^2)
