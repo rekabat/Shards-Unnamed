@@ -25,3 +25,13 @@ Things to know about WorldEvents:
  - If blocked is 1, enter must be 1
  - art and art_tile must be surrounded by quotes so that if it's empty it's invisible (if one's empty, so must be the other)
  - a blocked event can't chain to an unblocked event that's only one tile away
+ - EVENT_ID: enemy
+	ART: ''
+	ART_TILE: ''
+	ON: 15:14
+	Z: 0
+	BLOCKED: 0
+	ENTER: 0
+	ONE_TIME: 1
+	LOCKED: 1
+	IMMEDIATE: 1

@@ -7,6 +7,7 @@ BLOCKED: 1
 ENTER: 1
 ONE_TIME: 1
 LOCKED: 0
+IMMEDIATE: 0
 > Dialog
 Clothing:] I am a tunic. Also, 1 is the loneliest 234567890.
 %PLAYER:] Holy shit, a talking tunic! Now this dialog is purely to demonstrate whether or not the textbox system is working. I sure hope it is.
@@ -21,6 +22,7 @@ BLOCKED: 0
 ENTER: 1
 ONE_TIME: 1
 LOCKED: 0
+IMMEDIATE: 0
 > Dialog
 Das Boot:] Boot, I say.
 %PLAYER:] Indubitably.
@@ -35,6 +37,7 @@ BLOCKED: 0
 ENTER: 0
 ONE_TIME: 1
 LOCKED: 0
+IMMEDIATE: 0
 > Dialog
 %PLAYER:] Hey potion, I be illin'.
 Potion:] Well, my good friend, have a swig.
@@ -49,6 +52,7 @@ BLOCKED: 1
 ENTER: 1
 ONE_TIME: 0
 LOCKED: 0
+IMMEDIATE: 0
 > Dialog
 %PLAYER:] Hey it's you again!
 Slightly Evil-er Potion:] Nope, I'm the slightly evil-er twin.
@@ -65,8 +69,23 @@ BLOCKED: 0
 ENTER: 0
 ONE_TIME: 0
 LOCKED: 0
+IMMEDIATE: 0
 > Teleport
 2:1
 0
+}}}
+>>>
+EVENT_ID: enemy
+ART: ''
+ART_TILE: ''
+ON: 15:14
+Z: 0
+BLOCKED: 0
+ENTER: 0
+ONE_TIME: 1
+LOCKED: 1
+IMMEDIATE: 1
+> Enemy
+Tom
 }}}
 >>>

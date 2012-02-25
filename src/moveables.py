@@ -3,7 +3,7 @@ import pygame as pg
 import general as g
 
 class Moveable:
-	def __init__(self, position, zs, size, img):
+	def __init__(self, position, zs, size, img, pixStep=200):
 		#make a rect for where it is
 		self.pos = g.tile2rect(position).topleft  #given in tile coordinates, convert to topleft pixel
 		self.size = (size[0]*g.TILE_RES[0], size[1]*g.TILE_RES[1]) #given in tile size, convert to pixel size 
@@ -25,9 +25,9 @@ class Moveable:
 		self.udlrFacing = {}
 		for k in img.keys():
 			self.udlrFacing[k] = {
-				1: img[k].subsurface(pg.Rect((0,0),self.size)).copy(),
-				0: img[k].subsurface(pg.Rect((1*self.size[0],0),self.size)).copy(),
-				2: img[k].subsurface(pg.Rect((1*self.size[0],0),self.size)).copy(),
+				0: img[k].subsurface(pg.Rect((0,0),self.size)).copy(),
+				1: img[k].subsurface(pg.Rect((1*self.size[0],0),self.size)).copy(),
+				2: img[k].subsurface(pg.Rect((0,0),self.size)).copy(),
 				3: img[k].subsurface(pg.Rect((2*self.size[0],0),self.size)).copy()   }
 		#the current direction the player is facing
 		self.facing = "D"
@@ -35,6 +35,8 @@ class Moveable:
 		self.pixStepped = 0
 		#the number of pixels before the image is changed
 		self.pixStepSize = 20
+		#the number of pixels traversed in a second
+		self.pixStep = pixStep
 		# The surrent image (still, left foot, right foot)
 		self.currentImg = 0
 
@@ -52,7 +54,7 @@ class Moveable:
 	def ifMoved(self, direction, dt):
 		xmove, ymove = 0, 0
 		
-		step = (g.PX_STEP*dt)
+		step = (self.pixStep*dt)
 
 		if "U" in direction:
 			if ("L" in direction) or ("R" in direction):
@@ -78,7 +80,17 @@ class Moveable:
 		posPix = (self.pos[0]+xmove, self.pos[1]+ymove)
 		return pg.Rect(posPix, self.size), posPix
 
-	def move(self, rectTo, zs, posPix=None):
+	def move(self, rectTo, zs, posPix=None, suppressTurn = False):
+		if not suppressTurn:
+			trn = self.overallDirection()
+			
+			#in cases of diagonal, choose U or D
+			for d in self.overallDirection():
+				self.art = self.udlrFacing[d][self.currentImg]
+				self.facing = d
+				if (d == "U") or (d == "D"):
+					break
+
 		self.rect = rectTo
 		self.zs = zs
 		if posPix is None:
@@ -121,13 +133,3 @@ class Moveable:
 		if ("L" in dir) and ("R" in dir): dir = dir.replace("L", "").replace("R", "")
 
 		return dir
-	
-	def turn(self):
-		trn = self.overallDirection()
-		
-		#in cases of diagonal, choose U or D
-		for d in self.overallDirection():
-			self.art = self.udlrFacing[d][self.currentImg]
-			self.facing = d
-			if (d == "U") or (d == "D"):
-				break

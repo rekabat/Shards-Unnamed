@@ -3,12 +3,14 @@ from pygame.locals import *
 
 import display
 import map
-import player
 import worldEvents
 import font
 import cursor
 import item
 import attacks
+import moveables
+import player
+import enemies
 
 import pauseMenu as pm
 
@@ -39,11 +41,14 @@ class GameInterface:
 		self.outlinedEvents = []
 		self.curAttacks = []
 
+		self.curEnemies = []
+
 		self.createWorld('maps/mapgen_map')
 		self.renderView()
 
 		self.view = None #primarily used to determine if player is on top or bottom half of the screen for events
 		self.tabHeld = False #true if tab is currently pressed
+		self.checkForImmediateEvents = True #check for immediate events? True at new maps and after events are activated.
 		
 		##########
 		# Stuff for "pause"
@@ -78,7 +83,10 @@ class GameInterface:
 		for each in copy:
 			each.switchArt()
 			self.outlinedEvents.remove(each)
-	
+
+	def addEnemy(self, enemy):
+		self.curEnemies.append(enemy)
+
 	def dispatch(self, events, dt=0):
 		froze = False
 
@@ -151,6 +159,41 @@ class GameInterface:
 			
 			mv = self.player.overallDirection()
 
+			def doEvent(evt, outline=False):
+				self.state = "WE"
+				evt.execute(self)
+				
+				if evt.getOneTime():
+					#remove the event and return to the "play" state
+					self.eventForeground.remove(evt)
+					if outline:
+						#remove the red outline
+						self.outlinedEvents.remove(evt)
+						self.flipOutlines(self.outlinedEvents)
+				self.state = "play"
+				#release player from any movements
+				self.player.forgetMovement()
+
+				self.checkForImmediateEvents = True
+
+				return True #froze = True
+
+			############################################
+			# Deal with immediate events ###############
+			############################################
+
+			if self.checkForImmediateEvents:
+				im = self.eventForeground.immediates()
+				if len(im)>0:
+					for e in im:
+						froze = doEvent(e)
+				else:
+					self.checkForImmediateEvents = False
+
+			############################################
+			############################################
+			############################################
+
 
 			############################################
 			# Deal with "enter" ########################
@@ -159,29 +202,12 @@ class GameInterface:
 			#enter overrides movements and triggers events
 			if len(self.outlinedEvents)>0 and enterPressed:
 				evt = self.outlinedEvents[0]
-				#execute the event while in the "WE" state
-				self.state = "WE"
-				evt.execute(self)
-				
-				if evt.getOneTime():
-					#remove the event and return to the "play" state
-					self.eventForeground.remove(evt)
-					#remove the red outline
-					self.outlinedEvents.remove(evt)
-					self.flipOutlines(self.outlinedEvents)
-				self.state = "play"
-				froze = True
-				#release player from any movements
-				self.player.forgetMovement()
-				#so that if it's now standing on event, that event will be activated
-				mv = "UD"
+				froze = doEvent(evt, outline=True)
 
 			############################################
 			############################################
 			############################################
 
-			if not self.tabHeld:
-				self.player.turn()
 
 			############################################
 			# Move player ##############################
@@ -199,6 +225,9 @@ class GameInterface:
 					cantMove = \
 					self.map.blocked(smallerRect, self.player.getZs()) or \
 					self.eventForeground.blocked(smallerRect, self.player.getZs())
+
+					for e in self.curEnemies:
+						cantMove = cantMove or e.getRect().colliderect(playerNewRect)
 
 					# cantMove = \
 					# self.map.blocked(playerNewRect, self.player.getZs()) or \
@@ -218,7 +247,7 @@ class GameInterface:
 						for z in playerZs:
 							atile = self.map.getTile(self.player.getRect().center, z)
 							if atile:
-								self.player.move(playerNewRect, atile.getZs(), playerPosPix)
+								self.player.move(playerNewRect, atile.getZs(), playerPosPix, suppressTurn = self.tabHeld)
 								break
 
 						return True
@@ -280,20 +309,20 @@ class GameInterface:
 			############################################
 			############################################
 			############################################
-			def triggerStandOns(dt, mustActivate):
-				#this loop triggers a chain of events that are stood on
-				self.state = "WE"
-				#release player from any movements
-				self.player.forgetMovement()
+			# def triggerStandOns(dt, mustActivate):
+			# 	#this loop triggers a chain of events that are stood on
+			# 	self.state = "WE"
+			# 	#release player from any movements
+			# 	self.player.forgetMovement()
 
-				mustActivate[0].execute(self)
-				if mustActivate[0].getOneTime():
-					self.eventForeground.remove(mustActivate[0])
-				self.state = "play"
+			# 	mustActivate[0].execute(self)
+			# 	if mustActivate[0].getOneTime():
+			# 		self.eventForeground.remove(mustActivate[0])
+			# 	self.state = "play"
 
-				doit("UD", dt)
+			# 	doit("UD", dt)
 			
-				return dt
+			# 	return dt
 			############################################
 			############################################
 			############################################
@@ -303,8 +332,10 @@ class GameInterface:
 				if (len(mv)>0):
 					mustActivate = checkForEvents()
 				if (len(mv)>0) and (len(mustActivate)>0):
-					triggerStandOns(dt, mustActivate)
-					froze = True
+					for e in mustActivate:
+						froze = doEvent(e, outline=False)
+					# triggerStandOns(dt, mustActivate)
+					# froze = True
 			doit(mv, dt)
 
 
@@ -317,6 +348,9 @@ class GameInterface:
 				keepA = a.tick(dt)
 				if not keepA:
 					self.curAttacks.remove(a)
+			#handle enemies
+			for e in self.curEnemies:
+				e.tick(dt, self.player)
 			############################################
 			############################################
 			############################################
@@ -394,14 +428,19 @@ class GameInterface:
 			if evtsToDisplay:
 				for each in evtsToDisplay:
 					blitRelRect(each.getRect(), each.getArt())
-			
+
+			#blit player to screen
+			blitRelRect(self.player.getRect(), self.player.getArt())
+
+			#blit enemies to screen
+			for e in self.curEnemies:
+				blitRelRect(e.getRect(), e.getArt())
+
 			#blit all the attacks to the screen
 			for a in self.curAttacks:
 				if a.getRect().colliderect(view):
 					blitRelRect(a.getRect(), a.getImg())
 
-			#blit player to screen
-			blitRelRect(self.player.getRect(), self.player.getArt())
 			
 			mapAbovePlayersZ = self.map.getImageOfAndAboveZ(playerOnZ+1, view) #returns false if player is on map's highest z
 			if mapAbovePlayersZ:

@@ -5,6 +5,7 @@ import time
 import worldEventsParser
 
 import general as g
+import enemies
 
 class EventForeground:
 	def __init__(self, file):
@@ -23,6 +24,13 @@ class EventForeground:
 		for each in self.eventList:
 			if each.getZ() >= z:
 				ret.append(each)
+		return ret
+
+	def immediates(self):
+		ret = []
+		for e in self.eventList:
+			if e.immediate:
+				ret.append(e)
 		return ret
 
 	def unlockedEnterableEventsOn(self, tileList, zlist):
@@ -63,6 +71,8 @@ class EventForeground:
 			self.eventList.append(event.behind)
 		#remove the event
 		self.eventList.remove(event)
+		#call the events terminate function so it can do anythin specific that it needs to
+		event.terminate()
 
 
 	
@@ -71,15 +81,16 @@ class EventForeground:
 
 
 class WorldEvent:
-	def __init__(self, event_id, art, art_tile, on, z, blocked, enter, one_time, locked, extra):
+	def __init__(self, event_id, art, art_tile, on, z, blocked, enter, one_time, locked, immediate, extra):
 		self.event_id 	= event_id 	#the type of event
-		# self.art_tile	= art_tile 	#tile location in the 
-		self.on 		= on 		#tile location on map
+		self.on 		= on 		#tile position
 		self.z 			= z 		#z level
 		self.blocked 	= blocked 	#whether or not the event causes the tile to be blocked
 		self.enter 		= enter 	#whether it's activated by enter or stepping on (T/F)
 		self.one_time 	= one_time 	#whther it can be activated once or inifinite times (T/F)
-		self.locked 	= locked 	#whether the event is currently available (T)
+		self.locked 	= locked 	#whether the event is currently available or not (T/F)
+		self.immediate 	= immediate #whether the event is activated as soon as it's available (T/F)
+		self.extra 		= extra		#the text in the evt file that defines the specific event
 
 		if art is not None:
 			art = pg.image.load(art).convert_alpha()
@@ -97,7 +108,6 @@ class WorldEvent:
 		
 
 		
-		self.extra = extra
 		self.rect = g.tile2rect(on)
 		self.behind = None #WE get stacked behind other events on the same tile, that is, when one gets executed and removed the one behind it gets placed
 
@@ -145,6 +155,9 @@ class WorldEvent:
 			self.behind.setDeepest(WE)
 		else:
 			self.behind = WE
+
+	def execute(self): pass
+	def terminate(self): pass
 		
 
 class dialog(WorldEvent):
@@ -255,9 +268,20 @@ class teleport(WorldEvent):
 
 		GI.player.move(tileTo, zTo)
 
+class enemy(WorldEvent):
+	def __init__(self, **kwargs):
+		WorldEvent.__init__(self, **kwargs)
+
+	def execute(self, GI):
+		# moveables.Moveable(enemyCatalog[self.extra[1]])
+		GI.addEnemy(enemies.Enemy(self.on, [self.getZ()], (1,1), 'art/playersprite.png', 20))
+		
+
+
 
 
 EVENT_IDS = {	'dialog': dialog,
-				'teleport': teleport } #,
+				'teleport': teleport, 
+				'enemy': enemy} #,
 	  # 2: PickUpItem,
 	  # 3: DeathByBurning }

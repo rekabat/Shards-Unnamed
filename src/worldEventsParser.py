@@ -43,6 +43,9 @@ def getDict(evtList):
     # locked as bool
     retDict['locked'] = bool(int(retDict['locked']))
 
+    # immediate as bool
+    retDict['immediate'] = bool(int(retDict['immediate']))
+
     return retDict
 
 def parse(evtfile, EVENT_IDS):

@@ -2,7 +2,7 @@ import pygame as pg
 
 #important constant
 TILE_RES = (32, 32) #the width and hight of tiles in pixels
-PX_STEP = 200 #pixels/second
+# PX_STEP = 200 #pixels/second
 FRAME_RATE = 60 #Frames per second
 
 #easy references
