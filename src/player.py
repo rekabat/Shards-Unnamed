@@ -30,9 +30,10 @@ class Player:
 		self.udlrFacing = {}
 		for k in img.keys():
 			self.udlrFacing[k] = {
-				0: img[k].subsurface(pg.Rect((0,0),self.size)).copy(),
-				1: img[k].subsurface(pg.Rect((1*self.size[0],0),self.size)).copy(),
-				2: img[k].subsurface(pg.Rect((2*self.size[0],0),self.size)).copy()   }
+				1: img[k].subsurface(pg.Rect((0,0),self.size)).copy(),
+				0: img[k].subsurface(pg.Rect((1*self.size[0],0),self.size)).copy(),
+				2: img[k].subsurface(pg.Rect((1*self.size[0],0),self.size)).copy(),
+				3: img[k].subsurface(pg.Rect((2*self.size[0],0),self.size)).copy()   }
 		#the current direction the player is facing
 		self.facing = "D"
 		# The number of pixels stepped since last change in image
@@ -102,31 +103,30 @@ class Player:
 		return ret
 	
 	def ifMoved(self, direction, dt):
-		xmove = 0
-		ymove = 0
+		xmove, ymove = 0, 0
 		
-		self.overallDirection()
+		step = (g.PX_STEP*dt)
 
 		if "U" in direction:
 			if ("L" in direction) or ("R" in direction):
-				ymove -= (g.PX_STEP*dt)**.5
+				ymove -= step**.5
 			else:
-				ymove-=(g.PX_STEP*dt)
+				ymove -= step
 		if "D" in direction:
 			if ("L" in direction) or ("R" in direction):
-				ymove += (g.PX_STEP*dt)**.5
+				ymove += step**.5
 			else:
-				ymove+=(g.PX_STEP*dt)
+				ymove += step
 		if "L" in direction:
 			if ("U" in direction) or ("D" in direction):
-				xmove -= (g.PX_STEP*dt)**.5
+				xmove -= step**.5
 			else:
-				xmove-=(g.PX_STEP*dt)
+				xmove -= step
 		if "R" in direction:
 			if ("U" in direction) or ("D" in direction):
-				xmove += (g.PX_STEP*dt)**.5
+				xmove += step**.5
 			else:
-				xmove+=(g.PX_STEP*dt)
+				xmove += step
 
 		posPix = (self.pos[0]+xmove, self.pos[1]+ymove)
 		return pg.Rect(posPix, self.size), posPix
@@ -143,10 +143,7 @@ class Player:
 
 		while self.pixStepped >= self.pixStepSize:
 			self.pixStepped -= self.pixStepSize
-			if self.currentImg == 0 or self.currentImg == 1:
-				self.currentImg	+= 1
-			else:
-				self.currentImg = 0
+			self.currentImg = 0 if (self.currentImg == 3) else self.currentImg+1
 
 			self.art = self.udlrFacing[self.facing][self.currentImg]
 		
@@ -167,17 +164,14 @@ class Player:
 	
 	def overallDirection(self):
 		dir = ""
+
 		dir += "U" if self.udlr[0] else ""
 		dir += "D" if self.udlr[1] else ""
 		dir += "L" if self.udlr[2] else ""
 		dir += "R" if self.udlr[3] else ""
 
-		if ("U" in dir) and ("D" in dir):
-			dir.replace("U", "")
-			dir.replace("D", "")
-		if ("L" in dir) and ("R" in dir):
-			dir.replace("L", "")
-			dir.replace("R", "")
+		if ("U" in dir) and ("D" in dir): dir = dir.replace("U", "").replace("D", "")
+		if ("L" in dir) and ("R" in dir): dir = dir.replace("L", "").replace("R", "")
 
 		return dir
 	
@@ -185,19 +179,11 @@ class Player:
 		trn = self.overallDirection()
 		
 		#in cases of diagonal, choose U or D
-		if ("U" in trn) or ("D" in trn):
-			if "U" in trn:
-				self.art = self.udlrFacing["U"][self.currentImg]
-				self.facing = "U"
-			if "D" in trn:
-				self.art = self.udlrFacing["D"][self.currentImg]
-				self.facing = "D"
-		elif "L" in trn:
-			self.art = self.udlrFacing["L"][self.currentImg]
-			self.facing = "L"
-		elif "R" in trn:
-			self.art = self.udlrFacing["R"][self.currentImg]
-			self.facing = "R"
+		for d in self.overallDirection():
+			self.art = self.udlrFacing[d][self.currentImg]
+			self.facing = d
+			if (d == "U") or (d == "D"):
+				break
 	
 	def getTilePixInFrontOf(self): #players center + half a tile in the direction he faces
 		ret = self.rect.center
@@ -282,15 +268,17 @@ class Belt:
 		for x in range(g.TILE_RES[0]*2):
 			for y in range(g.TILE_RES[1]):
 					if (x == 0) or (y == 0) or (x == g.TILE_RES[0]*2-1) or (y == g.TILE_RES[1]-1):
-						surfw.set_at((x,y), g.RED)
+						surfw.set_at((x,y), g.BLACK)
 
-		#make part red
-		width = (float(amt)/self.getTotalHP()) * g.TILE_RES[0]*2
-		surfr = pg.Surface((width, g.TILE_RES[1]))
+		#make red rectangle surface
+		width = (float(amt)/self.getTotalHP()) * (g.TILE_RES[0]*2-2) #the two is the black pixel border
+		surfr = pg.Surface((width, g.TILE_RES[1]-2))
 		surfr.fill(g.RED)
-		x = (g.TILE_RES[0]*2 - width) / 2.
-		surfw.blit(surfr, (x,0))
 
+		#put it on the white surface
+		surfw.blit(surfr, (1,1))
+
+		#put new hp on the belt
 		img.subsurface(rect).blit(surfw, (0,0))
 	
 	def setBeltSlot(self, slot, set):
