@@ -53,7 +53,7 @@ class GameInterface:
 		self.map = map.Map(mapfile, self.display.getWH())
 		self.eventForeground = worldEvents.EventForeground(mapfile)
 		self.player = player.Player((12,10), [0])
-		print self.player.getRect(), self.player.getRect().center, self.player.getRect().topleft
+
 		self.player.setBeltSlot(0,attacks.fireball())
 		self.player.setBeltSlot(1,attacks.icefield())
 		self.player.setBeltSlot(2,attacks.fireball())
@@ -173,10 +173,10 @@ class GameInterface:
 			# Move player ##############################
 			############################################
 			def mvPlayer(mv, dt):
-				couldntMove = True
-				for m in mv:
+				# couldntMove = True
+				# for m in mv:
 					# Get the rect that the player would go to given the buttons pressed
-					playerNewRect, playerPosPix = self.player.ifMoved(m, dt)
+					playerNewRect, playerPosPix = self.player.ifMoved(mv, dt)
 
 					# Check if the movement is valid by making a smaller rectangle and seeing
 					smallerRect=pg.Rect((0,0),(playerNewRect.width*.87, playerNewRect.height*.87))
@@ -194,7 +194,7 @@ class GameInterface:
 				
 					# If the movement is valid, move the player there
 					if not cantMove:
-						couldntMove = False
+						# couldntMove = False
 
 						playerZs = self.player.getZs()
 						playerZs.sort()
@@ -206,12 +206,20 @@ class GameInterface:
 							if atile:
 								self.player.move(playerNewRect, atile.getZs(), playerPosPix)
 								break
-				
-				if couldntMove:
-					pass #implement sliding
-					#######################
-					#######################
-					#get rid of smallerRect
+
+						return True
+					
+					else:
+						if len(mv)>1:
+							for m in mv:
+								if mvPlayer(m, dt):
+									return True
+
+				# if couldntMove:
+				# 	pass #implement sliding
+				# 	#######################
+				# 	#######################
+				# 	#get rid of smallerRect
 			############################################
 			############################################
 			############################################

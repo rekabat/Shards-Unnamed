@@ -4,7 +4,7 @@ import math
 import general as g
 
 class Player:
-	def __init__(self, position, zs, size= (1,1), img='art/playersprite.png'):
+	def __init__(self, position, zs, size= (1,1), img='art/player.png'):
 		#####################################
 		# Avatar info #######################
 		#####################################
@@ -18,36 +18,23 @@ class Player:
 		self.zs = zs
 
 		#the image of the player
-		img = pg.image.load(img).convert_alpha()
+		img = pg.image.load(img).convert_alpha() #loaded as facing up
+		# art = pg.transform.scale(art, (100,100))
 
 		#the image of the player facing in all directions
-		img = {
-			"D": img.subsurface(pg.Rect((0,0),              (self.size[0]*3, self.size[1]))),
-			"L": img.subsurface(pg.Rect((0,1*self.size[1]), (self.size[0]*3, self.size[1]))),
-			"R": img.subsurface(pg.Rect((0,2*self.size[1]), (self.size[0]*3, self.size[1]))),
-			"U": img.subsurface(pg.Rect((0,3*self.size[1]), (self.size[0]*3, self.size[1])))  }
-
-		self.udlrFacing = {}
-		for k in img.keys():
-			self.udlrFacing[k] = {
-				0: img[k].subsurface(pg.Rect((0,0),self.size)).copy(),
-				1: img[k].subsurface(pg.Rect((1*self.size[0],0),self.size)).copy(),
-				2: img[k].subsurface(pg.Rect((2*self.size[0],0),self.size)).copy()   }
+		self.udlrFacing = {                \
+			"U": img,                           \
+			"D": pg.transform.rotate(img, 180), \
+			"L": pg.transform.rotate(img, 90),  \
+			"R": pg.transform.rotate(img, 270)  }
 		#the current direction the player is facing
-		self.facing = "D"
-		# The number of pixels stepped since last change in image
-		self.pixStepped = 0
-		#the number of pixels before the image is changed
-		self.pixStepSize = 20
-		# The surrent image (still, left foot, right foot)
-		self.currentImg = 0
+		self.facing = "U"
 
 		#the player defaulted to face forward
-		self.art = self.udlrFacing[self.facing][self.currentImg]
+		self.art = self.udlrFacing[self.facing]
 
 		#the directions the player is currently going
 		self.udlr = [False, False, False, False]
-
 
 		#####################################
 		# Avatar info #######################
@@ -105,28 +92,14 @@ class Player:
 		xmove = 0
 		ymove = 0
 		
-		self.overallDirection()
-
 		if "U" in direction:
-			if ("L" in direction) or ("R" in direction):
-				ymove -= (g.PX_STEP*dt)**.5
-			else:
-				ymove-=(g.PX_STEP*dt)
+			ymove-=(g.PX_STEP*dt)
 		if "D" in direction:
-			if ("L" in direction) or ("R" in direction):
-				ymove += (g.PX_STEP*dt)**.5
-			else:
-				ymove+=(g.PX_STEP*dt)
+			ymove+=(g.PX_STEP*dt)
 		if "L" in direction:
-			if ("U" in direction) or ("D" in direction):
-				xmove -= (g.PX_STEP*dt)**.5
-			else:
-				xmove-=(g.PX_STEP*dt)
+			xmove-=(g.PX_STEP*dt)
 		if "R" in direction:
-			if ("U" in direction) or ("D" in direction):
-				xmove += (g.PX_STEP*dt)**.5
-			else:
-				xmove+=(g.PX_STEP*dt)
+			xmove+=(g.PX_STEP*dt)
 
 		posPix = (self.pos[0]+xmove, self.pos[1]+ymove)
 		return pg.Rect(posPix, self.size), posPix
@@ -135,18 +108,9 @@ class Player:
 		self.rect = rectTo
 		self.zs = zs
 		if posPix is None:
-			self.pixStepped += g.distance(self.pos, rectTo.topleft)
 			self.pos = rectTo.topleft
 		else:
-			self.pixStepped += g.distance(self.pos, posPix)
 			self.pos = posPix
-
-		while self.pixStepped >= self.pixStepSize:
-			self.pixStepped -= self.pixStepSize
-			if self.currentImg == 0 or self.currentImg == 1:
-				self.currentImg	+= 1
-			else:
-				self.currentImg = 0
 		
 	def forgetMovement(self):
 		self.udlr = [False, False, False, False]
@@ -169,32 +133,32 @@ class Player:
 		dir += "D" if self.udlr[1] else ""
 		dir += "L" if self.udlr[2] else ""
 		dir += "R" if self.udlr[3] else ""
-
-		if ("U" in dir) and ("D" in dir):
-			dir.replace("U", "")
-			dir.replace("D", "")
-		if ("L" in dir) and ("R" in dir):
-			dir.replace("L", "")
-			dir.replace("R", "")
-
 		return dir
 	
 	def turn(self):
 		trn = self.overallDirection()
+
+		#ignore having both up and down or both left and right
+		if ("U" in trn) and ("D" in trn):
+			trn.replace("U", "")
+			trn.replace("D", "")
+		if ("L" in trn) and ("R" in trn):
+			trn.replace("L", "")
+			trn.replace("R", "")
 		
 		#in cases of diagonal, choose U or D
 		if ("U" in trn) or ("D" in trn):
 			if "U" in trn:
-				self.art = self.udlrFacing["U"][self.currentImg]
+				self.art = self.udlrFacing["U"]
 				self.facing = "U"
 			if "D" in trn:
-				self.art = self.udlrFacing["D"][self.currentImg]
+				self.art = self.udlrFacing["D"]
 				self.facing = "D"
 		elif "L" in trn:
-			self.art = self.udlrFacing["L"][self.currentImg]
+			self.art = self.udlrFacing["L"]
 			self.facing = "L"
 		elif "R" in trn:
-			self.art = self.udlrFacing["R"][self.currentImg]
+			self.art = self.udlrFacing["R"]
 			self.facing = "R"
 	
 	def getTilePixInFrontOf(self): #players center + half a tile in the direction he faces
