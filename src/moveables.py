@@ -8,6 +8,7 @@ class Moveable:
 		self.pos = g.tile2rect(position).topleft  #given in tile coordinates, convert to topleft pixel
 		self.size = (size[0]*g.TILE_RES[0], size[1]*g.TILE_RES[1]) #given in tile size, convert to pixel size 
 		self.rect= pg.Rect(self.pos, self.size)
+		self.previousRect = self.rect.copy()
 		
 		#what floor "level" is the player on
 		self.zs = zs
@@ -51,10 +52,16 @@ class Moveable:
 	def getZs(self): return self.zs
 	def getDirectionFacing(self): return self.facing
 
-	def ifMoved(self, direction, dt):
+	def setZ(self, zs): self.zs = zs
+
+	def move(self, mv, dt, suppressTurn = False):
+		self.previousRect = self.getRect().copy()
+
 		xmove, ymove = 0, 0
 		
 		step = (self.pixStep*dt)
+
+		direction = mv
 
 		if "U" in direction:
 			if ("L" in direction) or ("R" in direction):
@@ -77,10 +84,11 @@ class Moveable:
 			else:
 				xmove += step
 
-		posPix = (self.pos[0]+xmove, self.pos[1]+ymove)
-		return pg.Rect(posPix, self.size), posPix
+		self.pos = (self.pos[0]+xmove, self.pos[1]+ymove)
+		self.rect =  pg.Rect(self.pos, self.size)
 
-	def move(self, rectTo, zs, posPix=None, suppressTurn = False):
+		self.pixStepped += g.distance(self.pos, self.rect.topleft)
+
 		if not suppressTurn:
 			trn = self.overallDirection()
 			
@@ -91,20 +99,71 @@ class Moveable:
 				if (d == "U") or (d == "D"):
 					break
 
-		self.rect = rectTo
-		self.zs = zs
-		if posPix is None:
-			self.pixStepped += g.distance(self.pos, rectTo.topleft)
-			self.pos = rectTo.topleft
-		else:
-			self.pixStepped += g.distance(self.pos, posPix)
-			self.pos = posPix
-
 		while self.pixStepped >= self.pixStepSize:
 			self.pixStepped -= self.pixStepSize
 			self.currentImg = 0 if (self.currentImg == 3) else self.currentImg+1
 
 			self.art = self.udlrFacing[self.facing][self.currentImg]
+	
+	def undoMove(self):
+		self.rect = self.previousRect.copy()
+		self.pos = self.rect.topleft
+		
+
+	# def ifMoved(self, direction, dt):
+	# 	xmove, ymove = 0, 0
+		
+	# 	step = (self.pixStep*dt)
+
+	# 	if "U" in direction:
+	# 		if ("L" in direction) or ("R" in direction):
+	# 			ymove -= step**.5
+	# 		else:
+	# 			ymove -= step
+	# 	if "D" in direction:
+	# 		if ("L" in direction) or ("R" in direction):
+	# 			ymove += step**.5
+	# 		else:
+	# 			ymove += step
+	# 	if "L" in direction:
+	# 		if ("U" in direction) or ("D" in direction):
+	# 			xmove -= step**.5
+	# 		else:
+	# 			xmove -= step
+	# 	if "R" in direction:
+	# 		if ("U" in direction) or ("D" in direction):
+	# 			xmove += step**.5
+	# 		else:
+	# 			xmove += step
+
+	# 	posPix = (self.pos[0]+xmove, self.pos[1]+ymove)
+	# 	return pg.Rect(posPix, self.size), posPix
+
+	# def move(self, rectTo, zs, posPix=None, suppressTurn = False):
+	# 	if not suppressTurn:
+	# 		trn = self.overallDirection()
+			
+	# 		#in cases of diagonal, choose U or D
+	# 		for d in self.overallDirection():
+	# 			self.art = self.udlrFacing[d][self.currentImg]
+	# 			self.facing = d
+	# 			if (d == "U") or (d == "D"):
+	# 				break
+
+	# 	self.rect = rectTo
+	# 	self.zs = zs
+	# 	if posPix is None:
+	# 		self.pixStepped += g.distance(self.pos, rectTo.topleft)
+	# 		self.pos = rectTo.topleft
+	# 	else:
+	# 		self.pixStepped += g.distance(self.pos, posPix)
+	# 		self.pos = posPix
+
+	# 	while self.pixStepped >= self.pixStepSize:
+	# 		self.pixStepped -= self.pixStepSize
+	# 		self.currentImg = 0 if (self.currentImg == 3) else self.currentImg+1
+
+	# 		self.art = self.udlrFacing[self.facing][self.currentImg]
 		
 	def forgetMovement(self):
 		self.udlr = [False, False, False, False]

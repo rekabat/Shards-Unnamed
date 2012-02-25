@@ -60,7 +60,8 @@ class Enemy(moveables.Moveable):
 		for m in mv:
 			self.movingDirection(m)
 
-		rect, pos = self.ifMoved(mv, dt)
+		# rect, pos = self.ifMoved(mv, dt)
 
-		# 	self.move(rect, pos)
-		self.move(rect, [0], pos)
+		# # 	self.move(rect, pos)
+		# self.move(rect, [0], pos)
+		self.move(mv, dt)

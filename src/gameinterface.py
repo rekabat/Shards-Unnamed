@@ -212,51 +212,44 @@ class GameInterface:
 			############################################
 			# Move player ##############################
 			############################################
-			def mvPlayer(mv, dt):
-				# couldntMove = True
-				# for m in mv:
-					# Get the rect that the player would go to given the buttons pressed
-					playerNewRect, playerPosPix = self.player.ifMoved(mv, dt)
-
-					# Check if the movement is valid by making a smaller rectangle and seeing
-					smallerRect=pg.Rect((0,0),(playerNewRect.width*.87, playerNewRect.height*.87))
-					smallerRect.center = playerNewRect.center
-					# if any of the corners are on a blocked map tile or WE tile
-					cantMove = \
-					self.map.blocked(smallerRect, self.player.getZs()) or \
-					self.eventForeground.blocked(smallerRect, self.player.getZs())
-
-					for e in self.curEnemies:
-						cantMove = cantMove or e.getRect().colliderect(playerNewRect)
-
-					# cantMove = \
-					# self.map.blocked(playerNewRect, self.player.getZs()) or \
-					# self.eventForeground.blocked(playerNewRect, self.player.getZs())
 				
+			def mvPlayer(mv,dt):
+				self.player.move(mv, dt, suppressTurn = self.tabHeld)
 
+				# Check if the movement is valid by making a smaller rectangle and seeing
+				smallerRect=pg.Rect((0,0),(self.player.getRect().width*.87, self.player.getRect().height*.87))
+				smallerRect.center = self.player.getRect().center
+				# if any of the corners are on a blocked map tile or WE tile
+				cantMove = \
+				self.map.blocked(smallerRect, self.player.getZs()) or \
+				self.eventForeground.blocked(smallerRect, self.player.getZs())
+				#if any corners are on an enemy
+				for e in self.curEnemies:
+					cantMove = cantMove or e.getRect().colliderect(smallerRect)
+
+				# If the movement is valid, move the player there
+				if not cantMove:
+					# couldntMove = False
+
+					playerZs = self.player.getZs()
+					playerZs.sort()
+					playerZs.reverse()
+
+					#try to to get a tile from the highest z the player is on, if nothing work your way down to lower zs the player's on
+					for z in playerZs:
+						atile = self.map.getTile(self.player.getRect().center, z)
+						if atile:
+							self.player.setZ(atile.getZs())
+							break
+
+					return True
 				
-					# If the movement is valid, move the player there
-					if not cantMove:
-						# couldntMove = False
-
-						playerZs = self.player.getZs()
-						playerZs.sort()
-						playerZs.reverse()
-
-						#try to to get a tile from the highest z the player is on, if nothing work your way down to lower zs the player's on
-						for z in playerZs:
-							atile = self.map.getTile(self.player.getRect().center, z)
-							if atile:
-								self.player.move(playerNewRect, atile.getZs(), playerPosPix, suppressTurn = self.tabHeld)
-								break
-
-						return True
-					
-					else:
-						if len(mv)>1:
-							for m in mv:
-								if mvPlayer(m, dt):
-									return True
+				else:
+					self.player.undoMove()
+					if len(mv)>1:
+						for m in mv:
+							if mvPlayer(m, dt):
+								return True
 
 				# if couldntMove:
 				# 	pass #implement sliding
