@@ -327,9 +327,10 @@ class GameInterface:
 				if (len(mv)>0) and (len(mustActivate)>0):
 					for e in mustActivate:
 						froze = doEvent(e, outline=False)
+					return froze
 					# triggerStandOns(dt, mustActivate)
 					# froze = True
-			doit(mv, dt)
+			froze = froze or doit(mv, dt)
 
 
 

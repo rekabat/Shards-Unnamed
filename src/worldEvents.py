@@ -262,11 +262,9 @@ class teleport(WorldEvent):
 	
 	def execute(self, GI):
 		tileTo = tuple([int(each) for each in self.extra[1].split(":")])
-		tileTo = g.tile2rect(tileTo)
-
 		zTo = [int(each) for each in self.extra[2].split(",")]
 
-		GI.player.move(tileTo, zTo)
+		GI.player.setPlace(tileTo, zTo)
 
 class enemy(WorldEvent):
 	def __init__(self, **kwargs):

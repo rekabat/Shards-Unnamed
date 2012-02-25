@@ -4,14 +4,17 @@ import general as g
 
 class Moveable:
 	def __init__(self, position, zs, size, img, pixStep=200):
-		#make a rect for where it is
-		self.pos = g.tile2rect(position).topleft  #given in tile coordinates, convert to topleft pixel
 		self.size = (size[0]*g.TILE_RES[0], size[1]*g.TILE_RES[1]) #given in tile size, convert to pixel size 
-		self.rect= pg.Rect(self.pos, self.size)
-		self.previousRect = self.rect.copy()
+
+		#make a rect for where it is
+		self.pos = None #g.tile2rect(position).topleft  #given in tile coordinates, convert to topleft pixel
+		self.rect = None #pg.Rect(self.pos, self.size)
+		self.previousRect = None #self.rect.copy()
 		
 		#what floor "level" is the player on
-		self.zs = zs
+		self.zs = None #zs
+
+		self.setPlace(position, zs) #sets pos,rect,previousrect,zs
 
 		#the image of the player
 		img = pg.image.load(img).convert_alpha()
@@ -34,10 +37,11 @@ class Moveable:
 		self.facing = "D"
 		# The number of pixels stepped since last change in image
 		self.pixStepped = 0
+		self.oldPixStepped = 0
 		#the number of pixels before the image is changed
 		self.pixStepSize = 20
 		#the number of pixels traversed in a second
-		self.pixStep = pixStep
+		self.pixStep = pixStep + 0
 		# The surrent image (still, left foot, right foot)
 		self.currentImg = 0
 
@@ -51,6 +55,16 @@ class Moveable:
 	def getArt(self): return self.art
 	def getZs(self): return self.zs
 	def getDirectionFacing(self): return self.facing
+
+	def setPlace(self, position, zs):
+		#make a rect for where it is
+		self.pos = g.tile2rect(position).topleft  #given in tile coordinates, convert to topleft pixel
+		self.rect= pg.Rect(self.pos, self.size)
+		self.previousRect = self.rect.copy()
+		
+		#what floor "level" is the player on
+		self.zs = zs
+
 
 	def setZ(self, zs): self.zs = zs
 
@@ -85,9 +99,12 @@ class Moveable:
 				xmove += step
 
 		self.pos = (self.pos[0]+xmove, self.pos[1]+ymove)
+
+		self.oldPixStepped = self.pixStepped+0
+		self.pixStepped += g.distance(self.pos, self.rect.topleft)
+
 		self.rect =  pg.Rect(self.pos, self.size)
 
-		self.pixStepped += g.distance(self.pos, self.rect.topleft)
 
 		if not suppressTurn:
 			trn = self.overallDirection()
@@ -108,6 +125,7 @@ class Moveable:
 	def undoMove(self):
 		self.rect = self.previousRect.copy()
 		self.pos = self.rect.topleft
+		self.pixStepped = self.oldPixStepped
 		
 
 	# def ifMoved(self, direction, dt):
