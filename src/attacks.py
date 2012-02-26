@@ -58,7 +58,7 @@ class icefield_cast(icefield):
 
 		self.timeSinceCast = 0
 		self.rect = pg.Rect((start[0]-self.size*g.TILE_RES[0], start[1]-self.size*g.TILE_RES[1]), (g.TILE_RES[0]*(size*2+1), g.TILE_RES[1]*(size*2+1)))
-
+		
 		self.alreadyTouched = []
 
 	def tick(self, dt):

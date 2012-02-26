@@ -128,7 +128,7 @@ class GameInterface:
 						self.player.forgetMovement()
 						#launches the menu into its last opened state (or player state if this is the first time opening it)
 						self.pmenu.changeState(self.pmenu.getState())
-						return
+						return 0, True
 					
 					#movement control
 					elif key == pg.K_UP: 	self.player.movingDirection("U")
@@ -386,7 +386,7 @@ class GameInterface:
 					if key == pg.K_ESCAPE:
 						self.state = "play"
 						self.pmenu.clearall()
-						return
+						return 0, True
 					else:
 						self.pmenu.dispatch(key)
 				
