@@ -90,7 +90,7 @@
 			"file": "gameinterface.py",
 			"settings":
 			{
-				"buffer_size": 15279,
+				"buffer_size": 15295,
 				"line_ending": "Windows"
 			}
 		},
@@ -106,7 +106,7 @@
 			"file": "attacks.py",
 			"settings":
 			{
-				"buffer_size": 4119,
+				"buffer_size": 4121,
 				"line_ending": "Windows"
 			}
 		},
@@ -215,6 +215,7 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"return",
 			"curatta",
 			"retDict",
 			"pixstep",
@@ -253,7 +254,7 @@
 			"pressEnterDisplayed"
 		],
 		"highlight": false,
-		"in_selection": true,
+		"in_selection": false,
 		"preserve_case": false,
 		"regex": false,
 		"replace_history":
@@ -276,7 +277,7 @@
 	"groups":
 	[
 		{
-			"selected": 0,
+			"selected": 2,
 			"sheets":
 			[
 				{
@@ -343,8 +344,8 @@
 						"selection":
 						[
 							[
-								0,
-								0
+								360,
+								360
 							]
 						],
 						"settings":
@@ -362,15 +363,15 @@
 					"file": "gameinterface.py",
 					"settings":
 					{
-						"buffer_size": 15279,
+						"buffer_size": 15295,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								13805,
-								13805
+								2922,
+								2892
 							]
 						],
 						"settings":
@@ -379,7 +380,7 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 6705.0,
+						"translation.y": 1646.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
@@ -416,15 +417,15 @@
 					"file": "attacks.py",
 					"settings":
 					{
-						"buffer_size": 4119,
+						"buffer_size": 4121,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1818,
-								1818
+								1794,
+								1794
 							]
 						],
 						"settings":
@@ -433,7 +434,7 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 645.0,
+						"translation.y": 465.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"

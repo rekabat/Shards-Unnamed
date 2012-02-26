@@ -15,8 +15,6 @@ Things to consider:
  - 
 
 
-- make spells have an alignment, 0 for player, 1 for enemy. If a 0 hits an enemy, it damages them. If a 1 spell hits player, it damages him.
-
 
 
 
@@ -28,7 +26,7 @@ Things to know about WorldEvents:
  - EVENT_ID: enemy
 	ART: ''
 	ART_TILE: ''
-	ON: 15:14
+	ON: x:y
 	Z: 0
 	BLOCKED: 0
 	ENTER: 0

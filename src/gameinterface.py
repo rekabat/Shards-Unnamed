@@ -457,8 +457,10 @@ class GameInterface:
 			#blit enemies to screen
 			for e in self.curEnemies:
 				blitRelRect(e.getRect(), e.getArt())
+			#blit healthbars to screen
 			for e in self.curEnemies:
-				blitRelRect(e.getHPBarRect(), e.getHPBar())
+				if e.getAggro():
+					blitRelRect(e.getHPBarRect(), e.getHPBar())
 
 			#blit all the attacks to the screen
 			for a in self.curAttacks:

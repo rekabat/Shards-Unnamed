@@ -9,6 +9,7 @@ class Enemy(moveables.Moveable):
 		moveables.Moveable.__init__(self, position, zs, size, img, pixStep)
 
 		self.aggroRange = 7 #tiles (width)
+		self.aggro = False
 		self.origin = self.rect.center
 
 		self.alignment = 1
@@ -34,6 +35,7 @@ class Enemy(moveables.Moveable):
 		self.HPBarRect = None
 		self.placeHPBar()
 
+	def getAggro(self): return self.aggro
 	def getAlignment(self): return self.alignment
 	def getStat(self, stat): return self.stats[stat]
 	def getCurrentHP(self): return self.currentHP
@@ -41,12 +43,14 @@ class Enemy(moveables.Moveable):
 	def getHPBarRect(self): return self.HPBarRect
 
 	def tick(self, dt, player):
-		if g.distance(player.getRect().center, self.getRect().center)>= self.aggroRange*g.TILE_RES[0]:
+		if g.distance(player.getRect().center, self.getRect().center) >= self.aggroRange*g.TILE_RES[0]:
+			self.aggro = False
 			if g.distance(self.origin, self.getRect().center) > 5: #tolerance of 5 pixels from the origin
 				xp, yp = self.origin
 			else:
 				return
 		else:
+			self.aggro = True
 			xp, yp = player.getRect().center
 
 		xs, ys = self.getRect().center
