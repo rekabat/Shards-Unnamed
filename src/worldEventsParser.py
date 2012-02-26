@@ -1,52 +1,67 @@
 import pygame as pg
 from pygame.locals import *
 
+from copy import deepcopy as dc
+
 import general as g
 
 def getDict(evtList):
-    retDict = {}
+    rDict = {}
     for i, line in enumerate(evtList):
         if line.startswith("> "):
-            retDict['extra'] = evtList[i:]
+            rDict['extra'] = evtList[i:]
             break
         else:
             k, v = line.split(": ")
-            retDict[k.lower()] = v
+            rDict[k.lower()] = v
 
     # art as string, none if no art exists for event
-    retDict['art'] = retDict['art'].replace("'", "")
-    if len(retDict['art']) == 0:
-        retDict['art'] = None
+    rDict['art'] = rDict['art'].replace("'", "")
+    if len(rDict['art']) == 0:
+        rDict['art'] = None
     
     # art tile as tile coords (tuple)
-    retDict['art_tile'] = retDict['art_tile'].replace("'", "")
-    if retDict['art_tile'] == "":
-        retDict['art_tile'] = None
+    rDict['art_tile'] = rDict['art_tile'].replace("'", "")
+    if rDict['art_tile'] == "":
+        rDict['art_tile'] = None
     else:
-        retDict['art_tile'] = tuple([int(i) for i in retDict['art_tile'].split(":")])
+        rDict['art_tile'] = tuple([int(i) for i in rDict['art_tile'].split(":")])
     
-    # on as tuple
-    retDict['on'] = tuple([int(i) for i in retDict['on'].split(':')])
+    # on as a list of tuples
+    rDict['on'] = tuple([int(i) for i in rDict['on'].split(':')])
 
     # z as int
-    retDict['z'] = int(retDict['z'])
+    rDict['z'] = int(rDict['z'])
 
     # blocked as bool
-    retDict['blocked'] = bool(int(retDict['blocked']))
+    rDict['blocked'] = bool(int(rDict['blocked']))
 
     # enter as bool
-    retDict['enter'] = bool(int(retDict['enter']))
+    rDict['enter'] = bool(int(rDict['enter']))
 
     # one_time as bool
-    retDict['one_time'] = bool(int(retDict['one_time']))
+    rDict['one_time'] = bool(int(rDict['one_time']))
 
     # locked as bool
-    retDict['locked'] = bool(int(retDict['locked']))
+    rDict['locked'] = bool(int(rDict['locked']))
 
     # immediate as bool
-    retDict['immediate'] = bool(int(retDict['immediate']))
+    rDict['immediate'] = bool(int(rDict['immediate']))
 
-    return retDict
+
+
+    # # on as a list of tuples
+    # rDict['on'] = rDict['on'].split(', ')
+    # rDict['on'] = [tuple([int(i) for i in each.split(':')]) for each in rDict['on']]
+
+    # ret = []
+    # for each in rDict['on']:
+    #     ret.append(dc(rDict))
+    #     ret[-1]['on'] = each
+
+    # return ret
+
+    return rDict
 
 def parse(evtfile, EVENT_IDS):
     eventDict = {}
@@ -79,8 +94,17 @@ def parse(evtfile, EVENT_IDS):
         j = 0
         for event in chain:
             ret = getDict(event)
-            eventObj = EVENT_IDS[ret['event_id']]
+
+            # for r in ret:
+            #     eventObj = EVENT_IDS[r['event_id']]
             
+            #     if j == 0:
+            #         eventList.append(eventObj(**r))
+            #     else:
+            #         eventList[-1].setDeepest(eventObj(**r))
+            #     j+=1
+            eventObj = EVENT_IDS[ret['event_id']]
+
             if j == 0:
                 eventList.append(eventObj(**ret))
             else:

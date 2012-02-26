@@ -15,7 +15,7 @@ Things to consider:
  - 
 
 
-- hold d+l then add r and you go slowly left while facing down
+- make spells have an alignment, 0 for player, 1 for enemy. If a 0 hits an enemy, it damages them. If a 1 spell hits player, it damages him.
 
 
 

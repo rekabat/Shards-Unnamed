@@ -61,14 +61,14 @@ class GameInterface:
 		self.player = player.Player((12,10), [0])
 		self.player.takeHP(1)
 
-		self.player.setBeltSlot(0,attacks.fireball())
-		self.player.setBeltSlot(1,attacks.icefield())
-		self.player.setBeltSlot(2,attacks.fireball())
-		self.player.setBeltSlot(3,attacks.icefield())
-		self.player.setBeltSlot(4,attacks.fireball())
-		self.player.setBeltSlot(5,attacks.icefield())
-		self.player.setBeltSlot(6,attacks.fireball())
-		self.player.setBeltSlot(7,attacks.icefield())
+		self.player.setBeltSlot(0,attacks.fireball(alignment = 0))
+		self.player.setBeltSlot(1,attacks.icefield(alignment = 0))
+		self.player.setBeltSlot(2,attacks.fireball(alignment = 0))
+		self.player.setBeltSlot(3,attacks.icefield(alignment = 0))
+		self.player.setBeltSlot(4,attacks.fireball(alignment = 0))
+		self.player.setBeltSlot(5,attacks.icefield(alignment = 0))
+		self.player.setBeltSlot(6,attacks.fireball(alignment = 0))
+		self.player.setBeltSlot(7,attacks.icefield(alignment = 0))
 
 		self.player.giveItem(item.Item("weapon", "weapon", 3))
 	
@@ -337,14 +337,38 @@ class GameInterface:
 			############################################
 			############################################
 			############################################
+			#handle enemies
+			for e in self.curEnemies:
+				atk = e.tick(dt, self.player)
+				if atk:
+					self.curAttacks.append(atk)
+			############################################
+			############################################
+			############################################
+
+
+
+
+			############################################
+			############################################
+			############################################
 			#handle attacks
 			for a in self.curAttacks:
 				keepA = a.tick(dt)
 				if not keepA:
 					self.curAttacks.remove(a)
-			#handle enemies
-			for e in self.curEnemies:
-				e.tick(dt, self.player)
+
+				#cause damage to player
+				if a.getAlignment() != self.player.getAlignment() and a.getRect().colliderect(self.player.getRect()):
+					a.hit(self.player)
+
+				#cause damage to enemies
+				else:
+					for e in self.curEnemies:
+						if a.getAlignment() != e.getAlignment() and a.getRect().colliderect(e.getRect()):
+							a.hit(e)
+							if e.getStat('hp') <= 0:
+								self.curEnemies.remove(e)
 			############################################
 			############################################
 			############################################

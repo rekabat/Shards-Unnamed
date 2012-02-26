@@ -33,6 +33,7 @@ class Player(moveables.Moveable):
 							"legs":		None,	\
 							"offhand":	None,	\
 							"weapon":	None	} #currently equipped armor and weapons
+		self.alignment = 0
 
 		#####################################
 		# Character info ####################
@@ -40,6 +41,8 @@ class Player(moveables.Moveable):
 		
 	def getBelt(self): return self.belt
 	def getName(self): return self.name
+	def getAlignment(self): return self.alignment
+	def getStat(self, stat): return self.stats[stat]
 	
 	def getSortedInv(self):
 		ret = {}
