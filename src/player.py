@@ -35,6 +35,8 @@ class Player(moveables.Moveable):
 							"weapon":	None	} #currently equipped armor and weapons
 		self.alignment = 0
 
+		self.currentHP = 10
+
 		#####################################
 		# Character info ####################
 		#####################################
@@ -43,6 +45,7 @@ class Player(moveables.Moveable):
 	def getName(self): return self.name
 	def getAlignment(self): return self.alignment
 	def getStat(self, stat): return self.stats[stat]
+	def getCurrentHP(self): return self.currentHP
 	
 	def getSortedInv(self):
 		ret = {}
@@ -65,10 +68,10 @@ class Player(moveables.Moveable):
 		self.inv.remove(item)
 	
 	def takeHP(self, amt):
-		self.stats['hp'] -= amt
-		if self.stats['hp']<=0:
+		self.currentHP -= amt
+		if self.currentHP<=0:
 			return True
-		self.belt.adjustCurrentHP(self.stats['hp'])
+		self.belt.adjustCurrentHP(self.currentHP)
 		return False
 	
 	def setBeltSlot(self, slot, set):
@@ -129,7 +132,7 @@ class Belt:
 		surfw = pg.Surface(dim)
 		surfw.fill(g.WHITE)
 
-		#give it a red outline
+		#give it a black outline
 		for x in range(g.TILE_RES[0]*2):
 			for y in range(g.TILE_RES[1]):
 					if (x == 0) or (y == 0) or (x == g.TILE_RES[0]*2-1) or (y == g.TILE_RES[1]-1):

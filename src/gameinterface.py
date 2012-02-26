@@ -59,7 +59,6 @@ class GameInterface:
 		self.map = map.Map(mapfile, self.display.getWH())
 		self.eventForeground = worldEvents.EventForeground(mapfile)
 		self.player = player.Player((12,10), [0])
-		self.player.takeHP(1)
 
 		self.player.setBeltSlot(0,attacks.fireball(alignment = 0))
 		self.player.setBeltSlot(1,attacks.icefield(alignment = 0))
@@ -359,15 +358,20 @@ class GameInterface:
 					self.curAttacks.remove(a)
 
 				#cause damage to player
-				if a.getAlignment() != self.player.getAlignment() and a.getRect().colliderect(self.player.getRect()):
+				# if a.getAlignment() != self.player.getAlignment() and a.getRect().colliderect(self.player.getRect()):
+				if a.getRect().colliderect(self.player.getRect()):
 					a.hit(self.player)
+					if self.player.getCurrentHP() <= 0:
+						print "dead!!!!"
+						quit()
 
 				#cause damage to enemies
 				else:
 					for e in self.curEnemies:
-						if a.getAlignment() != e.getAlignment() and a.getRect().colliderect(e.getRect()):
+						# if a.getAlignment() != e.getAlignment() and a.getRect().colliderect(e.getRect()):
+						if a.getRect().colliderect(e.getRect()):
 							a.hit(e)
-							if e.getStat('hp') <= 0:
+							if e.getCurrentHP() <= 0:
 								self.curEnemies.remove(e)
 			############################################
 			############################################
@@ -453,6 +457,8 @@ class GameInterface:
 			#blit enemies to screen
 			for e in self.curEnemies:
 				blitRelRect(e.getRect(), e.getArt())
+			for e in self.curEnemies:
+				blitRelRect(e.getHPBarRect(), e.getHPBar())
 
 			#blit all the attacks to the screen
 			for a in self.curAttacks:

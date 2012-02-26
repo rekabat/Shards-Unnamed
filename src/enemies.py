@@ -12,10 +12,9 @@ class Enemy(moveables.Moveable):
 		self.origin = self.rect.center
 
 		self.alignment = 1
-		self.spells = [attacks.icefield(alignment = self.alignment)]
+		self.spells = [attacks.fireball(alignment = self.alignment)]
 		self.atkRate = 1 #how many attacks per second
 		self.secondSinceAtk = 0
-
 
 		self.stats = {	'lvl': 	0,	\
 						'hp': 	5,	\
@@ -23,8 +22,23 @@ class Enemy(moveables.Moveable):
 						'mag': 	1,	\
 						'atk': 	1	} #stats
 
+		self.currentHP = 5
+
+		#hp bar with a black border
+		self.HPBar = pg.Surface((g.TILE_RES[0], int(g.TILE_RES[1]/4.)))
+		for x in range(g.TILE_RES[0]):
+			for y in range(int(g.TILE_RES[1]/4.)):
+					if (x == 0) or (y == 0) or (x == g.TILE_RES[0]-1) or (y == int(g.TILE_RES[1]/4.)-1):
+						self.HPBar.set_at((x,y), g.BLACK)
+		self.updateHPBar()
+		self.HPBarRect = None
+		self.placeHPBar()
+
 	def getAlignment(self): return self.alignment
 	def getStat(self, stat): return self.stats[stat]
+	def getCurrentHP(self): return self.currentHP
+	def getHPBar(self): return self.HPBar
+	def getHPBarRect(self): return self.HPBarRect
 
 	def tick(self, dt, player):
 		if g.distance(player.getRect().center, self.getRect().center)>= self.aggroRange*g.TILE_RES[0]:
@@ -79,6 +93,8 @@ class Enemy(moveables.Moveable):
 
 		self.move(mv, dt)
 
+		self.placeHPBar()
+
 		if self.secondSinceAtk != 0:
 			self.secondSinceAtk += dt
 			if self.secondSinceAtk >= self.atkRate:
@@ -125,8 +141,26 @@ class Enemy(moveables.Moveable):
 
 		self.move(mv, dt)
 
+		self.placeHPBar()
+
 	def takeHP(self, amt):
-		self.stats['hp'] -= amt
-		if self.stats['hp']<=0:
+		self.currentHP -= amt
+		if self.currentHP<=0:
 			return True
+		self.updateHPBar()
 		return False
+
+	def updateHPBar(self):
+		x = self.HPBar.get_width()  - 2
+		y = self.HPBar.get_height() - 2
+
+		self.HPBar.subsurface(pg.Rect((1,1), (x,y))).fill(g.WHITE)
+
+		portion = float(self.currentHP) / self.getStat('hp')
+		
+		x*=portion
+
+		self.HPBar.subsurface((1,1), (x,y)).fill(g.RED)
+
+	def placeHPBar(self):
+		self.HPBarRect = pg.Rect((self.getRect().left, self.getRect().top - self.HPBar.get_height()), self.HPBar.get_size())
