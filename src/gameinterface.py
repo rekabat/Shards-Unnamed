@@ -42,6 +42,7 @@ class GameInterface:
 		self.curAttacks = []
 
 		self.curEnemies = []
+		self.foundOnePathAlready = False #used to prevent the pathfinding algorithm from being run more than once per cycle
 
 		self.createWorld('maps/mapgen_map')
 		self.renderView()
@@ -135,6 +136,7 @@ class GameInterface:
 		elif self.state == "play":
 			
 			enterPressed = False
+			self.foundOnePathAlready = False
 			
 			for event in events:
 				if event.type == pg.KEYDOWN:
@@ -354,7 +356,8 @@ class GameInterface:
 			############################################
 			#handle enemies
 			for e in self.curEnemies:
-				atk = e.tick(dt, self.player)
+				atk, found = e.tick(dt, self.foundOnePathAlready)
+				self.foundOnePathAlready = self.foundOnePathAlready or found
 				if atk:
 					self.curAttacks.append(atk)
 			############################################

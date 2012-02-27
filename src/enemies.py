@@ -48,7 +48,7 @@ class Enemy(moveables.Moveable):
 
 		self.aggroRange = 7 #tiles (width)
 		self.aggro = False
-		self.origin = self.rect.center
+		self.origin = self.rect.topleft
 
 		self.alignment = 1
 		self.spells = [attacks.fireball(alignment = self.alignment)]
@@ -80,7 +80,9 @@ class Enemy(moveables.Moveable):
 	def getHPBar(self): return self.HPBar
 	def getHPBarRect(self): return self.HPBarRect
 
-	def tick(self, dt, player):
+	def tick(self, dt, foundOnePathAlready):
+		player = self.GI.player
+
 		if self.secondSinceAtk != 0:
 			self.secondSinceAtk += dt
 			if self.secondSinceAtk >= self.atkRate:
@@ -91,7 +93,7 @@ class Enemy(moveables.Moveable):
 			self.undoMove()
 			if self.secondSinceAtk == 0:
 				self.secondSinceAtk+=.001
-				return self.spells[0].cast(self.getRect(), self.facing)
+				return self.spells[0].cast(self.getRect(), self.facing), False
 
 		currentTile = g.pix2tile(self.getRect().center)
 		targetTile = g.pix2tile(player.getRect().center)
@@ -102,12 +104,12 @@ class Enemy(moveables.Moveable):
 				targetTile = g.pix2tile(self.origin)
 			else:
 				self.headingFor = None
-				return
+				return False, False
 		else:
 			self.aggro = True
 		
 		if currentTile[0] == targetTile[0] and currentTile[1] == targetTile[1]:
-			return False
+			return False, False
 
 		if self.targetTile == targetTile and self.headingFor != None:
 			bottom = self.headingFor.bottom().tile
@@ -139,11 +141,13 @@ class Enemy(moveables.Moveable):
 				# if self.GI.collisionWithBlockedSpots(self.getRect(), self.getZs(), player = False, ignoreEnemy=self):
 				# 	self.undoMove()
 				self.placeHPBar()
+
+				return False, False
 				
 			else:
 				if not self.headingFor.deleteBottom():
 					self.headingFor = None
-		else:
+		elif not foundOnePathAlready:
 			self.currentTile = currentTile
 			self.targetTile = targetTile
 
@@ -249,12 +253,16 @@ class Enemy(moveables.Moveable):
 
 			self.headingFor = mincost
 
-		return False
+			return False, True
+		return False, False
 
 
 
 
-	def tick1(self, dt, player):
+
+	def tick1(self, dt, foundOnePathAlready):
+		player = self.GI.player
+
 		if g.distance(player.getRect().center, self.getRect().center) >= self.aggroRange*g.TILE_RES[0]:
 			self.aggro = False
 			if g.distance(self.origin, self.getRect().center) > 5: #tolerance of 5 pixels from the origin
@@ -326,7 +334,9 @@ class Enemy(moveables.Moveable):
 		return False
 
 
-	def tick0(self, dt, player):
+	def tick0(self, dt, foundOnePathAlready):
+		player = self.GI.player
+
 		if g.distance(player.getRect().center, self.getRect().center)>= self.aggroRange*g.TILE_RES[0]:
 			if g.distance(self.origin, self.getRect().center) > 5: #tolerance of 5 pixels from the origin
 				xp, yp = self.origin
