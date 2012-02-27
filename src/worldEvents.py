@@ -174,8 +174,40 @@ class dialog(WorldEvent):
 		# otherwise, if player's on the bottom half, make it on the top.
 		# and wait for an enter key press to go to the next line
 
-		box = pg.Surface((int(GI.display.getWH()[0]), int(GI.display.getWH()[1]*.25)))
+		box = pg.Surface((int(GI.display.getWH()[0]*.70), int(GI.display.getWH()[1]*.25)))
 		box.fill((96,123,139))
+		box.set_alpha(180)
+		box.set_colorkey((99,100,101))
+		n3 = namepadding*3
+		x1 = 0
+		y1 = n3
+		x2 = namepadding
+		y2 = namepadding
+		x3 = n3
+		y3 = 0
+		y = .5*((x1**2+y1**2)*(x3-x2) + (x2**2+y2**2)*(x1-x3) + (x3**2+y3**2)*(x2-x1)) / (y1*(x3-x2)+y2*(x1-x3)+y3*(x2-x1))
+		radius = g.distance((y,y), (namepadding, namepadding))
+		print y,y, g.distance((y,y), (namepadding, namepadding)), g.distance((y,y), (0,n3)), g.distance((y,y), (n3,0))
+		# print y
+		# ma = (namepadding - n3) / (namepadding)
+		# mb = (-namepadding) / (n3 - namepadding)
+		# x = (ma*mb*(n3) + mb*(namepadding) - ma*(namepadding+n3)) / (2*(mb-ma))
+		# # y = -(1./ma)*(x - namepadding/2.) + (n3+namepadding)/2.
+		# y = -(1./mb)*(x - (namepadding+n3)/2.) + (namepadding)/2.
+		# radius = g.distance((x,y), (namepadding, namepadding))
+		# print x,y, g.distance((x,y), (namepadding, namepadding)), g.distance((x,y), (0,n3)), g.distance((x,y), (n3,0))
+		# chordlength = g.distance((0,n3), (n3,0))
+
+		# #distance between a point (x0, y0) and line (ax+by+c=0)
+		# 	# |a*x0 + b*y0 + c| / sqrt(a^2 + b^2)
+		# 	# y = x
+		# sagitta = namepadding / 1.414
+		# radius = chordlength**2/(8*sagitta)
+		for i in range(namepadding*3):
+			for j in range(namepadding*3):
+				# print i,j, g.distance((i,j),(namepadding,namepadding))
+				if g.distance((i,j),(y,y)) > radius:
+					box.set_at((i,j), (99,100,101))
 
 		enter = GI.font.text("PRESS ENTER", namesize)
 		enter.place(box, (box.get_rect().width-namepadding-enter.getLength(), namepadding), center=False)
@@ -233,9 +265,11 @@ class dialog(WorldEvent):
 				dialogLines.insert(q+1, passback)
 			
 			if GI.playerOnTopHalf():
-				pos = (0,GI.display.getWH()[1]-boxc.get_rect().height)
+				pos = ((GI.display.getWH()[0] - boxc.get_rect().width) /2.,
+						GI.display.getWH()[1]-boxc.get_rect().height-g.TILE_RES[1]*1.5)
 			else:
-				pos = (0,0)
+				pos = ((GI.display.getWH()[0] - boxc.get_rect().width) /2.,
+						0)
 			GI.window.blit(boxc, pos)
 
 			GI.renderView()
