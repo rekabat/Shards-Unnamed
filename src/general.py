@@ -23,7 +23,7 @@ def tile2rect((x, y)):
 def pix2tile((x,y)):
 	return (int(x/TILE_RES[0]), int(y/TILE_RES[1]))
 
-def tile2pix(self,(x, y)): #center pixel
+def tile2pix((x, y)): #center pixel
     return (int((x+.5)*TILE_RES[0]), int((y+.5)*TILE_RES[1]))
 
 def pix2tile2rect((x,y)):

@@ -4,9 +4,22 @@ import general as g
 import moveables
 import attacks
 
+
+class nodule:
+	def __init__(self, tile, cost, parent):
+		self.tile = tile
+		self.cost = cost
+		self.parent = parent
+
+
 class Enemy(moveables.Moveable):
-	def __init__(self, position, zs, size= (1,1), img='art/playersprite.png', pixStep = 75):
+	def __init__(self, map, position, zs, size= (1,1), img='art/playersprite.png', pixStep = 75):
 		moveables.Moveable.__init__(self, position, zs, size, img, pixStep)
+
+		self.map = map
+		self.targetTile = None
+		self.currentTile = None
+		self.headingFor = None
 
 		self.aggroRange = 7 #tiles (width)
 		self.aggro = False
@@ -43,6 +56,106 @@ class Enemy(moveables.Moveable):
 	def getHPBarRect(self): return self.HPBarRect
 
 	def tick(self, dt, player):
+		if self.currentTile == g.pix2tile(self.getPosition()):
+			if self.targetTile == g.pix2tile(player.getPosition()):
+				if self.headingFor != None:
+					xp, yp = g.tile2pix(self.headingFor)
+
+					xs, ys = self.getRect().center
+
+					rel = (xp-xs, yp-ys)
+
+					mv = ""
+
+					if rel[0]<-5:
+						mv += "L"
+					elif rel[0]>5:
+						mv += "R"
+
+					if rel[1]<-5:
+						mv += "U"
+					elif rel[1]>5:
+						mv += "D"
+
+					self.forgetMovement()
+					for m in mv:
+						self.movingDirection(m)
+
+					self.move(mv, dt)
+
+					self.placeHPBar()
+
+
+		self.currentTile = g.pix2tile(self.getPosition())
+		self.targetTile = g.pix2tile(player.getPosition())
+
+		if g.distance(player.getRect().center, self.getRect().center) >= self.aggroRange*g.TILE_RES[0]:
+			self.aggro = False
+			if g.distance(self.origin, self.getRect().center) > 5: #tolerance of 5 pixels from the origin
+				xp, yp = self.origin
+				self.targetTile = g.pix2tile(self.origin)
+			else:
+				self.headingFor = None
+				return
+		else:
+			self.aggro = True
+			xp, yp = player.getRect().center
+
+		xs, ys = self.getRect().center
+
+
+		target = g.pix2tile((xp, yp))
+
+		current = g.pix2tile((xs, ys))
+		current = nodule(current, 100*(abs(current[0]-target[0])+abs(current[1]-target[1])), None)
+		
+		open = {current.tile: current}
+		closed = []
+
+		while 1:
+			mincost = nodule(None, 999999999999999999999, None)
+			for each in open.keys():
+				if open[each].cost < mincost.cost:
+					mincost = open[each]
+
+			if mincost.tile == target:
+				break
+
+			del(open[mincost.tile])
+			closed.append(mincost.tile)
+
+			def makeRelNode((x,y), cost):
+				new = (mincost.tile[0]+x, mincost.tile[1]+y)
+				if new not in closed:
+					cost = mincost.cost+cost + 100*(abs(new[0]-target[0])+abs(new[1]-target[1]))
+					if new in open:
+						if cost < open[new].cost:
+							open[new] = nodule(new, cost, mincost)
+					else:
+						open[new] = nodule(new, cost, mincost)
+
+			makeRelNode((-1,0), 100)
+			makeRelNode((+1,0), 100)
+			makeRelNode((0,-1), 100)
+			makeRelNode((0,+1), 100)
+			makeRelNode((-1,-1), 141)
+			makeRelNode((-1,+1), 141)
+			makeRelNode((+1,+1), 141)
+			makeRelNode((+1,-1), 141)
+
+
+		tileTo = mincost
+
+		while mincost.parent != None:
+			tileTo = mincost
+			mincost = mincost.parent
+
+		self.headingFor = tileTo.tile
+
+
+
+
+	def tick0(self, dt, player):
 		if g.distance(player.getRect().center, self.getRect().center) >= self.aggroRange*g.TILE_RES[0]:
 			self.aggro = False
 			if g.distance(self.origin, self.getRect().center) > 5: #tolerance of 5 pixels from the origin

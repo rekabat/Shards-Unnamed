@@ -55,6 +55,7 @@ class Moveable:
 	def getArt(self): return self.art
 	def getZs(self): return self.zs
 	def getDirectionFacing(self): return self.facing
+	def getPosition(self): return self.pos
 
 	def setPlace(self, position, zs):
 		#make a rect for where it is
