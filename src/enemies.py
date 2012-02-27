@@ -211,7 +211,7 @@ class Enemy(moveables.Moveable):
 
 				tooFar = False
 				if not toOrigin:
-					if mincost.tilesOnPath > self.aggroRange * 2:
+					if mincost.tilesOnPath > self.aggroRange * 1.5:
 						tooFar = True
 				if not tooFar:
 					def makeRelNode((x,y), cost):

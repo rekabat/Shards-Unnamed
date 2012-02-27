@@ -14,7 +14,7 @@ Known bugs:
 Things to consider:
  - 
 
-
+ - random spikes in pathfinding time, I think there's a problem finding the origin quickly, maybe my Heuristic isn't right...
 
 
 

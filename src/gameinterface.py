@@ -503,7 +503,7 @@ class GameInterface:
 			#blit player to screen
 			blitRelRect(self.player.getRect(), self.player.getArt())
 
-			#blit enemies to screen
+			# #blit enemies to screen
 			# for e in self.curEnemies:
 			# 	blitRelRect(e.getRect(), e.getArt())
 
