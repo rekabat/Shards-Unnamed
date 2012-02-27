@@ -167,17 +167,18 @@ class dialog(WorldEvent):
 	def execute(self, GI):
 		namesize = 20 #height in pixels for the speaker's name
 		namepadding = 3 #pixels away from the edge of the box for the name placement
-		dialogsize = 35 #height in pixels
 		dialogwidthfraction = .90 #the fraction of the width of the box that the lines of dialog take
+		linesPerBox = 3 #how many lines of text in the box
 
 		# if player is on the top half of the screen or exactly in the middle, make a text box on the bottom
 		# otherwise, if player's on the bottom half, make it on the top.
 		# and wait for an enter key press to go to the next line
 
-		box = pg.Surface((int(GI.display.getWH()[0]*.70), int(GI.display.getWH()[1]*.25)))
+		box = pg.Surface((int(GI.display.getWH()[0]*.80), int(GI.display.getWH()[1]*.25)))
 		box.fill((96,123,139))
 		box.set_alpha(180)
-		box.set_colorkey((99,100,101))
+		alph = (99,100,101)
+		box.set_colorkey(alph)
 		n3 = namepadding*3
 		x1 = 0
 		y1 = n3
@@ -187,34 +188,23 @@ class dialog(WorldEvent):
 		y3 = 0
 		y = .5*((x1**2+y1**2)*(x3-x2) + (x2**2+y2**2)*(x1-x3) + (x3**2+y3**2)*(x2-x1)) / (y1*(x3-x2)+y2*(x1-x3)+y3*(x2-x1))
 		radius = g.distance((y,y), (namepadding, namepadding))
-		print y,y, g.distance((y,y), (namepadding, namepadding)), g.distance((y,y), (0,n3)), g.distance((y,y), (n3,0))
-		# print y
-		# ma = (namepadding - n3) / (namepadding)
-		# mb = (-namepadding) / (n3 - namepadding)
-		# x = (ma*mb*(n3) + mb*(namepadding) - ma*(namepadding+n3)) / (2*(mb-ma))
-		# # y = -(1./ma)*(x - namepadding/2.) + (n3+namepadding)/2.
-		# y = -(1./mb)*(x - (namepadding+n3)/2.) + (namepadding)/2.
-		# radius = g.distance((x,y), (namepadding, namepadding))
-		# print x,y, g.distance((x,y), (namepadding, namepadding)), g.distance((x,y), (0,n3)), g.distance((x,y), (n3,0))
-		# chordlength = g.distance((0,n3), (n3,0))
 
-		# #distance between a point (x0, y0) and line (ax+by+c=0)
-		# 	# |a*x0 + b*y0 + c| / sqrt(a^2 + b^2)
-		# 	# y = x
-		# sagitta = namepadding / 1.414
-		# radius = chordlength**2/(8*sagitta)
-		for i in range(namepadding*3):
-			for j in range(namepadding*3):
-				# print i,j, g.distance((i,j),(namepadding,namepadding))
+		for i in range(n3):
+			for j in range(n3):
 				if g.distance((i,j),(y,y)) > radius:
-					box.set_at((i,j), (99,100,101))
+					box.set_at((i,j), alph)
+					box.set_at((box.get_rect().width - i, j), alph)
+					box.set_at((i, box.get_rect().height - j), alph)
+					box.set_at((box.get_rect().width - i, box.get_rect().height - j), alph)
+
 
 		enter = GI.font.text("PRESS ENTER", namesize)
 		enter.place(box, (box.get_rect().width-namepadding-enter.getLength(), namepadding), center=False)
 
-		dialogLinesPerBox = (box.get_rect().height - namesize - namepadding*2) / dialogsize
+		# dialogLinesPerBox = (box.get_rect().height - namesize - namepadding*2) / dialogsize
+		dialogsize = (box.get_rect().height - namesize - namepadding*3) / linesPerBox
 		linesPx = [(int(box.get_rect().width*((1-dialogwidthfraction)/2)), int(namesize + namepadding*2))]
-		for i in range(dialogLinesPerBox-1):
+		for i in range(linesPerBox-1):
 			linesPx.append((linesPx[i][0], int(linesPx[i][1]+dialogsize)))
 
 		dialogWidth = int(box.get_rect().width*dialogwidthfraction)
@@ -228,6 +218,9 @@ class dialog(WorldEvent):
 		q = 0
 		while q < (len(dialogLines)):
 			boxc = box.copy()
+			boxc = pg.Surface(box.get_size())
+			boxc.set_colorkey(alph)
+			boxc.fill(alph)
 
 			speaker, words = dialogLines[q].split(":] ")
 
@@ -246,7 +239,22 @@ class dialog(WorldEvent):
 			word = 1
 			lines.append(words[0])
 			while word < len(words):
-				if lines[line].getLength() + space.getLength() + words[word].getLength() <= dialogWidth:
+				# if (line != 0) and ((line-1)%linesPerBox == 0):
+				# 	print line, linesPerBox, linesPerBox%line
+				# 	this = lines[line].getLength() + space.getLength() + words[word].getLength() + ooo.getLength()
+				# else:
+				# 	this = lines[line].getLength() + space.getLength() + words[word].getLength()
+				# if this <= dialogWidth:
+				# 	if (line != 0) and ((line-1)%linesPerBox == 0):
+				# 		lines[line] = lines[line].concatenate([space, words[word], ooo])
+				# 	else:
+				# 		lines[line] = lines[line].concatenate([space, words[word]])
+				# else:
+				# 	line+=1
+				# 	lines.append(words[word])
+				# word +=1
+				this = lines[line].getLength() + space.getLength() + words[word].getLength()
+				if this <= dialogWidth:
 					lines[line] = lines[line].concatenate([space, words[word]])
 				else:
 					line+=1
@@ -255,13 +263,13 @@ class dialog(WorldEvent):
 			
 			passback = speaker.getStr()+"] "
 			for i in range(len(lines)):
-				if i < dialogLinesPerBox:
+				if i < linesPerBox:
 					lines[i].place(boxc, linesPx[i], center=False)
 				else:
 					passback += lines[i].getStr()
 					if i != len(lines)-1:
 						passback+=" "
-			if i >= dialogLinesPerBox:
+			if i >= linesPerBox:
 				dialogLines.insert(q+1, passback)
 			
 			if GI.playerOnTopHalf():
@@ -269,7 +277,8 @@ class dialog(WorldEvent):
 						GI.display.getWH()[1]-boxc.get_rect().height-g.TILE_RES[1]*1.5)
 			else:
 				pos = ((GI.display.getWH()[0] - boxc.get_rect().width) /2.,
-						0)
+						g.TILE_RES[1]*1.5)
+			GI.window.blit(box, pos)
 			GI.window.blit(boxc, pos)
 
 			GI.renderView()
