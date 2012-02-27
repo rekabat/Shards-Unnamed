@@ -170,7 +170,6 @@ class Map:
                     blockedAtThisZ = blockedAtThisZ or bl
                 except: #if a tile doesn't exist at this z, return true (it is blocked here)
                     blockedAtThisZ = True
-                if blockedAtThisZ:
                     break
             ret = ret and blockedAtThisZ
         return ret

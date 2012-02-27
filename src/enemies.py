@@ -10,13 +10,38 @@ class nodule:
 		self.tile = tile
 		self.cost = cost
 		self.parent = parent
+		if self.parent is None:
+			self.tilesOnPath = 1
+		else:
+			self.tilesOnPath = self.parent.tilesOnPath + 1
+	
+	def bottom(self):
+		ret = self
+		while ret.parent != None:
+			ret = ret.parent
+		return ret
+
+	def deleteBottom(self):
+		ret = self
+		if ret.parent == None:
+			return False
+		else:
+			while ret.parent != None:
+				if ret.parent.parent != None:
+					ret = ret.parent
+				else:
+					ret.parent = None
+			return True
+
+	def copy(self):
+		return nodule((self.tile[0]+0, self.tile[1]+0), self.cost+0, self.parent)
 
 
 class Enemy(moveables.Moveable):
-	def __init__(self, map, position, zs, size= (1,1), img='art/playersprite.png', pixStep = 75):
+	def __init__(self, GI, position, zs, size= (1,1), img='art/playersprite.png', pixStep = 75):
 		moveables.Moveable.__init__(self, position, zs, size, img, pixStep)
 
-		self.map = map
+		self.GI = GI
 		self.targetTile = None
 		self.currentTile = None
 		self.headingFor = None
@@ -56,106 +81,180 @@ class Enemy(moveables.Moveable):
 	def getHPBarRect(self): return self.HPBarRect
 
 	def tick(self, dt, player):
-		if self.currentTile == g.pix2tile(self.getPosition()):
-			if self.targetTile == g.pix2tile(player.getPosition()):
-				if self.headingFor != None:
-					xp, yp = g.tile2pix(self.headingFor)
+		if self.secondSinceAtk != 0:
+			self.secondSinceAtk += dt
+			if self.secondSinceAtk >= self.atkRate:
+				self.secondSinceAtk = 0
 
-					xs, ys = self.getRect().center
+		#touching the player
+		if self.getRect().colliderect(player.getRect()):
+			self.undoMove()
+			if self.secondSinceAtk == 0:
+				self.secondSinceAtk+=.001
+				return self.spells[0].cast(self.getRect(), self.facing)
 
-					rel = (xp-xs, yp-ys)
-
-					mv = ""
-
-					if rel[0]<-5:
-						mv += "L"
-					elif rel[0]>5:
-						mv += "R"
-
-					if rel[1]<-5:
-						mv += "U"
-					elif rel[1]>5:
-						mv += "D"
-
-					self.forgetMovement()
-					for m in mv:
-						self.movingDirection(m)
-
-					self.move(mv, dt)
-
-					self.placeHPBar()
-
-
-		self.currentTile = g.pix2tile(self.getPosition())
-		self.targetTile = g.pix2tile(player.getPosition())
+		currentTile = g.pix2tile(self.getRect().center)
+		targetTile = g.pix2tile(player.getRect().center)
 
 		if g.distance(player.getRect().center, self.getRect().center) >= self.aggroRange*g.TILE_RES[0]:
 			self.aggro = False
-			if g.distance(self.origin, self.getRect().center) > 5: #tolerance of 5 pixels from the origin
-				xp, yp = self.origin
-				self.targetTile = g.pix2tile(self.origin)
+			if g.distance(self.origin, self.getRect().center) > 3: #tolerance of 5 pixels from the origin
+				targetTile = g.pix2tile(self.origin)
 			else:
 				self.headingFor = None
 				return
 		else:
 			self.aggro = True
-			xp, yp = player.getRect().center
-
-		xs, ys = self.getRect().center
-
-
-		target = g.pix2tile((xp, yp))
-
-		current = g.pix2tile((xs, ys))
-		current = nodule(current, 100*(abs(current[0]-target[0])+abs(current[1]-target[1])), None)
 		
-		open = {current.tile: current}
-		closed = []
+		if currentTile[0] == targetTile[0] and currentTile[1] == targetTile[1]:
+			return False
 
-		while 1:
-			mincost = nodule(None, 999999999999999999999, None)
-			for each in open.keys():
-				if open[each].cost < mincost.cost:
-					mincost = open[each]
+		if self.targetTile == targetTile and self.headingFor != None:
+			bottom = self.headingFor.bottom().tile
+			if bottom != currentTile:
+				xp, yp = g.tile2pix(bottom, center = False)
 
-			if mincost.tile == target:
-				break
+				xs, ys = self.getRect().topleft
 
-			del(open[mincost.tile])
-			closed.append(mincost.tile)
+				rel = (xp-xs, yp-ys)
 
-			def makeRelNode((x,y), cost):
-				new = (mincost.tile[0]+x, mincost.tile[1]+y)
-				if new not in closed:
-					cost = mincost.cost+cost + 100*(abs(new[0]-target[0])+abs(new[1]-target[1]))
-					if new in open:
-						if cost < open[new].cost:
-							open[new] = nodule(new, cost, mincost)
-					else:
-						open[new] = nodule(new, cost, mincost)
+				mv = ""
 
-			makeRelNode((-1,0), 100)
-			makeRelNode((+1,0), 100)
-			makeRelNode((0,-1), 100)
-			makeRelNode((0,+1), 100)
-			makeRelNode((-1,-1), 141)
-			makeRelNode((-1,+1), 141)
-			makeRelNode((+1,+1), 141)
-			makeRelNode((+1,-1), 141)
+				if rel[0]<0:
+					mv += "L"
+				elif rel[0]>0:
+					mv += "R"
+
+				if rel[1]<0:
+					mv += "U"
+				elif rel[1]>0:
+					mv += "D"
+
+				self.forgetMovement()
+				for m in mv:
+					self.movingDirection(m)
+
+				self.move(mv, dt)
+
+				# if self.GI.collisionWithBlockedSpots(self.getRect(), self.getZs(), player = False, ignoreEnemy=self):
+				# 	self.undoMove()
+				self.placeHPBar()
+				
+			else:
+				if not self.headingFor.deleteBottom():
+					self.headingFor = None
+		else:
+			self.currentTile = currentTile
+			self.targetTile = targetTile
+
+			current = nodule(currentTile, 100*(abs(currentTile[0]-targetTile[0])+abs(currentTile[1]-targetTile[1])), None)
+			
+			open = {current.tile: current}
+			openByCost = {current.cost: [current]}
+			closed = []
+
+			while 1:
+				# mincost = nodule(None, 999999999999999999999, None)
+				# for each in open.keys():
+				# 	if open[each].cost < mincost.cost:
+				# 		mincost = open[each]
+
+				# if mincost.tile == targetTile or len(open.keys()) == 0:
+				# 	break
 
 
-		tileTo = mincost
+				#it should only need open!!!!!
+				#it should only need open!!!!!
+				#it should only need open!!!!!
+				#it should only need open!!!!!
+				#it should only need open!!!!!
+				#it should only need open!!!!!
+				#it should only need open!!!!!
+				#it should only need open!!!!!
+				#it should only need open!!!!!
+				if len(open) == 0 or len(openByCost)==0:
+					mincost = None
 
-		while mincost.parent != None:
-			tileTo = mincost
-			mincost = mincost.parent
+				mincost = openByCost[min(openByCost)][0]
 
-		self.headingFor = tileTo.tile
+				if mincost.tile == targetTile:
+					break
+
+				#remove from open
+				del(open[mincost.tile])
+				#remove from openByCost
+				openByCost[mincost.cost].remove(mincost)
+				if len(openByCost[mincost.cost]) == 0:
+					del(openByCost[mincost.cost])
+				#add to closed
+				closed.append(mincost.tile)
+
+				if mincost.tilesOnPath < self.aggroRange * 2:
+					def makeRelNode((x,y), cost):
+						new = (mincost.tile[0]+x, mincost.tile[1]+y)
+						
+						if new not in closed: #not rejected yet
+							cost = mincost.cost + cost + 10*(abs(new[0]-targetTile[0])+abs(new[1]-targetTile[1]))
+							
+							if new in open: #already tested on another route
+								oldcost = open[new].cost
+								if cost < oldcost: #it's a better route than the last one found to get here
+									#remove from openByCost
+									openByCost[oldcost].remove(open[new])
+									if len(openByCost[oldcost]) == 0:
+										del(openByCost[oldcost])
+									#replace in open
+									open[new].cost = cost
+									open[new].parent = mincost
+									#put in openByCost
+									if cost not in openByCost.keys():
+										openByCost[cost] = []
+									openByCost[cost].append(open[new])
+
+							else: #not tested yet
+								#off of the map
+								if new[0]>self.GI.map.getMapSizeTiles()[0] and new[1]>self.GI.map.getMapSizeTiles()[1]:
+									return False
+								#blocked
+								if self.GI.collisionWithBlockedSpots(g.tile2rect(new), self.getZs(), player = False, ignoreEnemy=self):
+								 	closed.append(new)
+								 	return False
+								
+								#add to open
+								nod = nodule(new, cost, mincost)
+								open[new] = nod
+								#add to openByCost
+								if cost not in openByCost.keys():
+									openByCost[cost] = []
+								openByCost[cost].append(nod)
+						return True
+
+					# if you can't go up or left, an up-left movement (even if it was valid)
+					# would clip through blocked tiles, so those need to be avoided
+
+					left = makeRelNode((0,-1), 10) #l
+					right = makeRelNode((0,+1), 10) #r
+
+					if makeRelNode((-1,0), 10): #u
+						if left:
+							makeRelNode((-1,-1), 14)#ul
+						if right:
+							makeRelNode((-1,+1), 14)#ur
+					if makeRelNode((+1,0), 10): #d
+						if left:
+							makeRelNode((+1,-1), 14)#dl
+						if right:
+							makeRelNode((+1,+1), 14)#dr
+
+
+			self.headingFor = mincost
+
+		return False
 
 
 
 
-	def tick0(self, dt, player):
+	def tick1(self, dt, player):
 		if g.distance(player.getRect().center, self.getRect().center) >= self.aggroRange*g.TILE_RES[0]:
 			self.aggro = False
 			if g.distance(self.origin, self.getRect().center) > 5: #tolerance of 5 pixels from the origin

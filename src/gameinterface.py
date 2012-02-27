@@ -86,6 +86,29 @@ class GameInterface:
 	def addEnemy(self, enemy):
 		self.curEnemies.append(enemy)
 
+	def collisionWithBlockedSpots(self, rect, zs, player = True, enemies = True, tiles = True, events = True, ignoreEnemy = None):
+		#if any corners are on player
+		if player:
+			if self.player.getRect().colliderect(rect):
+				return True
+
+		#if any corners are on an enemy
+		if enemies:
+			for e in self.curEnemies:
+				if e is not ignoreEnemy:
+					if e.getRect().colliderect(rect):
+						return True
+		
+		# if any of the corners are on a blocked map tile or WE tile
+		if tiles:
+			if self.map.blocked(rect, zs):
+				return True 
+
+		# if any of the corners are on a WE tile
+		if events:
+			if self.eventForeground.blocked(rect, zs):
+				return True
+
 	def dispatch(self, events, dt=0):
 		froze = False
 
@@ -218,16 +241,9 @@ class GameInterface:
 				# Check if the movement is valid by making a smaller rectangle and seeing
 				smallerRect=pg.Rect((0,0),(self.player.getRect().width*.87, self.player.getRect().height*.87))
 				smallerRect.center = self.player.getRect().center
-				# if any of the corners are on a blocked map tile or WE tile
-				cantMove = \
-				self.map.blocked(smallerRect, self.player.getZs()) or \
-				self.eventForeground.blocked(smallerRect, self.player.getZs())
-				#if any corners are on an enemy
-				for e in self.curEnemies:
-					cantMove = cantMove or e.getRect().colliderect(smallerRect)
 
 				# If the movement is valid, move the player there
-				if not cantMove:
+				if not self.collisionWithBlockedSpots(smallerRect, self.player.getZs(), player = False):
 					# couldntMove = False
 
 					playerZs = self.player.getZs()
@@ -366,13 +382,12 @@ class GameInterface:
 						quit()
 
 				#cause damage to enemies
-				else:
-					for e in self.curEnemies:
-						# if a.getAlignment() != e.getAlignment() and a.getRect().colliderect(e.getRect()):
-						if a.getRect().colliderect(e.getRect()):
-							a.hit(e)
-							if e.getCurrentHP() <= 0:
-								self.curEnemies.remove(e)
+				for e in self.curEnemies:
+					# if a.getAlignment() != e.getAlignment() and a.getRect().colliderect(e.getRect()):
+					if a.getRect().colliderect(e.getRect()):
+						a.hit(e)
+						if e.getCurrentHP() <= 0:
+							self.curEnemies.remove(e)
 			############################################
 			############################################
 			############################################
@@ -455,8 +470,27 @@ class GameInterface:
 			blitRelRect(self.player.getRect(), self.player.getArt())
 
 			#blit enemies to screen
+			# for e in self.curEnemies:
+			# 	blitRelRect(e.getRect(), e.getArt())
+
+
+
+
+			surf = pg.Surface(g.TILE_RES)
+			surf.fill(g.GREEN)
+			surf.set_alpha(50)
 			for e in self.curEnemies:
 				blitRelRect(e.getRect(), e.getArt())
+				temp = e.headingFor
+				while temp != None:
+					rect = g.tile2rect(temp.tile)
+					blitRelRect(rect, surf)
+					temp = temp.parent
+
+
+
+
+
 			#blit healthbars to screen
 			for e in self.curEnemies:
 				if e.getAggro():
