@@ -6,10 +6,11 @@ import attacks
 
 
 class nodule:
-	def __init__(self, tile, cost, parent):
+	def __init__(self, tile, cost, parent, cameFrom):
 		self.tile = tile
 		self.cost = cost
 		self.parent = parent
+		self.cameFrom = cameFrom
 		if self.parent is None:
 			self.tilesOnPath = 1
 		else:
@@ -166,7 +167,7 @@ class Enemy(moveables.Moveable):
 			self.currentTile = currentTile
 			self.targetTile = targetTile
 
-			current = nodule(currentTile, 100*(abs(currentTile[0]-targetTile[0])+abs(currentTile[1]-targetTile[1])), None)
+			current = nodule(currentTile, 100*(abs(currentTile[0]-targetTile[0])+abs(currentTile[1]-targetTile[1])), None, (0,0))
 			
 			open = {current.tile: current}
 			openByCost = {current.cost: [current]}
@@ -230,6 +231,7 @@ class Enemy(moveables.Moveable):
 									#replace in open
 									open[new].cost = cost
 									open[new].parent = mincost
+									open[new].cameFrom = (x,y)
 									#put in openByCost
 									if cost not in openByCost.keys():
 										openByCost[cost] = []
@@ -248,7 +250,7 @@ class Enemy(moveables.Moveable):
 								 	return False
 								
 								#add to open
-								nod = nodule(new, cost, mincost)
+								nod = nodule(new, cost, mincost, (x,y))
 								open[new] = nod
 								#add to openByCost
 								if cost not in openByCost.keys():
@@ -259,19 +261,99 @@ class Enemy(moveables.Moveable):
 					# if you can't go up or left, an up-left movement (even if it was valid)
 					# would clip through blocked tiles, so those need to be avoided
 
-					up = makeRelNode((0,-1), 10) #u
-					down = makeRelNode((0,+1), 10) #d
+					# up = makeRelNode((0,-1), 10) #u
+					# down = makeRelNode((0,+1), 10) #d
 
-					if makeRelNode((-1,0), 10): #l
-						if up:
+					# if makeRelNode((-1,0), 10): #l
+					# 	if up: #u
+					# 		makeRelNode((-1,-1), 14)#ul
+					# 	if down: #d
+					# 		makeRelNode((-1,+1), 14)#dl
+					# if makeRelNode((+1,0), 10): #r
+					# 	if up: #u
+					# 		makeRelNode((+1,-1), 14)#ur
+					# 	if down: #d
+					# 		makeRelNode((+1,+1), 14)#dr
+
+
+					up = (mincost.cameFrom != (0,+1)) and makeRelNode((0,-1), 10) #u
+					down = (mincost.cameFrom != (0,-1)) and makeRelNode((0,+1), 10) #d
+					left =(mincost.cameFrom != (+1,0)) and  makeRelNode((-1,0), 10)
+					right =(mincost.cameFrom != (-1,0)) and  makeRelNode((+1,0), 10)
+
+					if left: #l
+						if up: #u
 							makeRelNode((-1,-1), 14)#ul
-						if down:
+						if down: #d
 							makeRelNode((-1,+1), 14)#dl
-					if makeRelNode((+1,0), 10): #r
-						if up:
+					if right: #r
+						if up: #u
 							makeRelNode((+1,-1), 14)#ur
-						if down:
+						if down: #d
 							makeRelNode((+1,+1), 14)#dr
+
+
+					# if mincost.cameFrom != (-1,0) and makeRelNode((-1,0), 10): #l
+					# 	if up: #u
+					# 		makeRelNode((-1,-1), 14)#ul
+					# 	if down: #d
+					# 		makeRelNode((-1,+1), 14)#dl
+					# if mincost.cameFrom != (+1,0) and makeRelNode((+1,0), 10): #r
+					# 	if up: #u
+					# 		makeRelNode((+1,-1), 14)#ur
+					# 	if down: #d
+					# 		makeRelNode((+1,+1), 14)#dr
+
+					# if mincost.cameFrom == (0,+1): #it was discovered from the node above it
+					# 	makeRelNode((0,+1), 10) #d
+					# 	makeRelNode((+1,+1), 14)#dr
+					# 	makeRelNode((-1,+1), 14)#dl
+					# elif mincost.cameFrom == (0, -1): #it was discovered from the node below it
+					# 	makeRelNode((0,-1), 10) #u
+					# 	makeRelNode((+1,-1), 14)#ur
+					# 	makeRelNode((-1,-1), 14)#ul
+					# elif mincost.cameFrom == (-1, 0): #it was discovered from the node to the right of it
+					# 	makeRelNode((-1,0), 10)#l
+					# 	makeRelNode((-1,+1), 14)#dl
+					# 	makeRelNode((-1,-1), 14)#ul
+					# elif mincost.cameFrom == (+1, 0): #it was discovered from the node to the left of it
+					# 	makeRelNode((+1,0), 10)#r
+					# 	makeRelNode((+1,+1), 14)#dr
+					# 	makeRelNode((+1,-1), 14)#ur
+					# elif mincost.cameFrom == (+1, +1): #it was discovered from the node to the upleft of it
+					# 	makeRelNode((+1,-1), 14)#ur
+					# 	makeRelNode((+1,0), 10)#r
+					# 	makeRelNode((+1,+1), 14)#dr
+					# 	makeRelNode((0,+1), 10) #d
+					# 	makeRelNode((-1,+1), 14)#dl
+					# elif mincost.cameFrom == (+1, -1): #it was discovered from the node to the upright of it
+					# 	makeRelNode((-1,-1), 14)#ul
+					# 	makeRelNode((-1,0), 10)#l
+					# 	makeRelNode((+1,+1), 14)#dr
+					# 	makeRelNode((0,+1), 10) #d
+					# 	makeRelNode((-1,+1), 14)#dl
+					# elif mincost.cameFrom == (+1, -1): #it was discovered from the node to the downright of it
+					# 	makeRelNode((-1,-1), 14)#ul
+					# 	makeRelNode((-1,0), 10)#l
+					# 	makeRelNode((+1,-1), 14)#ur
+					# 	makeRelNode((0,-1), 10) #u
+					# 	makeRelNode((-1,+1), 14)#dl
+					# elif mincost.cameFrom == (+1, -1): #it was discovered from the node to the downleft of it
+					# 	makeRelNode((-1,-1), 14)#ul
+					# 	makeRelNode((+1,0), 10)#r
+					# 	makeRelNode((+1,-1), 14)#ur
+					# 	makeRelNode((0,-1), 10) #u
+					# 	makeRelNode((+1,+1), 14)#dr
+					# else:
+					# 	makeRelNode((0,-1), 10) #u
+					# 	makeRelNode((0,+1), 10) #d
+					# 	makeRelNode((-1,0), 10)#l
+					# 	makeRelNode((+1,0), 10)#r
+					# 	makeRelNode((-1,-1), 14)#ul
+					# 	makeRelNode((-1,+1), 14)#dl
+					# 	makeRelNode((+1,-1), 14)#ur
+					# 	makeRelNode((+1,+1), 14)#dr
+
 
 
 			self.headingFor = mincost
