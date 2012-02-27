@@ -98,10 +98,13 @@ class Enemy(moveables.Moveable):
 		currentTile = g.pix2tile(self.getRect().center)
 		targetTile = g.pix2tile(player.getRect().center)
 
+		toOrigin = False
+
 		if g.distance(player.getRect().center, self.getRect().center) >= self.aggroRange*g.TILE_RES[0]:
 			self.aggro = False
 			if g.distance(self.origin, self.getRect().center) > 3: #tolerance of 5 pixels from the origin
 				targetTile = g.pix2tile(self.origin)
+				toOrigin = True
 			else:
 				self.headingFor = None
 				return False, False
@@ -136,10 +139,22 @@ class Enemy(moveables.Moveable):
 				for m in mv:
 					self.movingDirection(m)
 
-				self.move(mv, dt)
+				if len(mv) == 2:
+					mv = [mv, mv[0], mv[1]]
+				else:
+					mv = [mv]
+				for each in mv:
+					self.move(each, dt)
 
-				# if self.GI.collisionWithBlockedSpots(self.getRect(), self.getZs(), player = False, ignoreEnemy=self):
-				# 	self.undoMove()
+					# Check if the movement is valid by making a smaller rectangle and seeing
+					smallerRect=pg.Rect((0,0),(self.getRect().width*.87, self.getRect().height*.87))
+					smallerRect.center = self.getRect().center
+
+					if self.GI.collisionWithBlockedRect(smallerRect, self.getZs(), player = False, ignoreEnemy=self):
+						self.undoMove()
+					else:
+						break
+
 				self.placeHPBar()
 
 				return False, False
@@ -176,8 +191,9 @@ class Enemy(moveables.Moveable):
 				#it should only need open!!!!!
 				#it should only need open!!!!!
 				#it should only need open!!!!!
-				if len(open) == 0 or len(openByCost)==0:
+				if len(open) == 0 or len(openByCost) == 0:
 					mincost = None
+					break
 
 				mincost = openByCost[min(openByCost)][0]
 
@@ -193,7 +209,11 @@ class Enemy(moveables.Moveable):
 				#add to closed
 				closed.append(mincost.tile)
 
-				if mincost.tilesOnPath < self.aggroRange * 2:
+				tooFar = False
+				if not toOrigin:
+					if mincost.tilesOnPath > self.aggroRange * 2:
+						tooFar = True
+				if not tooFar:
 					def makeRelNode((x,y), cost):
 						new = (mincost.tile[0]+x, mincost.tile[1]+y)
 						
@@ -216,11 +236,14 @@ class Enemy(moveables.Moveable):
 									openByCost[cost].append(open[new])
 
 							else: #not tested yet
-								#off of the map
-								if new[0]>self.GI.map.getMapSizeTiles()[0] and new[1]>self.GI.map.getMapSizeTiles()[1]:
-									return False
+								
+								# if self.GI.collisionWithBlockedRect(g.tile2rect(new), self.getZs(), player = False, ignoreEnemy=self):
+								
+								#off of the map\
+								if new[0]<0 or new[1]<0 or new[0]>=self.GI.map.getMapSizeTiles()[0] or new[1]>=self.GI.map.getMapSizeTiles()[1]:
+										return False
 								#blocked
-								if self.GI.collisionWithBlockedSpots(g.tile2rect(new), self.getZs(), player = False, ignoreEnemy=self):
+								if self.GI.collisionWithBlockedTile(new, self.getZs(), player = False, ignoreEnemy=self):
 								 	closed.append(new)
 								 	return False
 								
@@ -236,18 +259,18 @@ class Enemy(moveables.Moveable):
 					# if you can't go up or left, an up-left movement (even if it was valid)
 					# would clip through blocked tiles, so those need to be avoided
 
-					left = makeRelNode((0,-1), 10) #l
-					right = makeRelNode((0,+1), 10) #r
+					up = makeRelNode((0,-1), 10) #u
+					down = makeRelNode((0,+1), 10) #d
 
-					if makeRelNode((-1,0), 10): #u
-						if left:
+					if makeRelNode((-1,0), 10): #l
+						if up:
 							makeRelNode((-1,-1), 14)#ul
-						if right:
-							makeRelNode((-1,+1), 14)#ur
-					if makeRelNode((+1,0), 10): #d
-						if left:
-							makeRelNode((+1,-1), 14)#dl
-						if right:
+						if down:
+							makeRelNode((-1,+1), 14)#dl
+					if makeRelNode((+1,0), 10): #r
+						if up:
+							makeRelNode((+1,-1), 14)#ur
+						if down:
 							makeRelNode((+1,+1), 14)#dr
 
 

@@ -87,7 +87,38 @@ class GameInterface:
 	def addEnemy(self, enemy):
 		self.curEnemies.append(enemy)
 
-	def collisionWithBlockedSpots(self, rect, zs, player = True, enemies = True, tiles = True, events = True, ignoreEnemy = None):
+	def collisionWithBlockedTile(self, tile, zs, player = True, enemies = True, tiles = True, events = True, ignoreEnemy = None):
+		rect = g.tile2rect(tile)
+
+		#if any corners are on player
+		if player:
+			if self.player.getRect().colliderect(rect):
+				return True
+
+		#if any corners are on an enemy
+		if enemies:
+			for e in self.curEnemies:
+				if e is not ignoreEnemy:
+					if e.getRect().colliderect(rect):
+						return True
+
+		# if any of the corners are on a blocked map tile or WE tile
+		if tiles:
+			try:
+				if self.map.getTile(tile, zs[0], pixel = False).blocked():
+				# if self.map.blocked(rect, zs):
+					return True
+			except:
+				print tile
+				quit()
+
+		# if any of the corners are on a WE tile
+		if events:
+			if self.eventForeground.blocked(rect, zs):
+				return True
+
+
+	def collisionWithBlockedRect(self, rect, zs, player = True, enemies = True, tiles = True, events = True, ignoreEnemy = None):
 		#if any corners are on player
 		if player:
 			if self.player.getRect().colliderect(rect):
@@ -245,7 +276,7 @@ class GameInterface:
 				smallerRect.center = self.player.getRect().center
 
 				# If the movement is valid, move the player there
-				if not self.collisionWithBlockedSpots(smallerRect, self.player.getZs(), player = False):
+				if not self.collisionWithBlockedRect(smallerRect, self.player.getZs(), player = False):
 					# couldntMove = False
 
 					playerZs = self.player.getZs()

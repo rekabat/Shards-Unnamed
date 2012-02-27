@@ -10,6 +10,7 @@ class Moveable:
 		self.pos = None #g.tile2rect(position).topleft  #given in tile coordinates, convert to topleft pixel
 		self.rect = None #pg.Rect(self.pos, self.size)
 		self.previousRect = None #self.rect.copy()
+		# self.fourCorners = None
 		
 		#what floor "level" is the player on
 		self.zs = None #zs
@@ -52,6 +53,7 @@ class Moveable:
 		self.udlr = [False, False, False, False]
 
 	def getRect(self): return self.rect
+	# def getFourCorners(self): return self.fourCorners
 	def getArt(self): return self.art
 	def getZs(self): return self.zs
 	def getDirectionFacing(self): return self.facing
@@ -61,6 +63,7 @@ class Moveable:
 		#make a rect for where it is
 		self.pos = g.tile2rect(position).topleft  #given in tile coordinates, convert to topleft pixel
 		self.rect= pg.Rect(self.pos, self.size)
+		# self.fourCorners = (self.rect.topleft, self.rect.topright, self.rect.bottomleft, self.rect.bottomright)
 		self.previousRect = self.rect.copy()
 		
 		#what floor "level" is the player on
@@ -125,6 +128,7 @@ class Moveable:
 	
 	def undoMove(self):
 		self.rect = self.previousRect.copy()
+		# self.fourCorners = (self.rect.topleft, self.rect.topright, self.rect.bottomleft, self.rect.bottomright)
 		self.pos = self.rect.topleft
 		self.pixStepped = self.oldPixStepped
 		

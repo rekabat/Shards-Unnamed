@@ -59,7 +59,6 @@ class Map:
             if z not in self.zsetup2.keys():
                 self.zsetup2[z] = {}
 
-
         for pos in self.setup:
             self.setup[pos] = self.setup[pos][0]
 
