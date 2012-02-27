@@ -69,6 +69,7 @@ class Map:
         self.layersOfAndAbove = self.makeLayersOfAndAbove()
 
     def getMapSizePx(self): return self.mapSizePx
+    def getMapSizeTiles(self): return self.mapSizeTiles
     def getDrawingSize(self): return self.drawingSize
     def getMapDrawingDif(self): return self.mapDrawingDif
     
