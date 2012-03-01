@@ -48,16 +48,20 @@ class Map:
         
         self.zsetup2 = {} #key is z, return is setup dict for that z. 
                         #key for setup dict is pos, returns is the tile there (at the given z)
+        # self.zsetup2_blocked = {} # like zsetup2 but you get whether or not the tile is blocked
         for pos in self.setup:
             for each in self.setup[pos]:
                 for drawOnZ in each.getZs():
                     if drawOnZ not in self.zsetup2.keys():
                         self.zsetup2[drawOnZ] = {}
+                        # self.zsetup2_blocked[drawOnZ] = {}
                     self.zsetup2[drawOnZ][pos] = each
+                    # self.zsetup2_blocked[drawOnZ][pos] = each.blocked()
         maxz = max(self.zsetup2.keys())
         for z in range(maxz+1):
             if z not in self.zsetup2.keys():
                 self.zsetup2[z] = {}
+                # self.zsetup2_blocked[z] = {}
 
         for pos in self.setup:
             self.setup[pos] = self.setup[pos][0]
@@ -71,6 +75,7 @@ class Map:
     def getMapSizeTiles(self): return self.mapSizeTiles
     def getDrawingSize(self): return self.drawingSize
     def getMapDrawingDif(self): return self.mapDrawingDif
+    # def getDict_Z_Pos_gives_Blocked(self): return self.zsetup2_blocked
     
     def makeLayersOfAndBelow(self):
         ret = {}
@@ -150,9 +155,13 @@ class Map:
         if pixel:
             coords = g.pix2tile(coords)
         # print coords
-        if coords in self.zsetup2[z].keys():
+        # if coords in self.zsetup2[z].keys():
+        #     return self.zsetup2[z][coords]
+        # else:
+        #     return False
+        try:
             return self.zsetup2[z][coords]
-        else:
+        except:
             return False
     
     def blocked(self, rect, zlist):#coords, pixel=True): #false means tile
@@ -166,12 +175,26 @@ class Map:
             for corner in corners:
                 try: #if a tile exists at this z and IS blocked, return true
                     bl = self.zsetup2[z][corner].blocked()
+                    # bl = self.zsetup2_blocked[z][corner]
                     blockedAtThisZ = blockedAtThisZ or bl
                 except: #if a tile doesn't exist at this z, return true (it is blocked here)
                     blockedAtThisZ = True
                     break
             ret = ret and blockedAtThisZ
         return ret
+
+    # def blocked_tile(self, tile, zlist):
+    #     ret = True
+    #     for z in zlist:
+    #         blockedAtThisZ = False
+    #         try: #if a tile exists at this z and IS blocked, return true
+    #             bl = self.zsetup2[z][tile].blocked()
+    #             blockedAtThisZ = blockedAtThisZ or bl
+    #         except: #if a tile doesn't exist at this z, return true (it is blocked here)
+    #             blockedAtThisZ = True
+    #             break
+    #         ret = ret and blockedAtThisZ
+    #     return ret
 
     
     def tileExists(self,rect,zlist):

@@ -515,7 +515,7 @@ class GameInterface:
 			surf.set_alpha(50)
 			for e in self.curEnemies:
 				blitRelRect(e.getRect(), e.getArt())
-				temp = e.headingFor
+				temp = e.currentPath
 				while temp != None:
 					rect = g.tile2rect(temp.tile)
 					blitRelRect(rect, surf)

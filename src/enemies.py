@@ -32,9 +32,6 @@ def deleteBottomNodule(nod):
 					nod.parent = None
 			return True
 
-	# def copy(self):
-	# 	return nodule((self.tile[0]+0, self.tile[1]+0), self.cost+0, self.parent)
-
 
 class Enemy(moveables.Moveable):
 	def __init__(self, GI, position, zs, size= (1,1), img='art/playersprite.png', pixStep = 75):
@@ -43,7 +40,8 @@ class Enemy(moveables.Moveable):
 		self.GI = GI
 		self.targetTile = None
 		self.currentTile = None
-		self.headingFor = None
+		self.currentPath = None
+		self.player_changedTiles = 0
 
 		self.aggroRange = 7 #tiles (width)
 		self.aggro = False
@@ -222,13 +220,9 @@ class Enemy(moveables.Moveable):
 				if right or up: #u
 					makeRelNode((+1,-1), 14)#ur
 				if right or down: #d
-						makeRelNode((+1,+1), 14)#dr
+					makeRelNode((+1,+1), 14)#dr
 
-
-
-
-
-		self.headingFor = mincost
+		return mincost
 
 	def tick(self, dt, foundOnePathAlready):
 		player = self.GI.player
@@ -246,28 +240,32 @@ class Enemy(moveables.Moveable):
 				return self.spells[0].cast(self.getRect(), self.facing), False
 
 		currentTile = g.pix2tile(self.getRect().center)
+		# currentTile = g.pix2tile(self.getRect().bottomright)
 
 		if g.distance(player.getRect().center, self.getRect().center) < self.aggroRange*g.TILE_RES[0]:
 			targetTile = g.pix2tile(player.getRect().center)
+			# if self.aggro:
+			# 	if targetTile != self.targetTile:
+			# 		self.player_changedTiles += 1
+			# else:
+			# 	self.aggro = True
+			# 	self.player_changedTiles = 0 
 			self.aggro = True
 			toOrigin = False
-		# elif g.distance(self.origin, self.getRect().center) > 3: #tolerance of 5 pixels from the origin
-			# toOrigin = True
 		else:
 			targetTile = g.pix2tile(self.origin)
 			self.aggro = False
 			toOrigin = True
-			# self.headingFor = None
-			# return False, False
 		
 		if currentTile[0] == targetTile[0] and currentTile[1] == targetTile[1]:
+			self.currentPath = None
 			return False, False
 
-		if self.targetTile == targetTile and self.headingFor != None:
-			bottom = bottomNodule(self.headingFor).tile
+		if self.targetTile == targetTile and self.currentPath != None:
+			bottom = bottomNodule(self.currentPath).tile
 			if bottom != currentTile:
-				xp, yp = g.tile2pix(bottom, center = False)
-				xs, ys = self.getRect().topleft
+				xp, yp = g.tile2pix(bottom, center = True)
+				xs, ys = self.getRect().center
 
 				mv = ""
 
@@ -306,22 +304,30 @@ class Enemy(moveables.Moveable):
 				return False, False
 				
 			else:
-				if not deleteBottomNodule(self.headingFor):
-					self.headingFor = None
+				if not deleteBottomNodule(self.currentPath):
+					self.currentPath = None
+					return False, False
 		elif not foundOnePathAlready:
+			# self.targetTile = targetTile	
+			# self.currentTile = currentTile
+
+			# if toOrigin:
+			# 	self.Astar(currentTile, targetTile)
+			# else:
+			# 	self.Astar(currentTile, targetTile, limit = 1.5*self.aggroRange)
+
 			self.targetTile = targetTile	
 			self.currentTile = currentTile
 
-			if toOrigin:
-				self.Astar(currentTile, targetTile)
-			else:
-				self.Astar(currentTile, targetTile, limit = 1.5*self.aggroRange)
 
+			if toOrigin:
+				self.currentPath = self.Astar(currentTile, targetTile)
+			else: 
+				self.currentPath = self.Astar(currentTile, targetTile, limit = 1.5*self.aggroRange)
+
+			
 			return False, True
 		return False, False
-
-
-
 
 
 	def tick1(self, dt, foundOnePathAlready):
@@ -396,42 +402,6 @@ class Enemy(moveables.Moveable):
 				return self.spells[0].cast(self.getRect(), self.facing)
 
 		return False
-
-
-	def tick0(self, dt, foundOnePathAlready):
-		player = self.GI.player
-
-		if g.distance(player.getRect().center, self.getRect().center)>= self.aggroRange*g.TILE_RES[0]:
-			if g.distance(self.origin, self.getRect().center) > 5: #tolerance of 5 pixels from the origin
-				xp, yp = self.origin
-			else:
-				return
-		else:
-			xp, yp = player.getRect().center
-
-		xs, ys = self.getRect().center
-
-		rel = (xp-xs, yp-ys)
-
-		mv = ""
-
-		if rel[0]<-5:
-			mv += "L"
-		elif rel[0]>5:
-			mv += "R"
-
-		if rel[1]<-5:
-			mv += "U"
-		elif rel[1]>5:
-			mv += "D"
-
-		self.forgetMovement()
-		for m in mv:
-			self.movingDirection(m)
-
-		self.move(mv, dt)
-
-		self.placeHPBar()
 
 	def takeHP(self, amt):
 		self.currentHP -= amt
