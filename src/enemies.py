@@ -16,26 +16,24 @@ class nodule:
 		else:
 			self.tilesOnPath = self.parent.tilesOnPath + 1
 	
-	def bottom(self):
-		ret = self
-		while ret.parent != None:
-			ret = ret.parent
-		return ret
+def bottomNodule(nod):
+		while nod.parent != None:
+			nod = nod.parent
+		return nod
 
-	def deleteBottom(self):
-		ret = self
-		if ret.parent == None:
+def deleteBottomNodule(nod):
+		if nod.parent == None:
 			return False
 		else:
-			while ret.parent != None:
-				if ret.parent.parent != None:
-					ret = ret.parent
+			while nod.parent != None:
+				if nod.parent.parent != None:
+					nod = nod.parent
 				else:
-					ret.parent = None
+					nod.parent = None
 			return True
 
-	def copy(self):
-		return nodule((self.tile[0]+0, self.tile[1]+0), self.cost+0, self.parent)
+	# def copy(self):
+	# 	return nodule((self.tile[0]+0, self.tile[1]+0), self.cost+0, self.parent)
 
 
 class Enemy(moveables.Moveable):
@@ -81,6 +79,157 @@ class Enemy(moveables.Moveable):
 	def getHPBar(self): return self.HPBar
 	def getHPBarRect(self): return self.HPBarRect
 
+	def Astar(self, currentTile, targetTile, limit = None):
+		current = nodule(currentTile, 100*(abs(currentTile[0]-targetTile[0])+abs(currentTile[1]-targetTile[1])), None, (0,0))
+			
+		open = {current.tile: current}
+		openByCost = {current.cost: [current]}
+		closed = []
+
+		while 1:
+			# mincost = nodule(None, 999999999999999999999, None)
+			# for each in open.keys():
+			# 	if open[each].cost < mincost.cost:
+			# 		mincost = open[each]
+
+			# if mincost.tile == targetTile or len(open.keys()) == 0:
+			# 	break
+
+
+			#it should only need open!!!!!
+			#it should only need open!!!!!
+			#it should only need open!!!!!
+			#it should only need open!!!!!
+			#it should only need open!!!!!
+			#it should only need open!!!!!
+			#it should only need open!!!!!
+			#it should only need open!!!!!
+			#it should only need open!!!!!
+			if len(open) == 0 or len(openByCost) == 0:
+				mincost = None
+				break
+
+			mincost = openByCost[min(openByCost)][0]
+
+			if mincost.tile == targetTile:
+				break
+
+			#remove from open
+			del(open[mincost.tile])
+			#remove from openByCost
+			openByCost[mincost.cost].remove(mincost)
+			if len(openByCost[mincost.cost]) == 0:
+				del(openByCost[mincost.cost])
+			#add to closed
+			closed.append(mincost.tile)
+
+			tooFar = False
+			if limit:
+				if mincost.tilesOnPath > limit:
+					tooFar = True
+			if not tooFar:
+				def makeRelNode((x,y), cost):
+					new = (mincost.tile[0]+x, mincost.tile[1]+y)
+					
+					if new not in closed: #not rejected yet
+						cost = mincost.cost + cost + 10*(abs(new[0]-targetTile[0])+abs(new[1]-targetTile[1]))
+						
+						if new in open: #already tested on another route
+							oldcost = open[new].cost
+							if cost < oldcost: #it's a better route than the last one found to get here
+								#remove from openByCost
+								openByCost[oldcost].remove(open[new])
+								if len(openByCost[oldcost]) == 0:
+									del(openByCost[oldcost])
+								#replace in open
+								open[new].cost = cost
+								open[new].parent = mincost
+								open[new].cameFrom = (x,y)
+								#put in openByCost
+								if cost not in openByCost.keys():
+									openByCost[cost] = []
+								openByCost[cost].append(open[new])
+
+						else: #not tested yet
+							
+							# if self.GI.collisionWithBlockedRect(g.tile2rect(new), self.getZs(), player = False, ignoreEnemy=self):
+							
+							#off of the map\
+							if new[0]<0 or new[1]<0 or new[0]>=self.GI.map.getMapSizeTiles()[0] or new[1]>=self.GI.map.getMapSizeTiles()[1]:
+									return False
+							#blocked
+							if self.GI.collisionWithBlockedTile(new, self.getZs(), player = False, ignoreEnemy=self):
+							 	closed.append(new)
+							 	return False
+							
+							#add to open
+							nod = nodule(new, cost, mincost, (x,y))
+							open[new] = nod
+							#add to openByCost
+							if cost not in openByCost.keys():
+								openByCost[cost] = []
+							openByCost[cost].append(nod)
+					return True
+
+				# if you can't go up or left, an up-left movement (even if it was valid)
+				# would clip through blocked tiles, so those need to be avoided
+
+
+				#original
+				# up = makeRelNode((0,-1), 10) #u
+				# down = makeRelNode((0,+1), 10) #d
+
+				# if makeRelNode((-1,0), 10): #l
+				# 	if up: #u
+				# 		makeRelNode((-1,-1), 14)#ul
+				# 	if down: #d
+				# 		makeRelNode((-1,+1), 14)#dl
+				# if makeRelNode((+1,0), 10): #r
+				# 	if up: #u
+				# 		makeRelNode((+1,-1), 14)#ur
+				# 	if down: #d
+				# 		makeRelNode((+1,+1), 14)#dr
+
+
+				#seems to be working
+				# up = (mincost.cameFrom != (0,+1)) and makeRelNode((0,-1), 10) #u
+				# down = (mincost.cameFrom != (0,-1)) and makeRelNode((0,+1), 10) #d
+				# left =(mincost.cameFrom != (+1,0)) and  makeRelNode((-1,0), 10)
+				# right =(mincost.cameFrom != (-1,0)) and  makeRelNode((+1,0), 10)
+
+				# if left: #l
+				# 	if up: #u
+				# 		makeRelNode((-1,-1), 14)#ul
+				# 	if down: #d
+				# 		makeRelNode((-1,+1), 14)#dl
+				# if right: #r
+				# 	if up: #u
+				# 		makeRelNode((+1,-1), 14)#ur
+				# 	if down: #d
+				# 		makeRelNode((+1,+1), 14)#dr
+
+				#seems best
+				# cameFrom                     ``up``                         ``down``                         ``left``                        ``right``
+				up    = (mincost.cameFrom != (0,+1))                                  and (mincost.cameFrom != (+1,0)) and (mincost.cameFrom != (-1,0)) and makeRelNode((0,-1), 10)
+				down  =                                  (mincost.cameFrom != (0,-1)) and (mincost.cameFrom != (+1,0)) and (mincost.cameFrom != (-1,0)) and makeRelNode((0,+1), 10)
+				left  = (mincost.cameFrom != (0,+1)) and (mincost.cameFrom != (0,-1)) and (mincost.cameFrom != (+1,0))                                  and makeRelNode((-1,0), 10)
+				right = (mincost.cameFrom != (0,+1)) and (mincost.cameFrom != (0,-1))                                  and (mincost.cameFrom != (-1,0)) and makeRelNode((+1,0), 10)
+
+				if left or up: #l
+					makeRelNode((-1,-1), 14)#ul
+				if left or down: #d
+					makeRelNode((-1,+1), 14)#dl
+				if right or up: #u
+					makeRelNode((+1,-1), 14)#ur
+				if right or down: #d
+						makeRelNode((+1,+1), 14)#dr
+
+
+
+
+
+		self.headingFor = mincost
+
 	def tick(self, dt, foundOnePathAlready):
 		player = self.GI.player
 
@@ -97,43 +246,39 @@ class Enemy(moveables.Moveable):
 				return self.spells[0].cast(self.getRect(), self.facing), False
 
 		currentTile = g.pix2tile(self.getRect().center)
-		targetTile = g.pix2tile(player.getRect().center)
 
-		toOrigin = False
-
-		if g.distance(player.getRect().center, self.getRect().center) >= self.aggroRange*g.TILE_RES[0]:
-			self.aggro = False
-			if g.distance(self.origin, self.getRect().center) > 3: #tolerance of 5 pixels from the origin
-				targetTile = g.pix2tile(self.origin)
-				toOrigin = True
-			else:
-				self.headingFor = None
-				return False, False
-		else:
+		if g.distance(player.getRect().center, self.getRect().center) < self.aggroRange*g.TILE_RES[0]:
+			targetTile = g.pix2tile(player.getRect().center)
 			self.aggro = True
+			toOrigin = False
+		# elif g.distance(self.origin, self.getRect().center) > 3: #tolerance of 5 pixels from the origin
+			# toOrigin = True
+		else:
+			targetTile = g.pix2tile(self.origin)
+			self.aggro = False
+			toOrigin = True
+			# self.headingFor = None
+			# return False, False
 		
 		if currentTile[0] == targetTile[0] and currentTile[1] == targetTile[1]:
 			return False, False
 
 		if self.targetTile == targetTile and self.headingFor != None:
-			bottom = self.headingFor.bottom().tile
+			bottom = bottomNodule(self.headingFor).tile
 			if bottom != currentTile:
 				xp, yp = g.tile2pix(bottom, center = False)
-
 				xs, ys = self.getRect().topleft
-
-				rel = (xp-xs, yp-ys)
 
 				mv = ""
 
-				if rel[0]<0:
+				if xp-xs<0:
 					mv += "L"
-				elif rel[0]>0:
+				elif xp-xs>0:
 					mv += "R"
 
-				if rel[1]<0:
+				if yp-ys<0:
 					mv += "U"
-				elif rel[1]>0:
+				elif yp-ys>0:
 					mv += "D"
 
 				self.forgetMovement()
@@ -161,161 +306,16 @@ class Enemy(moveables.Moveable):
 				return False, False
 				
 			else:
-				if not self.headingFor.deleteBottom():
+				if not deleteBottomNodule(self.headingFor):
 					self.headingFor = None
 		elif not foundOnePathAlready:
+			self.targetTile = targetTile	
 			self.currentTile = currentTile
-			self.targetTile = targetTile
 
-			current = nodule(currentTile, 100*(abs(currentTile[0]-targetTile[0])+abs(currentTile[1]-targetTile[1])), None, (0,0))
-			
-			open = {current.tile: current}
-			openByCost = {current.cost: [current]}
-			closed = []
-
-			while 1:
-				# mincost = nodule(None, 999999999999999999999, None)
-				# for each in open.keys():
-				# 	if open[each].cost < mincost.cost:
-				# 		mincost = open[each]
-
-				# if mincost.tile == targetTile or len(open.keys()) == 0:
-				# 	break
-
-
-				#it should only need open!!!!!
-				#it should only need open!!!!!
-				#it should only need open!!!!!
-				#it should only need open!!!!!
-				#it should only need open!!!!!
-				#it should only need open!!!!!
-				#it should only need open!!!!!
-				#it should only need open!!!!!
-				#it should only need open!!!!!
-				if len(open) == 0 or len(openByCost) == 0:
-					mincost = None
-					break
-
-				mincost = openByCost[min(openByCost)][0]
-
-				if mincost.tile == targetTile:
-					break
-
-				#remove from open
-				del(open[mincost.tile])
-				#remove from openByCost
-				openByCost[mincost.cost].remove(mincost)
-				if len(openByCost[mincost.cost]) == 0:
-					del(openByCost[mincost.cost])
-				#add to closed
-				closed.append(mincost.tile)
-
-				tooFar = False
-				if not toOrigin:
-					if mincost.tilesOnPath > self.aggroRange * 1.5:
-						tooFar = True
-				if not tooFar:
-					def makeRelNode((x,y), cost):
-						new = (mincost.tile[0]+x, mincost.tile[1]+y)
-						
-						if new not in closed: #not rejected yet
-							cost = mincost.cost + cost + 10*(abs(new[0]-targetTile[0])+abs(new[1]-targetTile[1]))
-							
-							if new in open: #already tested on another route
-								oldcost = open[new].cost
-								if cost < oldcost: #it's a better route than the last one found to get here
-									#remove from openByCost
-									openByCost[oldcost].remove(open[new])
-									if len(openByCost[oldcost]) == 0:
-										del(openByCost[oldcost])
-									#replace in open
-									open[new].cost = cost
-									open[new].parent = mincost
-									open[new].cameFrom = (x,y)
-									#put in openByCost
-									if cost not in openByCost.keys():
-										openByCost[cost] = []
-									openByCost[cost].append(open[new])
-
-							else: #not tested yet
-								
-								# if self.GI.collisionWithBlockedRect(g.tile2rect(new), self.getZs(), player = False, ignoreEnemy=self):
-								
-								#off of the map\
-								if new[0]<0 or new[1]<0 or new[0]>=self.GI.map.getMapSizeTiles()[0] or new[1]>=self.GI.map.getMapSizeTiles()[1]:
-										return False
-								#blocked
-								if self.GI.collisionWithBlockedTile(new, self.getZs(), player = False, ignoreEnemy=self):
-								 	closed.append(new)
-								 	return False
-								
-								#add to open
-								nod = nodule(new, cost, mincost, (x,y))
-								open[new] = nod
-								#add to openByCost
-								if cost not in openByCost.keys():
-									openByCost[cost] = []
-								openByCost[cost].append(nod)
-						return True
-
-					# if you can't go up or left, an up-left movement (even if it was valid)
-					# would clip through blocked tiles, so those need to be avoided
-
-
-					#original
-					# up = makeRelNode((0,-1), 10) #u
-					# down = makeRelNode((0,+1), 10) #d
-
-					# if makeRelNode((-1,0), 10): #l
-					# 	if up: #u
-					# 		makeRelNode((-1,-1), 14)#ul
-					# 	if down: #d
-					# 		makeRelNode((-1,+1), 14)#dl
-					# if makeRelNode((+1,0), 10): #r
-					# 	if up: #u
-					# 		makeRelNode((+1,-1), 14)#ur
-					# 	if down: #d
-					# 		makeRelNode((+1,+1), 14)#dr
-
-
-					#seems to be working
-					# up = (mincost.cameFrom != (0,+1)) and makeRelNode((0,-1), 10) #u
-					# down = (mincost.cameFrom != (0,-1)) and makeRelNode((0,+1), 10) #d
-					# left =(mincost.cameFrom != (+1,0)) and  makeRelNode((-1,0), 10)
-					# right =(mincost.cameFrom != (-1,0)) and  makeRelNode((+1,0), 10)
-
-					# if left: #l
-					# 	if up: #u
-					# 		makeRelNode((-1,-1), 14)#ul
-					# 	if down: #d
-					# 		makeRelNode((-1,+1), 14)#dl
-					# if right: #r
-					# 	if up: #u
-					# 		makeRelNode((+1,-1), 14)#ur
-					# 	if down: #d
-					# 		makeRelNode((+1,+1), 14)#dr
-
-					#seems best
-					# cameFrom                     ``up``                         ``down``                         ``left``                        ``right``
-					up    = (mincost.cameFrom != (0,+1))                                  and (mincost.cameFrom != (+1,0)) and (mincost.cameFrom != (-1,0)) and makeRelNode((0,-1), 10)
-					down  =                                  (mincost.cameFrom != (0,-1)) and (mincost.cameFrom != (+1,0)) and (mincost.cameFrom != (-1,0)) and makeRelNode((0,+1), 10)
-					left  = (mincost.cameFrom != (0,+1)) and (mincost.cameFrom != (0,-1)) and (mincost.cameFrom != (+1,0)) and                              and makeRelNode((-1,0), 10)
-					right = (mincost.cameFrom != (0,+1)) and (mincost.cameFrom != (0,-1))                                  and (mincost.cameFrom != (-1,0)) and makeRelNode((+1,0), 10)
-
-					if left or up: #l
-						makeRelNode((-1,-1), 14)#ul
-					if left or down: #d
-						makeRelNode((-1,+1), 14)#dl
-					if right or up: #u
-						makeRelNode((+1,-1), 14)#ur
-					if right or down: #d
-							makeRelNode((+1,+1), 14)#dr
-
-
-
-
-
-			self.headingFor = mincost
+			if toOrigin:
+				self.Astar(currentTile, targetTile)
+			else:
+				self.Astar(currentTile, targetTile, limit = 1.5*self.aggroRange)
 
 			return False, True
 		return False, False
