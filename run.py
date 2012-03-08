@@ -21,7 +21,7 @@ def runGame():
 
         events = pg.event.get()
 
-        trash0, froze = GI.dispatch(events, dt/1000.)
+        trash0, froze = GI.dispatch(events, dt)
         GI.renderView()
 
 

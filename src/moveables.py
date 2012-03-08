@@ -3,7 +3,7 @@ import pygame as pg
 import general as g
 
 class Moveable:
-	def __init__(self, position, zs, size, img, pixStep=200):
+	def __init__(self, position, zs, size, img, pixStep=.20):
 		self.size = (size[0]*g.TILE_RES[0], size[1]*g.TILE_RES[1]) #given in tile size, convert to pixel size 
 
 		#make a rect for where it is
@@ -41,7 +41,7 @@ class Moveable:
 		self.oldPixStepped = 0
 		#the number of pixels before the image is changed
 		self.pixStepSize = 20
-		#the number of pixels traversed in a second
+		#the number of pixels traversed in a millisecond
 		self.pixStep = pixStep + 0
 		# The surrent image (still, left foot, right foot)
 		self.currentImg = 0

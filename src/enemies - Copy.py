@@ -1,9 +1,3 @@
-#currently, while pathfinding, enemies are ignored and then collisions are handled as they happen
-#it seems to run too slowly if I detect collisions while pathfinding. 
-# I may want to change it back wants I can do multiprocessing so it's more robust
-
-
-
 import pygame as pg
 
 import general as g
@@ -12,13 +6,9 @@ import attacks
 
 
 class nodule:
-	def __init__(self, tile, g, h, parent, cameFrom):
+	def __init__(self, tile, cost, parent, cameFrom):
 		self.tile = tile
-		
-		self.cost = g+h
-		self.movementcost = g
-		# self.heuristiccost = h
-
+		self.cost = cost
 		self.parent = parent
 		self.cameFrom = cameFrom
 		if self.parent is None:
@@ -27,24 +17,24 @@ class nodule:
 			self.tilesOnPath = self.parent.tilesOnPath + 1
 	
 def bottomNodule(nod):
-	while nod.parent != None:
-		nod = nod.parent
-	return nod
+		while nod.parent != None:
+			nod = nod.parent
+		return nod
 
 def deleteBottomNodule(nod):
-	if nod.parent == None:
-		return False
-	else:
-		while nod.parent != None:
-			if nod.parent.parent != None:
-				nod = nod.parent
-			else:
-				nod.parent = None
-		return True
+		if nod.parent == None:
+			return False
+		else:
+			while nod.parent != None:
+				if nod.parent.parent != None:
+					nod = nod.parent
+				else:
+					nod.parent = None
+			return True
 
 
 class Enemy(moveables.Moveable):
-	def __init__(self, GI, position, zs, size= (1,1), img='art/playersprite.png', pixStep = .075):
+	def __init__(self, GI, position, zs, size= (1,1), img='art/playersprite.png', pixStep = 75):
 		moveables.Moveable.__init__(self, position, zs, size, img, pixStep)
 
 		self.GI = GI
@@ -59,7 +49,7 @@ class Enemy(moveables.Moveable):
 
 		self.alignment = 1
 		self.spells = [attacks.fireball(alignment = self.alignment)]
-		self.atkRate = 1000 #how many ms between attacks
+		self.atkRate = 1 #how many attacks per second
 		self.secondSinceAtk = 0
 
 		self.stats = {	'lvl': 	0,	\
@@ -88,7 +78,7 @@ class Enemy(moveables.Moveable):
 	def getHPBarRect(self): return self.HPBarRect
 
 	def Astar(self, currentTile, targetTile, limit = None):
-		current = nodule(currentTile, 0, 10*(abs(currentTile[0]-targetTile[0])+abs(currentTile[1]-targetTile[1])), None, (0,0))
+		current = nodule(currentTile, 100*(abs(currentTile[0]-targetTile[0])+abs(currentTile[1]-targetTile[1])), None, (0,0))
 			
 		open = {current.tile: current}
 		openByCost = {current.cost: [current]}
@@ -140,10 +130,7 @@ class Enemy(moveables.Moveable):
 					new = (mincost.tile[0]+x, mincost.tile[1]+y)
 					
 					if new not in closed: #not rejected yet
-						g = mincost.movementcost + cost
-						h = 10*(abs(new[0]-targetTile[0])+abs(new[1]-targetTile[1]))
-
-						cost = g+h
+						cost = mincost.cost + cost + 10*(abs(new[0]-targetTile[0])+abs(new[1]-targetTile[1]))
 						
 						if new in open: #already tested on another route
 							oldcost = open[new].cost
@@ -154,8 +141,6 @@ class Enemy(moveables.Moveable):
 									del(openByCost[oldcost])
 								#replace in open
 								open[new].cost = cost
-								open[new].movementcost = g
-								# open[new].heuristiccost = h
 								open[new].parent = mincost
 								open[new].cameFrom = (x,y)
 								#put in openByCost
@@ -171,13 +156,12 @@ class Enemy(moveables.Moveable):
 							if new[0]<0 or new[1]<0 or new[0]>=self.GI.map.getMapSizeTiles()[0] or new[1]>=self.GI.map.getMapSizeTiles()[1]:
 									return False
 							#blocked
-							# if self.GI.collisionWithBlockedTile(new, self.getZs(), player = False, ignoreEnemy=self):
-							if self.GI.collisionWithBlockedTile(new, self.getZs(), player = False, enemies = False):
+							if self.GI.collisionWithBlockedTile(new, self.getZs(), player = False, ignoreEnemy=self):
 							 	closed.append(new)
 							 	return False
 							
 							#add to open
-							nod = nodule(new, g, h, mincost, (x,y))
+							nod = nodule(new, cost, mincost, (x,y))
 							open[new] = nod
 							#add to openByCost
 							if cost not in openByCost.keys():
@@ -252,7 +236,7 @@ class Enemy(moveables.Moveable):
 		if self.getRect().colliderect(player.getRect()):
 			self.undoMove()
 			if self.secondSinceAtk == 0:
-				self.secondSinceAtk+=1
+				self.secondSinceAtk+=.001
 				return self.spells[0].cast(self.getRect(), self.facing), False
 
 		currentTile = g.pix2tile(self.getRect().center)
