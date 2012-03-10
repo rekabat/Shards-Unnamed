@@ -34,6 +34,14 @@ class Moveable:
 				1: img[k].subsurface(pg.Rect((1*self.size[0],0),self.size)).copy(),
 				2: img[k].subsurface(pg.Rect((0,0),self.size)).copy(),
 				3: img[k].subsurface(pg.Rect((2*self.size[0],0),self.size)).copy()   }
+
+		self.udlrFacing_outline = {}
+		for d in self.udlrFacing:
+			tempDict = {}
+			for s in self.udlrFacing[d]:
+				tempDict[s] = g.makeOutlinedArt(self.udlrFacing[d][s], g.BLUE)
+			self.udlrFacing_outline[d]=tempDict
+
 		#the current direction the player is facing
 		self.facing = "D"
 		# The number of pixels stepped since last change in image
@@ -47,14 +55,16 @@ class Moveable:
 		self.currentImg = 0
 
 		#the player defaulted to face forward
-		self.art = self.udlrFacing[self.facing][self.currentImg]
+		self.art = (self.udlrFacing[self.facing][self.currentImg], self.udlrFacing_outline[self.facing][self.currentImg])
 
 		#the directions the player is currently going
 		self.udlr = [False, False, False, False]
 
 	def getRect(self): return self.rect
 	# def getFourCorners(self): return self.fourCorners
-	def getArt(self): return self.art
+	def getArt(self, outline = False):
+		if outline: return self.art[1]
+		else: return self.art[0]
 	def getZs(self): return self.zs
 	def getDirectionFacing(self): return self.facing
 	def getPosition(self): return self.pos
@@ -69,10 +79,9 @@ class Moveable:
 		#what floor "level" is the player on
 		self.zs = zs
 
-
 	def setZ(self, zs): self.zs = zs
 
-	def move(self, mv, dt, suppressTurn = False):
+	def move(self, mv, dt, forceTurn = False):
 		self.previousRect = self.getRect().copy()
 
 		xmove, ymove = 0, 0
@@ -110,21 +119,36 @@ class Moveable:
 		self.rect =  pg.Rect(self.pos, self.size)
 
 
-		if not suppressTurn:
+		if forceTurn:
+			x, y = self.getRect().center
+			x = x - forceTurn[0]
+			y = y - forceTurn[1]
+			if abs(x)>abs(y):
+				if x>0:
+					trn = "L"
+				else:
+					trn = "R"
+			else:
+				if y>0:
+					trn = "U"
+				else:
+					trn = "D"
+		else:
 			trn = self.overallDirection()
-			
-			#in cases of diagonal, choose U or D
-			for d in self.overallDirection():
-				self.art = self.udlrFacing[d][self.currentImg]
-				self.facing = d
-				if (d == "U") or (d == "D"):
-					break
+		
+		#in cases of diagonal, choose U or D
+		for d in trn:
+			self.art = (self.udlrFacing[d][self.currentImg], self.udlrFacing_outline[d][self.currentImg])
+			self.facing = d
+			if (d == "U") or (d == "D"):
+				break
+
 
 		while self.pixStepped >= self.pixStepSize:
 			self.pixStepped -= self.pixStepSize
 			self.currentImg = 0 if (self.currentImg == 3) else self.currentImg+1
 
-			self.art = self.udlrFacing[self.facing][self.currentImg]
+			self.art = (self.udlrFacing[self.facing][self.currentImg], self.udlrFacing_outline[self.facing][self.currentImg])
 	
 	def undoMove(self):
 		self.rect = self.previousRect.copy()

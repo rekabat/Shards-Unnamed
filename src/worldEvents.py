@@ -95,7 +95,7 @@ class WorldEvent:
 		if art is not None:
 			art = pg.image.load(art).convert_alpha()
 			self.art = art.subsurface(g.tile2rect(art_tile)).copy()
-			self.art_outlined = self.makeOutlinedArt()
+			self.art_outlined = g.makeOutlinedArt(self.art, g.RED)
 		else:
 			self.art = pg.Surface(g.TILE_RES, SRCALPHA, 32).convert_alpha()
 			self.art_outlined = self.art.copy()
@@ -121,34 +121,6 @@ class WorldEvent:
 		temp = self.art
 		self.art = self.art_outlined
 		self.art_outlined = temp
-	
-	def makeOutlinedArt(self):
-		newArt = self.art.copy()
-		#sets top to red
-		for i in range(g.TILE_RES[0]):
-			for j in range(g.TILE_RES[1]):
-				if tuple(newArt.get_at((i,j)))[3] != 0:
-					newArt.set_at((i,j), (255,0,0))
-					break
-		#sets bottom to red
-		for i in range(g.TILE_RES[0]):
-			for j in range(g.TILE_RES[1])[::-1]:
-				if tuple(newArt.get_at((i,j)))[3] != 0:
-					newArt.set_at((i,j), (255,0,0))
-					break
-		#sets left to red
-		for j in range(g.TILE_RES[0]):
-			for i in range(g.TILE_RES[1]):
-				if tuple(newArt.get_at((i,j)))[3] != 0:
-					newArt.set_at((i,j), (255,0,0))
-					break
-		#sets right to red
-		for j in range(g.TILE_RES[0]):
-			for i in range(g.TILE_RES[1])[::-1]:
-				if tuple(newArt.get_at((i,j)))[3] != 0:
-					newArt.set_at((i,j), (255,0,0))
-					break
-		return newArt
 	
 	def setDeepest(self, WE):
 		if self.behind is not None:
@@ -315,7 +287,7 @@ class enemy(WorldEvent):
 
 	def execute(self, GI):
 		# moveables.Moveable(enemyCatalog[self.extra[1]])
-		GI.addEnemy(enemies.Enemy(GI, self.on, [self.getZ()], (1,1), 'art/playersprite.png', .075))
+		GI.addEnemy(enemies.Enemy(GI, self.on, [self.getZ()], (1,1), 'art/playersprite.png', .125))
 		
 
 

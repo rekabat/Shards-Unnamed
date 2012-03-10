@@ -12,7 +12,33 @@ GREEN=(0,255,0)
 BLUE=(0,0,255)
 BLACK=(0,0,0)
 
-
+def makeOutlinedArt(img, color):
+	newArt = img.copy()
+	#sets top to color
+	for i in range(TILE_RES[0]):
+		for j in range(TILE_RES[1]):
+			if tuple(newArt.get_at((i,j)))[3] != 0:
+				newArt.set_at((i,j), color)
+				break
+	#sets bottom to color
+	for i in range(TILE_RES[0]):
+		for j in range(TILE_RES[1])[::-1]:
+			if tuple(newArt.get_at((i,j)))[3] != 0:
+				newArt.set_at((i,j), color)
+				break
+	#sets left to color
+	for j in range(TILE_RES[0]):
+		for i in range(TILE_RES[1]):
+			if tuple(newArt.get_at((i,j)))[3] != 0:
+				newArt.set_at((i,j), color)
+				break
+	#sets right to color
+	for j in range(TILE_RES[0]):
+		for i in range(TILE_RES[1])[::-1]:
+			if tuple(newArt.get_at((i,j)))[3] != 0:
+				newArt.set_at((i,j), color)
+				break
+	return newArt
 
 #useful functions
 

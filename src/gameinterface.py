@@ -48,7 +48,7 @@ class GameInterface:
 		self.renderView()
 
 		self.view = None #primarily used to determine if player is on top or bottom half of the screen for events
-		self.tabHeld = False #true if tab is currently pressed
+		self.lockedOntoEnemy = None #true if tab is currently pressed
 		self.checkForImmediateEvents = True #check for immediate events? True at new maps and after events are activated.
 		
 		##########
@@ -148,16 +148,14 @@ class GameInterface:
 		for event in events:
 			if event.type == pg.QUIT:
 				quit()
-			elif event.type == pg.KEYDOWN:
-				key = event.dict['key']
+			# elif event.type == pg.KEYDOWN:
+			# 	key = event.dict['key']
 
-				if key == pg.K_TAB:
-					self.tabHeld = True
-			elif event.type == pg.KEYUP:
-				key = event.dict['key']
+			# elif event.type == pg.KEYUP:
+			# 	key = event.dict['key']
 
-				if key == pg.K_TAB:
-					self.tabHeld = False
+			# 	if key == pg.K_TAB:
+			# 		self.tabPressed = False
 
 
 
@@ -177,6 +175,20 @@ class GameInterface:
 
 					if key == pg.K_RETURN:
 						enterPressed = True
+
+					elif key == pg.K_TAB:
+						if self.lockedOntoEnemy == None:
+							if len(self.curEnemies) > 0:
+								lock = 0
+								dist = g.distance(self.player.getRect().center, self.curEnemies[0].getRect().center)
+								for i in range(len(self.curEnemies))[1:]:
+									d = g.distance(self.player.getRect().center, self.curEnemies[i].getRect().center)
+									if d<dist:
+										lock = i+0
+										dist = d+0
+								self.lockedOntoEnemy = self.curEnemies[lock]
+						else:
+							self.lockedOntoEnemy = None
 					
 					elif key == pg.K_ESCAPE:
 						self.state = "pause"
@@ -269,7 +281,10 @@ class GameInterface:
 			############################################
 				
 			def mvPlayer(mv,dt):
-				self.player.move(mv, dt, suppressTurn = self.tabHeld)
+				if self.lockedOntoEnemy is not None:
+					self.player.move(mv, dt, forceTurn = self.lockedOntoEnemy.getRect().center)
+				else:
+					self.player.move(mv, dt)
 
 				# Check if the movement is valid by making a smaller rectangle and seeing
 				smallerRect=pg.Rect((0,0),(self.player.getRect().width*.87, self.player.getRect().height*.87))
@@ -506,22 +521,22 @@ class GameInterface:
 			blitRelRect(self.player.getRect(), self.player.getArt())
 
 			# #blit enemies to screen
+			for e in self.curEnemies:
+				blitRelRect(e.getRect(), e.getArt(outline = (e is self.lockedOntoEnemy)))
+
+
+
+
+			# surf = pg.Surface(g.TILE_RES)
+			# surf.fill(g.GREEN)
+			# surf.set_alpha(50)
 			# for e in self.curEnemies:
 			# 	blitRelRect(e.getRect(), e.getArt())
-
-
-
-
-			surf = pg.Surface(g.TILE_RES)
-			surf.fill(g.GREEN)
-			surf.set_alpha(50)
-			for e in self.curEnemies:
-				blitRelRect(e.getRect(), e.getArt())
-				temp = e.currentPath
-				while temp != None:
-					rect = g.tile2rect(temp.tile)
-					blitRelRect(rect, surf)
-					temp = temp.parent
+			# 	temp = e.currentPath
+			# 	while temp != None:
+			# 		rect = g.tile2rect(temp.tile)
+			# 		blitRelRect(rect, surf)
+			# 		temp = temp.parent
 
 
 
