@@ -9,16 +9,36 @@ class Attack:
 		# self.img_icon = None
 		self.alignment = alignment
 
+		self.cooldown = 1000	#ms before the spell can be re-cast
+		self.timeSinceLastCast = None
+
 	def getRect(self): return self.rect
 	def getImg(self): return self.img
 	def getIcon(self): return self.img_icon
 	def getAlignment(self): return self.alignment
 
-	def cast(self): pass
+	def cast(self):
+		if self.timeSinceLastCast is None:
+			self.timeSinceLastCast = 0
+			return True
+		else:
+			return False
 
-	def tick(self, dt): pass
+	def tick(self, dt):
+		if self.timeSinceLastCast is None:
+			return False
+
+		self.timeSinceLastCast += dt
+		if self.timeSinceLastCast >= self.cooldown:
+			self.timeSinceLastCast = None
+			return 0
+
+		return 1 - self.timeSinceLastCast / float(self.cooldown)
+
 	def hit(self, target): pass
-	
+
+
+
 class sword(Attack):
 	def __init__(self, **kwargs):
 		Attack.__init__(self, **kwargs)
@@ -40,14 +60,17 @@ class icefield(Attack):
 				self.img.blit(img, (i*g.TILE_RES[0],j*g.TILE_RES[1]))
 	
 	def cast(self, *args): #playerRect, direction
-		return icefield_cast(	
-			args[0].topleft,	#start at player's center
-			self.duration,
-			self.shift_rate,
-			self.size,
-			self.img,
-			self.alignment
-			)
+		if Attack.cast(self):
+			return icefield_cast(	
+				args[0].topleft,	#start at player's center
+				self.duration,
+				self.shift_rate,
+				self.size,
+				self.img,
+				self.alignment
+				)
+
+
 class icefield_cast(icefield):
 	def __init__(self, start, duration, shift_rate, size, img, alignment):
 		self.dur = duration
@@ -90,14 +113,15 @@ class fireball(Attack):
 		self.img_icon	= pg.image.load('art/attacks/fireball_icon.png').convert_alpha()
 	
 	def cast(self, *args): #playerRect, direction):
-		return fireball_cast(	
-			args[0].topleft,	#start at player's center
-			args[1],			#the direction it travels
-			self.speed,
-			self.distance,
-			self.img,
-			self.alignment
-			)
+		if Attack.cast(self):
+			return fireball_cast(	
+				args[0].topleft,	#start at player's center
+				args[1],			#the direction it travels
+				self.speed,
+				self.distance,
+				self.img,
+				self.alignment
+				)
 class fireball_cast(fireball):
 	def __init__(self, start, dir, speed, distance, img, alignment):
 		self.loc = start

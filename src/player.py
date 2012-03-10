@@ -80,6 +80,9 @@ class Player(moveables.Moveable):
 	def cast(self, slot, *args):
 		return self.getBelt().cast(slot, *args)
 
+	def tick(self, dt):
+		self.belt.tick(dt)
+
 
 class Belt:
 	def __init__(self, eq, hp):
@@ -164,7 +167,23 @@ class Belt:
 		if self.eq[slot] is not None:
 			return self.eq[slot].cast(*args)
 		return False
-		
+	
+	def tick(self, dt):
+		for each in self.eq:
+			fraction = self.eq[each].tick(dt)
+			if fraction:
+				surf = pg.Surface((g.TILE_RES[0], g.TILE_RES[1]*fraction))
+				surf.fill(g.BLACK)
+				surf.set_alpha(200)
+
+				icon = self.eq[each].getIcon().copy()
+				icon.blit(surf, (0,0))
+
+				slot = each+0
+				if slot >= 4:
+					slot += 2
+
+				self.img.blit(icon, (g.TILE_RES[0]*slot, 0))
 
 
 

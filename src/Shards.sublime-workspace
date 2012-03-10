@@ -91,7 +91,7 @@
 			"file": "/C/Users/Troy/Desktop/Game/Shards/Shards-Unnamed/run.py",
 			"settings":
 			{
-				"buffer_size": 510,
+				"buffer_size": 1803,
 				"line_ending": "Windows"
 			}
 		},
@@ -99,7 +99,7 @@
 			"file": "gameinterface.py",
 			"settings":
 			{
-				"buffer_size": 17033,
+				"buffer_size": 17034,
 				"line_ending": "Windows"
 			}
 		},
@@ -107,7 +107,7 @@
 			"file": "enemies.py",
 			"settings":
 			{
-				"buffer_size": 10529,
+				"buffer_size": 12477,
 				"line_ending": "Windows"
 			}
 		},
@@ -115,7 +115,7 @@
 			"file": "attacks.py",
 			"settings":
 			{
-				"buffer_size": 4121,
+				"buffer_size": 4124,
 				"line_ending": "Windows"
 			}
 		},
@@ -131,7 +131,7 @@
 			"file": "worldEvents.py",
 			"settings":
 			{
-				"buffer_size": 9923,
+				"buffer_size": 10049,
 				"line_ending": "Windows"
 			}
 		},
@@ -139,7 +139,7 @@
 			"file": "moveables.py",
 			"settings":
 			{
-				"buffer_size": 5087,
+				"buffer_size": 5092,
 				"line_ending": "Windows"
 			}
 		},
@@ -155,7 +155,7 @@
 			"file": "map.py",
 			"settings":
 			{
-				"buffer_size": 7542,
+				"buffer_size": 8592,
 				"line_ending": "Windows"
 			}
 		},
@@ -248,6 +248,7 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"dt",
 			"\"",
 			"origin",
 			"fourcorners",
@@ -313,7 +314,7 @@
 	"groups":
 	[
 		{
-			"selected": 7,
+			"selected": 3,
 			"sheets":
 			[
 				{
@@ -373,20 +374,21 @@
 					"file": "/C/Users/Troy/Desktop/Game/Shards/Shards-Unnamed/run.py",
 					"settings":
 					{
-						"buffer_size": 510,
+						"buffer_size": 1803,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								190,
-								190
+								452,
+								452
 							]
 						],
 						"settings":
 						{
 							"syntax": "Packages/Python/Python.tmLanguage",
+							"tab_size": 4,
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
@@ -400,15 +402,15 @@
 					"file": "gameinterface.py",
 					"settings":
 					{
-						"buffer_size": 17033,
+						"buffer_size": 17034,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								15799,
-								15799
+								15796,
+								15796
 							]
 						],
 						"settings":
@@ -417,7 +419,7 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 7416.0,
+						"translation.y": 7318.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
@@ -427,24 +429,25 @@
 					"file": "enemies.py",
 					"settings":
 					{
-						"buffer_size": 10529,
+						"buffer_size": 12477,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								8240,
-								8141
+								4979,
+								4979
 							]
 						],
 						"settings":
 						{
+							"spell_check": false,
 							"syntax": "Packages/Python/Python.tmLanguage",
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 4443.0,
+						"translation.y": 2274.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
@@ -454,15 +457,15 @@
 					"file": "attacks.py",
 					"settings":
 					{
-						"buffer_size": 4121,
+						"buffer_size": 4124,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1794,
-								1794
+								2466,
+								2466
 							]
 						],
 						"settings":
@@ -471,7 +474,7 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 465.0,
+						"translation.y": 1095.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
@@ -498,7 +501,7 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 405.0,
+						"translation.y": 1395.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
@@ -508,15 +511,15 @@
 					"file": "worldEvents.py",
 					"settings":
 					{
-						"buffer_size": 9923,
+						"buffer_size": 10049,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								5866,
-								5866
+								9910,
+								9910
 							]
 						],
 						"settings":
@@ -525,7 +528,7 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 2478.0,
+						"translation.y": 4503.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
@@ -535,15 +538,15 @@
 					"file": "moveables.py",
 					"settings":
 					{
-						"buffer_size": 5087,
+						"buffer_size": 5092,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								2009,
-								2009
+								1711,
+								1711
 							]
 						],
 						"settings":
@@ -552,7 +555,7 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 1660.0,
+						"translation.y": 360.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
@@ -589,15 +592,15 @@
 					"file": "map.py",
 					"settings":
 					{
-						"buffer_size": 7542,
+						"buffer_size": 8592,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								2712,
-								2712
+								0,
+								0
 							]
 						],
 						"settings":
@@ -699,6 +702,10 @@
 		]
 	},
 	"menu_visible": true,
+	"output.exec":
+	{
+		"height": 100.0
+	},
 	"replace":
 	{
 		"height": 60.0

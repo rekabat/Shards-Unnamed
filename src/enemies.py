@@ -243,17 +243,14 @@ class Enemy(moveables.Moveable):
 	def tick(self, dt, foundOnePathAlready):
 		player = self.GI.player
 
-		if self.secondSinceAtk != 0:
-			self.secondSinceAtk += dt
-			if self.secondSinceAtk >= self.atkRate:
-				self.secondSinceAtk = 0
+		for each in self.spells:
+			each.tick(dt)
 
 		#touching the player
+		#only casts the first spell on the enemy's list!!!!!!!!
 		if self.getRect().colliderect(player.getRect()):
 			self.undoMove()
-			if self.secondSinceAtk == 0:
-				self.secondSinceAtk+=1
-				return self.spells[0].cast(self.getRect(), self.facing), False
+			return self.spells[0].cast(self.getRect(), self.facing), False
 
 		currentTile = g.pix2tile(self.getRect().center)
 		# currentTile = g.pix2tile(self.getRect().bottomright)
