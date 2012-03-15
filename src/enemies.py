@@ -58,7 +58,7 @@ class Enemy(moveables.Moveable):
 		self.origin = self.rect.topleft
 
 		self.alignment = 1
-		self.spells = [attacks.fireball(alignment = self.alignment)]
+		self.spells = [attacks.fireball(alignment = self.alignment, user = self)]
 		self.atkRate = 1000 #how many ms between attacks
 		self.secondSinceAtk = 0
 
@@ -86,6 +86,8 @@ class Enemy(moveables.Moveable):
 	def getCurrentHP(self): return self.currentHP
 	def getHPBar(self): return self.HPBar
 	def getHPBarRect(self): return self.HPBarRect
+
+	def useShards(self, amt): return True
 
 	def Astar(self, currentTile, targetTile, limit = None):
 		current = nodule(currentTile, 0, 10*(abs(currentTile[0]-targetTile[0])+abs(currentTile[1]-targetTile[1])), None, (0,0))

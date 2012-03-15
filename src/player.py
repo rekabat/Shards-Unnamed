@@ -77,6 +77,27 @@ class Player(moveables.Moveable):
 			return True
 		self.belt.adjustCurrentHP(self.curStats['hp'])
 		return False
+
+	def useShards(self, amt):
+		self.shards["odic"] 	-= amt[0]
+		if self.shards["odic"] < 0:
+			self.shards["odic"] 	+= amt[0]
+			return False
+		self.shards["cosmic"] 	-= amt[1]
+		if self.shards["cosmic"] < 0:
+			self.shards["cosmic"] 	+= amt[0]
+			return False
+		self.shards["aether"] 	-= amt[2]
+		if self.shards["aether"] < 0:
+			self.shards["aether"] 	+= amt[0]
+			return False
+		self.shards["occult"] 	-= amt[3]
+		if self.shards["occult"] < 0:
+			self.shards["occult"] 	+= amt[0]
+			return False
+
+		self.belt.adjustCurrentShards(self.shards)
+		return True
 	
 	def setBeltSlot(self, slot, set):
 		self.getBelt().setBeltSlot(slot, set)
@@ -96,6 +117,10 @@ class Belt:
 
 		self.font = font
 
+		self.shardTypes = {0: "Odic", 1:"Cosmic", 2:"Aether", 3:"Occult"}
+
+		self.shardPanel = None
+		self.hpPanel = None
 		self.img = self.genImg(sh, eq, hp)
 	
 	def genImg(self, sh, eq, hp):
@@ -127,9 +152,15 @@ class Belt:
 		self.img = img
 
 		#for the health bar
+		self.hpPanel = pg.Surface((g.TILE_RES[0]*2, g.TILE_RES[1]))
+		self.hpPanel.fill(g.WHITE)
+		g.giveBorder(self.hpPanel, g.BLACK, 1)
 		self.adjustCurrentHP(self.getTotalHP())
 
 		#for the shard totals
+		self.shardPanel = pg.Surface((10*g.TILE_RES[0]/4., g.TILE_RES[1]))
+		self.shardPanel.fill((100,100,95))
+		g.giveBorder(self.shardPanel, g.BLACK, 1)
 		self.adjustCurrentShards(sh)
 
 		return img
@@ -138,20 +169,7 @@ class Belt:
 	def getTotalHP(self): return self.hp
 	
 	def adjustCurrentHP(self, amt): # needs to be amt/total (not -amt)
-		img = self.getImg()
-
-		#make it all white
-		dim = (g.TILE_RES[0]*2, g.TILE_RES[1])
-		rect = pg.Rect((4*g.TILE_RES[1], 0), dim)
-		surfw = pg.Surface(dim)
-		surfw.fill(g.WHITE)
-
-		#give it a black outline
-		# for x in range(g.TILE_RES[0]*2):
-		# 	for y in range(g.TILE_RES[1]):
-		# 			if (x == 0) or (y == 0) or (x == g.TILE_RES[0]*2-1) or (y == g.TILE_RES[1]-1):
-		# 				surfw.set_at((x,y), g.BLACK)
-		g.giveBorder(surfw, g.BLACK, 2)
+		surfw = self.hpPanel.copy()
 
 		#make red rectangle surface
 		width = (float(amt)/self.getTotalHP()) * (g.TILE_RES[0]*2-2) #the two is the black pixel border
@@ -162,24 +180,22 @@ class Belt:
 		surfw.blit(surfr, (1,1))
 
 		#put new hp on the belt
-		img.subsurface(rect).blit(surfw, (0,0))
+		self.getImg().blit(surfw, (4*g.TILE_RES[1], 0))
 	
 	def adjustCurrentShards(self, sh):
-		types = {0: "Odic", 1:"Cosmic", 2:"Aether", 3:"Occult"}
-		y = g.TILE_RES[1]
+
+		y = g.TILE_RES[1]	
 		for i in range(4):
 			x = i*10*g.TILE_RES[0]/4.
-			surf = pg.Surface((10*g.TILE_RES[0]/4., g.TILE_RES[1]))
 
-			surf.fill((100,100,95))
-			g.giveBorder(surf, g.BLACK, 1)
+			surfc = self.shardPanel.copy()
 
-			texttop = self.font.text(types[i]+":", 15)
-			textbot = self.font.text(str(sh[types[i].lower()]), 15)
+			texttop = self.font.text(self.shardTypes[i]+":", 15)
+			textbot = self.font.text(str(sh[self.shardTypes[i].lower()]), 15)
 
-			surf.blit(texttop.get(), (1,1))
-			surf.blit(textbot.get(), (1,16))
-			self.img.blit(surf, (x,y))
+			surfc.blit(texttop.get(), (1,1))
+			surfc.blit(textbot.get(), (1,16))
+			self.img.blit(surfc, (x,y))
 
 
 	def setBeltSlot(self, slot, set):
