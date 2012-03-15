@@ -87,7 +87,7 @@
 			"file": "/C/Users/Troy/Desktop/Game/Shards/Shards-Unnamed/ThingsToDo.txt",
 			"settings":
 			{
-				"buffer_size": 2360,
+				"buffer_size": 2403,
 				"line_ending": "Windows"
 			}
 		},
@@ -111,7 +111,7 @@
 			"file": "gameinterface.py",
 			"settings":
 			{
-				"buffer_size": 17705,
+				"buffer_size": 17707,
 				"line_ending": "Windows"
 			}
 		},
@@ -135,7 +135,7 @@
 			"file": "player.py",
 			"settings":
 			{
-				"buffer_size": 4761,
+				"buffer_size": 4809,
 				"line_ending": "Windows"
 			}
 		},
@@ -261,6 +261,8 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"currenthp",
+			"self.spells",
 			"self.ar",
 			"tabpre",
 			"tabpressed",
@@ -314,6 +316,7 @@
 		"regex": false,
 		"replace_history":
 		[
+			"self.focuses",
 			"tabPressed",
 			"rDict",
 			"g.pix2tile",
@@ -333,7 +336,7 @@
 	"groups":
 	[
 		{
-			"selected": 7,
+			"selected": 0,
 			"sheets":
 			[
 				{
@@ -341,15 +344,15 @@
 					"file": "/C/Users/Troy/Desktop/Game/Shards/Shards-Unnamed/ThingsToDo.txt",
 					"settings":
 					{
-						"buffer_size": 2360,
+						"buffer_size": 2403,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1542,
-								1542
+								1585,
+								1585
 							]
 						],
 						"settings":
@@ -357,7 +360,7 @@
 							"syntax": "Packages/Text/Plain text.tmLanguage"
 						},
 						"translation.x": 0.0,
-						"translation.y": 630.0,
+						"translation.y": 30.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
@@ -380,7 +383,8 @@
 						],
 						"settings":
 						{
-							"syntax": "Packages/Python/Python.tmLanguage"
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
 						"translation.y": 48.0,
@@ -421,15 +425,15 @@
 					"file": "gameinterface.py",
 					"settings":
 					{
-						"buffer_size": 17705,
+						"buffer_size": 17707,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								16236,
-								16236
+								13023,
+								13023
 							]
 						],
 						"settings":
@@ -438,7 +442,7 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 7744.0,
+						"translation.y": 6167.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
@@ -503,15 +507,15 @@
 					"file": "player.py",
 					"settings":
 					{
-						"buffer_size": 4761,
+						"buffer_size": 4809,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								4581,
-								4581
+								1080,
+								1080
 							]
 						],
 						"settings":
@@ -520,7 +524,7 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 765.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
@@ -547,7 +551,7 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 3960.0,
+						"translation.y": 3555.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"

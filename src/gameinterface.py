@@ -59,7 +59,7 @@ class GameInterface:
 	def createWorld(self, mapfile):
 		self.map = map.Map(mapfile, self.display.getWH())
 		self.eventForeground = worldEvents.EventForeground(mapfile)
-		self.player = player.Player((12,10), [0])
+		self.player = player.Player((12,10), [0], self.font)
 
 		self.player.setBeltSlot(0,attacks.fireball(alignment = 0))
 		self.player.setBeltSlot(1,attacks.icefield(alignment = 0))
@@ -428,7 +428,7 @@ class GameInterface:
 				# if a.getAlignment() != self.player.getAlignment() and a.getRect().colliderect(self.player.getRect()):
 				if a.getRect().colliderect(self.player.getRect()):
 					a.hit(self.player)
-					if self.player.getCurrentHP() <= 0:
+					if self.player.getCurStat('hp') <= 0:
 						print "dead!!!!"
 						quit()
 
@@ -565,7 +565,7 @@ class GameInterface:
 
 			# then the players belt is blitted
 			belt = self.player.getBelt().getImg()
-			self.display.get().blit(belt, ((w-belt.get_width())/2.,h-g.TILE_RES[1]))
+			self.display.get().blit(belt, ((w-belt.get_width())/2.,h-belt.get_height()))
 
 			#blits the window to the display over everything else (top layer)
 			self.display.get().blit(self.window, (0,0))

@@ -40,6 +40,13 @@ def makeOutlinedArt(img, color):
 				break
 	return newArt
 
+def giveBorder(img, color, pixels):
+	for x in range(img.get_width()):
+			for y in range(img.get_height()):
+					if x in range(pixels)+range(img.get_width())[-pixels:] or \
+						y in range(pixels)+range(img.get_height())[-pixels:]:
+						img.set_at((x,y), color)
+
 #useful functions
 
 #gets the rect given tile coordinates

@@ -4,7 +4,7 @@ import general as g
 import moveables
 
 class Player(moveables.Moveable):
-	def __init__(self, position, zs, size= (1,1), img='art/playersprite.png'):
+	def __init__(self, position, zs, font, size= (1,1), img='art/playersprite.png'): #font is used for belt
 		moveables.Moveable.__init__(self, position, zs, size, img)
 
 		#####################################
@@ -12,30 +12,34 @@ class Player(moveables.Moveable):
 		#####################################
 
 		self.name = "Bartholomew"
-		self.stats = {	'lvl': 	0,	\
-						'hp': 	10,	\
-						'def': 	1,	\
-						'mag': 	1,	\
+		self.stats = {	'lvl': 	0,
+						'hp': 	10,
+						'def': 	1,
+						'mag': 	1,
 						'atk': 	1	} #stats
+		self.curStats = {'lvl': 0,
+						'hp': 	10,
+						'def': 	1,
+						'mag': 	1,
+						'atk': 	1	} #current stats
+
 		self.inv = [] #armor, weapons, potions, shards, runes, misc
-		self.spells = [] #all available spells for crafting
-		self.belt = Belt({ 	0: None, 
-						1: None, 
-						2: None, 
-						3: None,
-						4: None, 
-						5: None, 
-						6: None, 
-						7: None }, #spells and potions currently chosen for battle + equipped weapon
-						self.stats['hp'])
+		self.shards = {"odic": 200, "cosmic": 20, "aether": 20, "occult": 1}
+			#odic represents life, human, plant, animal, or otherwise -> given by the gods
+			#cosmic is the middle ground, between mortal life and the immortal heavens
+			#aether is the energy of the heavens and immortals
+			#occult is a mystery, a strange form of energy with great power
+		self.focuses = [] #all available spells for crafting
+		self.belt = Belt(self.shards,
+						{0: None, 1: None, 2: None, 3: None, 4: None, 5: None, 6: None, 7: None}, #focuses currently chosen for battle + equipped weapon
+						self.stats['hp'],
+						font)
 		self.equipped = {	"head":		None,	\
 							"chest":	None,	\
 							"legs":		None,	\
 							"offhand":	None,	\
 							"weapon":	None	} #currently equipped armor and weapons
 		self.alignment = 0
-
-		self.currentHP = 10
 
 		#####################################
 		# Character info ####################
@@ -45,7 +49,7 @@ class Player(moveables.Moveable):
 	def getName(self): return self.name
 	def getAlignment(self): return self.alignment
 	def getStat(self, stat): return self.stats[stat]
-	def getCurrentHP(self): return self.currentHP
+	def getCurStat(self, stat): return self.curStats[stat]
 	
 	def getSortedInv(self):
 		ret = {}
@@ -68,10 +72,10 @@ class Player(moveables.Moveable):
 		self.inv.remove(item)
 	
 	def takeHP(self, amt):
-		self.currentHP -= amt
-		if self.currentHP<=0:
+		self.curStats['hp'] -= amt
+		if self.curStats['hp'] <= 0:
 			return True
-		self.belt.adjustCurrentHP(self.currentHP)
+		self.belt.adjustCurrentHP(self.curStats['hp'])
 		return False
 	
 	def setBeltSlot(self, slot, set):
@@ -85,13 +89,17 @@ class Player(moveables.Moveable):
 
 
 class Belt:
-	def __init__(self, eq, hp):
-		self.eq = eq
-		self.hp = hp
-		self.img = self.genImg(eq, hp)
+	def __init__(self, sh, eq, hp, font):
+		# self.sh = sh #shards
+		self.eq = eq #equipped focuses
+		self.hp = hp #total hp
+
+		self.font = font
+
+		self.img = self.genImg(sh, eq, hp)
 	
-	def genImg(self, eq, hp):
-		img = pg.Surface((g.TILE_RES[0]*10, g.TILE_RES[1]))
+	def genImg(self, sh, eq, hp):
+		img = pg.Surface((g.TILE_RES[0]*10, g.TILE_RES[1]*2))
 
 		#for the equipped items
 		for i in range(10):
@@ -121,6 +129,9 @@ class Belt:
 		#for the health bar
 		self.adjustCurrentHP(self.getTotalHP())
 
+		#for the shard totals
+		self.adjustCurrentShards(sh)
+
 		return img
 	
 	def getImg(self): return self.img
@@ -136,10 +147,11 @@ class Belt:
 		surfw.fill(g.WHITE)
 
 		#give it a black outline
-		for x in range(g.TILE_RES[0]*2):
-			for y in range(g.TILE_RES[1]):
-					if (x == 0) or (y == 0) or (x == g.TILE_RES[0]*2-1) or (y == g.TILE_RES[1]-1):
-						surfw.set_at((x,y), g.BLACK)
+		# for x in range(g.TILE_RES[0]*2):
+		# 	for y in range(g.TILE_RES[1]):
+		# 			if (x == 0) or (y == 0) or (x == g.TILE_RES[0]*2-1) or (y == g.TILE_RES[1]-1):
+		# 				surfw.set_at((x,y), g.BLACK)
+		g.giveBorder(surfw, g.BLACK, 2)
 
 		#make red rectangle surface
 		width = (float(amt)/self.getTotalHP()) * (g.TILE_RES[0]*2-2) #the two is the black pixel border
@@ -152,6 +164,24 @@ class Belt:
 		#put new hp on the belt
 		img.subsurface(rect).blit(surfw, (0,0))
 	
+	def adjustCurrentShards(self, sh):
+		types = {0: "Odic", 1:"Cosmic", 2:"Aether", 3:"Occult"}
+		y = g.TILE_RES[1]
+		for i in range(4):
+			x = i*10*g.TILE_RES[0]/4.
+			surf = pg.Surface((10*g.TILE_RES[0]/4., g.TILE_RES[1]))
+
+			surf.fill((100,100,95))
+			g.giveBorder(surf, g.BLACK, 1)
+
+			texttop = self.font.text(types[i]+":", 15)
+			textbot = self.font.text(str(sh[types[i].lower()]), 15)
+
+			surf.blit(texttop.get(), (1,1))
+			surf.blit(textbot.get(), (1,16))
+			self.img.blit(surf, (x,y))
+
+
 	def setBeltSlot(self, slot, set):
 		if slot>7:
 			raise KeyboardInterrupt("Belt slot out of range.")

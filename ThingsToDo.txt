@@ -14,7 +14,7 @@ Known bugs:
 Things to consider:
  - 
 
- - random spikes in pathfinding time, I think there's a problem finding the origin quickly, maybe my Heuristic isn't right...
+ - You stay locked onto to an enemy even after they die, so that you face ot where they died. I need to take enemies off of the curEnemy list and set lockedOnto to None
 
 
 
