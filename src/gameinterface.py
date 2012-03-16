@@ -59,13 +59,13 @@ class GameInterface:
 	def createWorld(self, mapfile):
 		self.map = map.Map(mapfile, self.display.getWH())
 		self.eventForeground = worldEvents.EventForeground(mapfile)
-		self.player = player.Player((12,10), [0], self.font)
+		self.player = player.Player((12,10), [0], self.font, self.display.getWH()[0])
 
 		self.player.giveFocus(attacks.fireball(alignment = 0, user = self.player))
 		self.player.giveFocus(attacks.icefield(alignment = 0, user = self.player))
 
-		self.player.setBeltSlot(0, self.player.focuses[0])
-		self.player.setBeltSlot(1, self.player.focuses[1])
+		self.player.equip(0, self.player.focuses[0])
+		self.player.equip(1, self.player.focuses[1])
 
 		self.player.giveItem(item.Item("weapon", "weapon", 3))
 	
@@ -478,13 +478,16 @@ class GameInterface:
 			pass
 
 		elif self.state == "play" or self.state == "WE":
+			belt = self.player.getBelt().getImg()
+
 			#gets optimal view frame based on player
 			
 			mapx, mapy = self.map.getDrawingSize()
 
 			# mapx, mapy = self.map.getMapSizePx()
 			x, y = self.player.getRect().center
-			w, h = self.display.getWH()
+			w = self.display.getWH()[0]
+			h = self.display.getWH()[1] - belt.get_height()
 			viewx, viewy = x+0, y+0
 			
 			if (x < (w*.5)):
@@ -563,8 +566,8 @@ class GameInterface:
 					blitRelRect(each.getRect(), each.getArt())
 
 			# then the players belt is blitted
-			belt = self.player.getBelt().getImg()
-			self.display.get().blit(belt, ((w-belt.get_width())/2.,h-belt.get_height()))
+			# belt = self.player.getBelt().getImg()
+			self.display.get().blit(belt, (0,h))
 
 			#blits the window to the display over everything else (top layer)
 			self.display.get().blit(self.window, (0,0))

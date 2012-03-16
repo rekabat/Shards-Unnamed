@@ -4,7 +4,7 @@ import general as g
 import moveables
 
 class Player(moveables.Moveable):
-	def __init__(self, position, zs, font, size= (1,1), img='art/playersprite.png'): #font is used for belt
+	def __init__(self, position, zs, font, screenwidth, size= (1,1), img='art/playersprite.png'): #font is used for belt
 		moveables.Moveable.__init__(self, position, zs, size, img)
 
 		#####################################
@@ -39,7 +39,9 @@ class Player(moveables.Moveable):
 		self.belt = Belt(self.shards,
 						{0: None, 1: None, 2: None, 3: None, 4: None, 5: None, 6: None, 7: None}, #focuses currently chosen for battle + equipped weapon
 						self.stats['hp'],
-						font)
+						self.curStats['hp'],
+						font,
+						screenwidth)
 		self.equipped = {	"head":		None,	\
 							"chest":	None,	\
 							"legs":		None,	\
@@ -130,8 +132,8 @@ class Player(moveables.Moveable):
 		else:
 			return False
 	
-	def setBeltSlot(self, slot, set):
-		self.getBelt().setBeltSlot(slot, set)
+	def equip(self, slot, set):
+		self.getBelt().equip(slot, set)
 	
 	def cast(self, slot, *args):
 		return self.getBelt().cast(slot, *args)
@@ -139,6 +141,117 @@ class Player(moveables.Moveable):
 	def tick(self, dt):
 		self.belt.tick(dt)
 
+
+class Belt:
+	def __init__(self, curShards, eq, hp, curHP, font, screenwidth):
+		# self.sh = sh #shards
+		self.eq = eq #equipped focuses
+		self.hp = hp #total hp
+
+		self.curShards = curShards
+		self.curHP = curHP
+
+		self.font = font
+
+		self.screenW = screenwidth
+		self.scaledTile = (int(self.screenW*.4/8.), int(self.screenW*.4/8.))
+		# 8 scaled tiles for skills, 4 for hp bar, 8 for shards 
+
+		self.shardTypes = {0: "Odic", 1:"Cosmic", 2:"Aether", 3:"Occult"}
+
+		self.shardPanel = None
+		self.hpPanel = None
+		# self.spellPanel = None
+		self.img = None
+		self.genImg()
+	
+	def genImg(self):
+		self.img = pg.Surface( (self.screenW, self.scaledTile[1]) )
+
+		#for the equipped focuses
+		for i in range(8):
+			if self.eq[i] is None:
+				surf = pg.Surface(self.scaledTile)
+				surf.fill((100,100,100))
+				g.giveBorder(surf, g.BLACK, 1)
+			else:
+				surf = self.eq[i].getIcon()
+				surf = pg.transform.scale(surf, self.scaledTile)
+				# g.giveBorder(surf, g.BLACK, 1)
+			self.img.blit(surf, (i*self.scaledTile[0], 0))
+
+		#for the health bar
+		self.hpPanel = pg.Surface((self.screenW - self.scaledTile[0]*16, self.scaledTile[1]))
+		self.hpPanel.fill(g.WHITE)
+		g.giveBorder(self.hpPanel, g.BLACK, 1)
+		self.adjustCurrentHP(self.curHP) #anytime you equip a new focus it will look like you have full hp!!!!!!
+
+		#for the shard totals
+		self.shardPanel = pg.Surface((self.scaledTile[0]*2, self.scaledTile[1]))
+		self.shardPanel.fill((100,100,100))
+		g.giveBorder(self.shardPanel, g.BLACK, 1)
+		self.adjustCurrentShards(self.curShards)
+	
+	def getImg(self): return self.img
+	# def getImg(self): return pg.transform.scale(self.img, (self.screenW, int((self.screenW/float(self.img.get_width())) * self.img.get_height())))
+	def getTotalHP(self): return self.hp
+	
+	def equip(self, slot, set):
+		self.eq[slot] = set
+		self.genImg()
+
+	def adjustCurrentHP(self, amt): # needs to be amt/total (not -amt)
+		self.curHP = amt
+
+		surfw = self.hpPanel.copy()
+
+		#make red rectangle surface
+		width = (amt/float(self.getTotalHP())) * (surfw.get_width()-2) #the two is the black pixel border
+		surfr = pg.Surface((width, self.scaledTile[1]-2))
+		surfr.fill(g.RED)
+
+		#put it on the white surface
+		surfw.blit(surfr, (1,1))
+
+		#put new hp on the belt
+		self.getImg().blit(surfw, (8*self.scaledTile[0], 0))
+	
+	def adjustCurrentShards(self, sh):
+		self.curShards = sh
+
+		for i in range(4):
+			surfc = self.shardPanel.copy()
+
+			half = (surfc.get_height()-2)/2
+			texttop = self.font.text(self.shardTypes[3-i]+":", half)
+			textbot = self.font.text(str(sh[self.shardTypes[3-i].lower()]), half)
+
+			surfc.blit(texttop.get(), (1,1))
+			surfc.blit(textbot.get(), (1,1+half))
+			self.img.blit(surfc, (self.getImg().get_width() - ((i+1)*2)*self.scaledTile[0],0))
+	
+	def cast(self, slot, *args):
+		if self.eq[slot] is not None:
+			return self.eq[slot].cast(*args)
+		return False
+	
+	def tick(self, dt):
+		for each in self.eq:
+			if self.eq[each]:
+				fraction = self.eq[each].tick(dt)
+				if fraction:
+					surf = pg.Surface((self.scaledTile[0], self.scaledTile[1]*fraction))
+					surf.fill(g.BLACK)
+					surf.set_alpha(200)
+
+					icon = pg.transform.scale(self.eq[each].getIcon(), self.scaledTile)
+					icon.blit(surf, (0,0))
+
+					# g.giveBorder(icon, g.BLACK, 1)
+
+					self.img.blit(icon, (self.scaledTile[0]*each, 0))
+
+'''
 
 class Belt:
 	def __init__(self, sh, eq, hp, font):
@@ -263,6 +376,7 @@ class Belt:
 						slot += 2
 
 					self.img.blit(icon, (g.TILE_RES[0]*slot, 0))
+'''
 
 
 

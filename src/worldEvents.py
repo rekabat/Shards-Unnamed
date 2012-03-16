@@ -244,11 +244,14 @@ class dialog(WorldEvent):
 			if i >= linesPerBox:
 				dialogLines.insert(q+1, passback)
 			
+			w = GI.display.getWH()[0]
+			h = GI.display.getWH()[1] - GI.player.getBelt().getImg().get_height()
+
 			if GI.playerOnTopHalf():
-				pos = ((GI.display.getWH()[0] - boxc.get_rect().width) /2.,
-						GI.display.getWH()[1]-boxc.get_rect().height-g.TILE_RES[1]*1.5)
+				pos = ((w - boxc.get_rect().width) /2.,
+						h - boxc.get_rect().height-g.TILE_RES[1]*1.5)
 			else:
-				pos = ((GI.display.getWH()[0] - boxc.get_rect().width) /2.,
+				pos = ((w - boxc.get_rect().width) /2.,
 						g.TILE_RES[1]*1.5)
 			GI.window.blit(box, pos)
 			GI.window.blit(boxc, pos)
