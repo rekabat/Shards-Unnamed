@@ -12,16 +12,22 @@ class Player(moveables.Moveable):
 		#####################################
 
 		self.name = "Bartholomew"
-		self.stats = {	'lvl': 	0,
+		self.stats = {	'lvl': 	1,
 						'hp': 	10,
-						'def': 	1,
-						'mag': 	1,
-						'atk': 	1	} #stats
-		self.curStats = {'lvl': 0,
-						'hp': 	10,
-						'def': 	1,
-						'mag': 	1,
-						'atk': 	1	} #current stats
+						'odic': 	1,
+						'cosmic': 	1,
+						'aether': 	1,
+						'occult':	1,	} #stats
+		self.curStats = {'lvl':		1,
+						'hp': 		10,
+						'odic': 	1,
+						'cosmic': 	1,
+						'aether': 	1,
+						'occult':	1,	} #current stats
+		self.experience = {	'odic':		0,
+							'cosmic':	0,
+							'aether':	0,
+							'occult':	0}
 
 		self.inv = [] #armor, weapons, potions, shards, runes, misc
 		self.shards = {"odic": 200, "cosmic": 20, "aether": 20, "occult": 1}
@@ -29,7 +35,7 @@ class Player(moveables.Moveable):
 			#cosmic is the middle ground, between mortal life and the immortal heavens
 			#aether is the energy of the heavens and immortals
 			#occult is a mystery, a strange form of energy with great power
-		self.focuses = [] #all available spells for crafting
+		self.focuses = [] #all available spells for casting
 		self.belt = Belt(self.shards,
 						{0: None, 1: None, 2: None, 3: None, 4: None, 5: None, 6: None, 7: None}, #focuses currently chosen for battle + equipped weapon
 						self.stats['hp'],
@@ -50,6 +56,9 @@ class Player(moveables.Moveable):
 	def getAlignment(self): return self.alignment
 	def getStat(self, stat): return self.stats[stat]
 	def getCurStat(self, stat): return self.curStats[stat]
+
+	def setStat(self, stat, val): self.stats[stat] = val
+	def setCurStat(self, stat, val): self.curStats[stat] = val
 	
 	def getSortedInv(self):
 		ret = {}
@@ -70,6 +79,9 @@ class Player(moveables.Moveable):
 	
 	def takeItem(self, item):
 		self.inv.remove(item)
+
+	def giveFocus(self, focus):
+		self.focuses.append(focus)
 	
 	def takeHP(self, amt):
 		self.curStats['hp'] -= amt
@@ -78,26 +90,45 @@ class Player(moveables.Moveable):
 		self.belt.adjustCurrentHP(self.curStats['hp'])
 		return False
 
-	def useShards(self, amt):
-		self.shards["odic"] 	-= amt[0]
-		if self.shards["odic"] < 0:
-			self.shards["odic"] 	+= amt[0]
-			return False
-		self.shards["cosmic"] 	-= amt[1]
-		if self.shards["cosmic"] < 0:
-			self.shards["cosmic"] 	+= amt[0]
-			return False
-		self.shards["aether"] 	-= amt[2]
-		if self.shards["aether"] < 0:
-			self.shards["aether"] 	+= amt[0]
-			return False
-		self.shards["occult"] 	-= amt[3]
-		if self.shards["occult"] < 0:
-			self.shards["occult"] 	+= amt[0]
-			return False
+	def giveExperience(self, amt):
+		self.experience['odic'] 	+= amt[0]
+		self.experience['cosmic'] 	+= amt[1]
+		self.experience['aether'] 	+= amt[2]
+		self.experience['occult'] 	+= amt[3]
 
-		self.belt.adjustCurrentShards(self.shards)
-		return True
+		for each in self.experience:
+			'''
+			possible fomulas:
+				modified "fast" pokemon -> .8 * (5 + self.getStat(each))**3 - 100
+			'''
+			if self.experience[each] > .8 * (5 + self.getStat(each))**3 - 100:
+				self.setStat(each, self.getStat(each)+1)
+				self.setCurStat(each, self.getCurStat(each)+1)
+				print each, "has leveled up."
+				if (self.getStat('odic')+self.getStat('cosmic')+self.getStat('aether')+self.getStat('occult'))%5 == 0:
+					self.setStat("lvl", self.getStat("lvl")+1)
+					self.setCurStat("lvl", self.getCurStat("lvl")+1)
+					print "leveled up!!!"
+
+		# print self.experience
+
+	def useShards(self, amt):
+		if 	(self.shards["odic"] 	>= amt[0]) and \
+			(self.shards["cosmic"] 	>= amt[1]) and \
+			(self.shards["aether"] 	>= amt[2]) and \
+			(self.shards["occult"] 	>= amt[3]) :
+
+				self.shards["odic"]		-= amt[0]
+				self.shards["cosmic"] 	-= amt[1]
+				self.shards["aether"] 	-= amt[2]
+				self.shards["occult"] 	-= amt[3]
+				self.belt.adjustCurrentShards(self.shards)
+
+				self.giveExperience(amt)
+
+				return True
+		else:
+			return False
 	
 	def setBeltSlot(self, slot, set):
 		self.getBelt().setBeltSlot(slot, set)
@@ -121,6 +152,7 @@ class Belt:
 
 		self.shardPanel = None
 		self.hpPanel = None
+		# self.spellPanel = None
 		self.img = self.genImg(sh, eq, hp)
 	
 	def genImg(self, sh, eq, hp):
@@ -143,10 +175,8 @@ class Belt:
 				else:
 					surf = self.eq[j].getImg()
 
-				for x in range(g.TILE_RES[0]):
-					for y in range(g.TILE_RES[1]):
-						if (x == 0) or (y == 0) or (x == g.TILE_RES[0]-1) or (y == g.TILE_RES[1]-1):
-							surf.set_at((x,y),g.BLACK)
+				g.giveBorder(surf, g.BLACK, 1)
+
 				img.subsurface(rect).blit(surf, (0,0))
 		
 		self.img = img
@@ -207,7 +237,9 @@ class Belt:
 		if slot >= 4:
 			slot += 2
 
-		self.img.blit(set.getIcon(), (slot*g.TILE_RES[1], 0))
+		surf = set.getIcon()
+		g.giveBorder(surf, g.BLACK, 1)
+		self.img.blit(surf, (slot*g.TILE_RES[1], 0))
 	
 	def cast(self, slot, *args):
 		if self.eq[slot] is not None:
@@ -216,20 +248,21 @@ class Belt:
 	
 	def tick(self, dt):
 		for each in self.eq:
-			fraction = self.eq[each].tick(dt)
-			if fraction:
-				surf = pg.Surface((g.TILE_RES[0], g.TILE_RES[1]*fraction))
-				surf.fill(g.BLACK)
-				surf.set_alpha(200)
+			if self.eq[each]:
+				fraction = self.eq[each].tick(dt)
+				if fraction:
+					surf = pg.Surface((g.TILE_RES[0], g.TILE_RES[1]*fraction))
+					surf.fill(g.BLACK)
+					surf.set_alpha(200)
 
-				icon = self.eq[each].getIcon().copy()
-				icon.blit(surf, (0,0))
+					icon = self.eq[each].getIcon().copy()
+					icon.blit(surf, (0,0))
 
-				slot = each+0
-				if slot >= 4:
-					slot += 2
+					slot = each+0
+					if slot >= 4:
+						slot += 2
 
-				self.img.blit(icon, (g.TILE_RES[0]*slot, 0))
+					self.img.blit(icon, (g.TILE_RES[0]*slot, 0))
 
 
 

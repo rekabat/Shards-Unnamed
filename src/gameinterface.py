@@ -61,14 +61,11 @@ class GameInterface:
 		self.eventForeground = worldEvents.EventForeground(mapfile)
 		self.player = player.Player((12,10), [0], self.font)
 
-		self.player.setBeltSlot(0,attacks.fireball(alignment = 0, user = self.player))
-		self.player.setBeltSlot(1,attacks.icefield(alignment = 0, user = self.player))
-		self.player.setBeltSlot(2,attacks.fireball(alignment = 0, user = self.player))
-		self.player.setBeltSlot(3,attacks.icefield(alignment = 0, user = self.player))
-		self.player.setBeltSlot(4,attacks.fireball(alignment = 0, user = self.player))
-		self.player.setBeltSlot(5,attacks.icefield(alignment = 0, user = self.player))
-		self.player.setBeltSlot(6,attacks.fireball(alignment = 0, user = self.player))
-		self.player.setBeltSlot(7,attacks.icefield(alignment = 0, user = self.player))
+		self.player.giveFocus(attacks.fireball(alignment = 0, user = self.player))
+		self.player.giveFocus(attacks.icefield(alignment = 0, user = self.player))
+
+		self.player.setBeltSlot(0, self.player.focuses[0])
+		self.player.setBeltSlot(1, self.player.focuses[1])
 
 		self.player.giveItem(item.Item("weapon", "weapon", 3))
 	
@@ -439,6 +436,8 @@ class GameInterface:
 						a.hit(e)
 						if e.getCurrentHP() <= 0:
 							self.curEnemies.remove(e)
+							if self.lockedOntoEnemy == e:
+								self.lockedOntoEnemy = None
 			############################################
 			############################################
 			############################################
