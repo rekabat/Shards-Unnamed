@@ -400,6 +400,16 @@ class GameInterface:
 			############################################
 			############################################
 			#handle enemies
+			rectInFrontOfPlayer = self.player.getRect().copy()
+			if self.player.facing == "U":
+				rectInFrontOfPlayer.top -= g.TILE_RES[1]
+			elif self.player.facing == "D":
+				rectInFrontOfPlayer.top += g.TILE_RES[1]
+			elif self.player.facing == "L":
+				rectInFrontOfPlayer.left -= g.TILE_RES[0]
+			else:
+				rectInFrontOfPlayer.left += g.TILE_RES[0]
+
 			for e in self.curEnemies:
 				atk, found = e.tick(dt, self.foundOnePathAlready)
 				self.foundOnePathAlready = self.foundOnePathAlready or found
@@ -407,7 +417,7 @@ class GameInterface:
 					self.curAttacks.append(atk)
 
 				#deal with players sword attack
-				if g.distance(e.getRect().center, self.player.getRect().center)<.9*2*g.TILE_RES[0]:
+				if rectInFrontOfPlayer.colliderect(e.getRect()):
 					casted = self.player.cast(8)
 					if casted:
 						self.curAttacks.append(casted)
@@ -416,7 +426,15 @@ class GameInterface:
 			############################################
 
 
+
+			############################################
+			############################################
+			############################################
+			#handle player animations (to come) and spell cool downs
 			self.player.tick(dt)
+			############################################
+			############################################
+			############################################
 
 
 

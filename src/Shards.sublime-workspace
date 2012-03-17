@@ -4,6 +4,10 @@
 		"selected_items":
 		[
 			[
+				"adju",
+				"adjustCurrentShards"
+			],
+			[
 				"lot",
 				"lockedOntoEnemy"
 			],
@@ -95,7 +99,7 @@
 			"file": "general.py",
 			"settings":
 			{
-				"buffer_size": 1577,
+				"buffer_size": 1841,
 				"line_ending": "Windows"
 			}
 		},
@@ -111,23 +115,7 @@
 			"file": "gameinterface.py",
 			"settings":
 			{
-				"buffer_size": 17707,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "enemies.py",
-			"settings":
-			{
-				"buffer_size": 12388,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "attacks.py",
-			"settings":
-			{
-				"buffer_size": 4616,
+				"buffer_size": 17513,
 				"line_ending": "Windows"
 			}
 		},
@@ -135,7 +123,31 @@
 			"file": "player.py",
 			"settings":
 			{
-				"buffer_size": 4809,
+				"buffer_size": 10704,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "enemies.py",
+			"settings":
+			{
+				"buffer_size": 12441,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "attacks.py",
+			"settings":
+			{
+				"buffer_size": 6417,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "font.py",
+			"settings":
+			{
+				"buffer_size": 2059,
 				"line_ending": "Windows"
 			}
 		},
@@ -143,7 +155,7 @@
 			"file": "worldEvents.py",
 			"settings":
 			{
-				"buffer_size": 9258,
+				"buffer_size": 9303,
 				"line_ending": "Windows"
 			}
 		},
@@ -261,6 +273,10 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"curattacks",
+			"sword",
+			"cast",
+			"1",
 			"currenthp",
 			"self.spells",
 			"self.ar",
@@ -336,7 +352,7 @@
 	"groups":
 	[
 		{
-			"selected": 0,
+			"selected": 6,
 			"sheets":
 			[
 				{
@@ -370,15 +386,15 @@
 					"file": "general.py",
 					"settings":
 					{
-						"buffer_size": 1577,
+						"buffer_size": 1841,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								848,
-								848
+								1052,
+								1052
 							]
 						],
 						"settings":
@@ -387,7 +403,7 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 48.0,
+						"translation.y": 720.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
@@ -425,15 +441,15 @@
 					"file": "gameinterface.py",
 					"settings":
 					{
-						"buffer_size": 17707,
+						"buffer_size": 17513,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								13023,
-								13023
+								12327,
+								12327
 							]
 						],
 						"settings":
@@ -442,25 +458,52 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 6167.0,
+						"translation.y": 5807.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
 				},
 				{
 					"buffer": 4,
-					"file": "enemies.py",
+					"file": "player.py",
 					"settings":
 					{
-						"buffer_size": 12388,
+						"buffer_size": 10704,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								7747,
-								7747
+								7436,
+								7436
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 3288.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "enemies.py",
+					"settings":
+					{
+						"buffer_size": 12441,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2333,
+								2333
 							]
 						],
 						"settings":
@@ -470,52 +513,52 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 630.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 5,
-					"file": "attacks.py",
-					"settings":
-					{
-						"buffer_size": 4616,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								3295,
-								3295
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Python/Python.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 1487.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
 				},
 				{
 					"buffer": 6,
-					"file": "player.py",
+					"file": "attacks.py",
 					"settings":
 					{
-						"buffer_size": 4809,
+						"buffer_size": 6417,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1080,
-								1080
+								5295,
+								5295
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 990.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 7,
+					"file": "font.py",
+					"settings":
+					{
+						"buffer_size": 2059,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								316,
+								298
 							]
 						],
 						"settings":
@@ -530,19 +573,19 @@
 					"type": "text"
 				},
 				{
-					"buffer": 7,
+					"buffer": 8,
 					"file": "worldEvents.py",
 					"settings":
 					{
-						"buffer_size": 9258,
+						"buffer_size": 9303,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								9121,
-								9121
+								7562,
+								7562
 							]
 						],
 						"settings":
@@ -551,13 +594,13 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 3555.0,
+						"translation.y": 4140.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
 				},
 				{
-					"buffer": 8,
+					"buffer": 9,
 					"file": "moveables.py",
 					"settings":
 					{
@@ -568,8 +611,8 @@
 						"selection":
 						[
 							[
-								1632,
-								1632
+								4709,
+								4709
 							]
 						],
 						"settings":
@@ -578,13 +621,13 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 315.0,
+						"translation.y": 1980.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
 				},
 				{
-					"buffer": 9,
+					"buffer": 10,
 					"file": "item.py",
 					"settings":
 					{
@@ -611,7 +654,7 @@
 					"type": "text"
 				},
 				{
-					"buffer": 10,
+					"buffer": 11,
 					"file": "map.py",
 					"settings":
 					{
@@ -639,7 +682,7 @@
 					"type": "text"
 				},
 				{
-					"buffer": 11,
+					"buffer": 12,
 					"file": "/C/Users/Troy/Desktop/Game/Shards/Shards-Unnamed/maps/mapgen_map.evt",
 					"settings":
 					{
@@ -665,7 +708,7 @@
 					"type": "text"
 				},
 				{
-					"buffer": 12,
+					"buffer": 13,
 					"file": "display.py",
 					"settings":
 					{
