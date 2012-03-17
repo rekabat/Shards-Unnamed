@@ -63,9 +63,11 @@ class GameInterface:
 
 		self.player.giveFocus(attacks.fireball(alignment = 0, user = self.player))
 		self.player.giveFocus(attacks.icefield(alignment = 0, user = self.player))
+		self.player.giveFocus(attacks.sword(alignment = 0, user = self.player))
 
 		self.player.equip(0, self.player.focuses[0])
 		self.player.equip(1, self.player.focuses[1])
+		self.player.equip(8, self.player.focuses[2])
 
 		self.player.giveItem(item.Item("weapon", "weapon", 3))
 	
@@ -202,14 +204,14 @@ class GameInterface:
 					elif key == pg.K_RIGHT: self.player.movingDirection("R")
 					
 					#casting of belt items
-					elif key == pg.K_q:		casted = self.player.cast(0, self.player.getRect(), self.player.getDirectionFacing())
-					elif key == pg.K_w: 	casted = self.player.cast(1, self.player.getRect(), self.player.getDirectionFacing())
-					elif key == pg.K_e: 	casted = self.player.cast(2, self.player.getRect(), self.player.getDirectionFacing())
-					elif key == pg.K_r: 	casted = self.player.cast(3, self.player.getRect(), self.player.getDirectionFacing())
-					elif key == pg.K_a: 	casted = self.player.cast(4, self.player.getRect(), self.player.getDirectionFacing())
-					elif key == pg.K_s: 	casted = self.player.cast(5, self.player.getRect(), self.player.getDirectionFacing())
-					elif key == pg.K_d: 	casted = self.player.cast(6, self.player.getRect(), self.player.getDirectionFacing())
-					elif key == pg.K_f: 	casted = self.player.cast(7, self.player.getRect(), self.player.getDirectionFacing())
+					elif key == pg.K_q:		casted = self.player.cast(0)
+					elif key == pg.K_w: 	casted = self.player.cast(1)
+					elif key == pg.K_e: 	casted = self.player.cast(2)
+					elif key == pg.K_r: 	casted = self.player.cast(3)
+					elif key == pg.K_a: 	casted = self.player.cast(4)
+					elif key == pg.K_s: 	casted = self.player.cast(5)
+					elif key == pg.K_d: 	casted = self.player.cast(6)
+					elif key == pg.K_f: 	casted = self.player.cast(7)
 					if casted: #will be false if nothing is casted or an empty belt slot is used
 						self.curAttacks.append(casted)
 				
@@ -403,6 +405,12 @@ class GameInterface:
 				self.foundOnePathAlready = self.foundOnePathAlready or found
 				if atk:
 					self.curAttacks.append(atk)
+
+				#deal with players sword attack
+				if g.distance(e.getRect().center, self.player.getRect().center)<.9*2*g.TILE_RES[0]:
+					casted = self.player.cast(8)
+					if casted:
+						self.curAttacks.append(casted)
 			############################################
 			############################################
 			############################################

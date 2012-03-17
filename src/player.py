@@ -37,7 +37,7 @@ class Player(moveables.Moveable):
 			#occult is a mystery, a strange form of energy with great power
 		self.focuses = [] #all available spells for casting
 		self.belt = Belt(self.shards,
-						{0: None, 1: None, 2: None, 3: None, 4: None, 5: None, 6: None, 7: None}, #focuses currently chosen for battle + equipped weapon
+						{0: None, 1: None, 2: None, 3: None, 4: None, 5: None, 6: None, 7: None, 8:None}, #focuses currently chosen for battle + equipped weapon, 8 belongs to sword
 						self.stats['hp'],
 						self.curStats['hp'],
 						font,
@@ -239,7 +239,7 @@ class Belt:
 		for each in self.eq:
 			if self.eq[each]:
 				fraction = self.eq[each].tick(dt)
-				if fraction:
+				if fraction and each != 8:
 					surf = pg.Surface((self.scaledTile[0], self.scaledTile[1]*fraction))
 					surf.fill(g.BLACK)
 					surf.set_alpha(200)

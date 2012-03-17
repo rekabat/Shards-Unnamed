@@ -46,7 +46,65 @@ class Attack:
 class sword(Attack):
 	def __init__(self, **kwargs):
 		Attack.__init__(self, **kwargs)
-		# self.duration 
+		
+		self.cost		= (0,0,0,0)
+
+		self.duration	= 500		#ms
+		img		= pg.image.load('art/attacks/fireball.png').convert_alpha()
+		self.img = {                \
+			"U": img,                           \
+			"D": pg.transform.rotate(img, 180), \
+			"L": pg.transform.rotate(img, 90),  \
+			"R": pg.transform.rotate(img, 270)  }
+		self.img_icon	= pg.image.load('art/attacks/fireball_icon.png').convert_alpha()
+	
+	def cast(self, *args): #playerRect, direction):
+		if Attack.cast(self):
+				return sword_cast(
+					self.user,
+					self.duration,
+					self.img,
+					self.alignment
+					)
+class sword_cast(sword):
+	def __init__(self, user, duration, img, alignment):
+		self.user = user
+		self.duration = duration
+		self.img = img
+		self.alignment = alignment
+		self.rect = None
+		self.tick(0)
+
+		self.alreadyTouched = []
+
+	def getImg(self): return self.img[self.user.facing]
+
+	def tick(self, dt):
+		self.duration -= dt
+		if self.duration<=0:
+			return False #handle this by terminating the cast
+		
+		start = self.user.getRect().topleft
+		dir = self.user.facing
+
+		if dir=="U":
+			self.rect = pg.Rect((start[0], start[1]-g.TILE_RES[1]), g.TILE_RES)
+		elif dir=="D":
+			self.rect = pg.Rect((start[0], start[1]+g.TILE_RES[1]), g.TILE_RES)
+		elif dir=="L":
+			self.rect = pg.Rect((start[0]-g.TILE_RES[0], start[1]), g.TILE_RES)
+		elif dir=="R":
+			self.rect = pg.Rect((start[0]+g.TILE_RES[0], start[1]), g.TILE_RES)
+		
+		# self.rect = pg.Rect(self.loc, g.TILE_RES)
+
+		return True
+
+	def hit(self, target):
+		if target.getAlignment() != self.alignment:
+			if target not in self.alreadyTouched:
+				self.alreadyTouched.append(target)
+				target.takeHP(1)
 
 class icefield(Attack):
 	def __init__(self, **kwargs):
@@ -67,7 +125,7 @@ class icefield(Attack):
 	def cast(self, *args): #playerRect, direction
 		if Attack.cast(self):
 				return icefield_cast(	
-					args[0].topleft,	#start at player's center
+					self.user.getRect().topleft,	#start at player's center
 					self.duration,
 					self.shift_rate,
 					self.size,
@@ -122,8 +180,8 @@ class fireball(Attack):
 	def cast(self, *args): #playerRect, direction):
 		if Attack.cast(self):
 				return fireball_cast(	
-					args[0].topleft,	#start at player's center
-					args[1],			#the direction it travels
+					self.user.getRect().topleft,	#start at player's center
+					self.user.facing,			#the direction it travels
 					self.speed,
 					self.distance,
 					self.img,
