@@ -59,7 +59,7 @@ class GameInterface:
 	def createWorld(self, mapfile):
 		self.map = map.Map(mapfile, self.display.getWH())
 		self.eventForeground = worldEvents.EventForeground(mapfile)
-		self.player = player.Player((12,10), [0], self.font, self.display.getWH()[0])
+		self.player = player.Player((12,10), 0, self.font, self.display.getWH()[0])
 
 		self.player.giveFocus(attacks.fireball(alignment = 0, user = self.player))
 		self.player.giveFocus(attacks.icefield(alignment = 0, user = self.player))
@@ -86,13 +86,36 @@ class GameInterface:
 	def addEnemy(self, enemy):
 		self.curEnemies.append(enemy)
 
-	def collisionWithBlockedTile(self, tile, zs, player = True, enemies = True, tiles = True, events = True, ignoreEnemy = None):
+	def collision_point(self, point, z, player = True, enemies = True, tiles = True, events = True, ignoreEnemy = None):
+		#if point is in player
+		if player and (self.player.getZ() == z) and (self.player.getRect().collidepoint(point)):
+			return True
+
+		#if point is in enemy
+		if enemies:
+			for e in self.curEnemies:
+				if (e is not ignoreEnemy) and (e.getZ() == z) and (e.getRect().collidepoint(point)):
+					return True
+
+		#if point is on a blocked tile
+		if tiles:
+			try:
+				if self.map.getTile(point, z).blocked(): #tile exists and is blocked
+					return True
+			except: #tile doesn't exist
+				return True
+
+		#if point is on a blocked WE
+		if events and (self.eventForeground.blocked(g.pix2tile2rect(point), z)):
+			return True
+
+
+	def collisionWithBlockedTile(self, tile, z, player = True, enemies = True, tiles = True, events = True, ignoreEnemy = None):
 		rect = g.tile2rect(tile)
 
 		#if any corners are on player
-		if player:
-			if self.player.getRect().colliderect(rect):
-				return True
+		if player and self.player.getRect().colliderect(rect):
+			return True
 
 		#if any corners are on an enemy
 		if enemies:
@@ -104,41 +127,42 @@ class GameInterface:
 		# if any of the corners are on a blocked map tile or WE tile
 		if tiles:
 			try:
-				if self.map.getTile(tile, zs[0], pixel = False).blocked():
+				if self.map.getTile(tile, z, pixel = False).blocked():
 				# if self.map.blocked(rect, zs):
 					return True
 			except:
-				print tile
-				quit()
+				return True
+				pass
+			# 	print "blocked on tile", tile, "and z", z
+			# 	quit()
 
 		# if any of the corners are on a WE tile
-		if events:
-			if self.eventForeground.blocked(rect, zs):
-				return True
+		if events and self.eventForeground.blocked(rect, z):
+			return True
 
 
-	def collisionWithBlockedRect(self, rect, zs, player = True, enemies = True, tiles = True, events = True, ignoreEnemy = None):
+	def collisionWithBlockedRect(self, rect, z, player = True, enemies = True, tiles = True, events = True, ignoreEnemy = None):
 		#if any corners are on player
-		if player:
-			if self.player.getRect().colliderect(rect):
-				return True
+		if player and self.player.getRect().colliderect(rect):
+			return True
 
 		#if any corners are on an enemy
 		if enemies:
 			for e in self.curEnemies:
 				if e is not ignoreEnemy:
 					if e.getRect().colliderect(rect):
+						# print "enemy"
 						return True
 		
 		# if any of the corners are on a blocked map tile or WE tile
-		if tiles:
-			if self.map.blocked(rect, zs):
-				return True 
+		if tiles and self.map.blocked(rect, z):
+			# print "map"
+			return True 
 
 		# if any of the corners are on a WE tile
-		if events:
-			if self.eventForeground.blocked(rect, zs):
-				return True
+		if events and self.eventForeground.blocked(rect, z):
+			# print "event"
+			return True
 
 	def dispatch(self, events, dt=0):
 		froze = False
@@ -288,30 +312,59 @@ class GameInterface:
 				# Check if the movement is valid by making a smaller rectangle and seeing
 				smallerRect=pg.Rect((0,0),(self.player.getRect().width*.87, self.player.getRect().height*.87))
 				smallerRect.center = self.player.getRect().center
+				# corners = (	g.pix2tile(smallerRect.topleft), \
+				# 			g.pix2tile(smallerRect.topright), \
+				# 			g.pix2tile(smallerRect.bottomleft), \
+				# 			g.pix2tile(smallerRect.bottomright) )
+				corners = (	smallerRect.topleft, \
+							smallerRect.topright, \
+							smallerRect.bottomleft, \
+							smallerRect.bottomright )
+				validZs = self.player.getZ()
+				validZs = [validZs+1, validZs, validZs-1]
 
 				# If the movement is valid, move the player there
-				if not self.collisionWithBlockedRect(smallerRect, self.player.getZs(), player = False):
-					# couldntMove = False
+				highestZC = validZs[2]
+				for c in corners:
 
-					playerZs = self.player.getZs()
-					playerZs.sort()
-					playerZs.reverse()
-
-					#try to to get a tile from the highest z the player is on, if nothing work your way down to lower zs the player's on
-					for z in playerZs:
-						atile = self.map.getTile(self.player.getRect().center, z)
-						if atile:
-							self.player.setZ(atile.getZs())
+					thisCBlocked = True
+					for z in validZs:
+						# if not self.collisionWithBlockedTile(c, z, player=False):
+						if not self.collision_point(c, z, player=False):
+							thisCBlocked = False
+							if z > highestZC: highestZC = z
 							break
 
-					return True
+					if thisCBlocked:
+						self.player.undoMove()
+						if len(mv)>1:
+							for m in mv:
+								# if mvPlayer(m, dt):
+									# self.player.setZ(highestZC)
+									# return True
+								mvPlayer(m,dt)
+						return False
 				
-				else:
-					self.player.undoMove()
-					if len(mv)>1:
-						for m in mv:
-							if mvPlayer(m, dt):
-								return True
+				self.player.setZ(highestZC)
+				return True
+					# if not self.collisionWithBlockedRect(smallerRect, z, player = False):
+						# couldntMove = False
+
+
+						#try to to get a tile from the highest z the player is on
+						#if nothing work your way down to lower zs the player's on
+						# for z in playerZs:
+				# 		atile = self.map.getTile(self.player.getRect().center, z)
+				# 		if atile:
+				# 			self.player.setZ(atile.getZ())
+				# 			return True
+				
+				# # else:
+				# self.player.undoMove()
+				# if len(mv)>1:
+				# 	for m in mv:
+				# 		if mvPlayer(m, dt):
+				# 			return True
 
 				# if couldntMove:
 				# 	pass #implement sliding
@@ -329,10 +382,14 @@ class GameInterface:
 			############################################
 			############################################
 			def checkForEvents():
-				playerZs = self.player.getZs()
+				playerZs = self.player.getZ()
+				playerZs = [playerZs+1, playerZs, playerZs-1]
 
 				#tile the player's center pix is on
-				tilePlayerOn = self.map.getTile(self.player.getRect().center, max(playerZs))
+				for z in playerZs:
+					tilePlayerOn = self.map.getTile(self.player.getRect().center, z)
+					if tilePlayerOn:
+						break
 				#the events on that tile
 				mustActivate = self.eventForeground.unlockedNotEnterableEventsOn([tilePlayerOn], playerZs)
 				activateIfEnterOnTopOf = self.eventForeground.unlockedEnterableEventsOn([tilePlayerOn], playerZs)
@@ -532,7 +589,7 @@ class GameInterface:
 				self.display.get().blit(art, relRect)
 
 			#blits a subsurface of the map to the display (lowest layer)
-			playerOnZ = max(self.player.getZs())
+			playerOnZ = self.player.getZ()
 			self.display.get().blit(self.map.getImageOfAndBelowZ(playerOnZ, view), (0,0))
 			
 			#retrieves all the events that happen to coincide with the view

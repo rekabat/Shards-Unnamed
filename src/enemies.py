@@ -44,8 +44,8 @@ def deleteBottomNodule(nod):
 
 
 class Enemy(moveables.Moveable):
-	def __init__(self, GI, position, zs, size= (1,1), img='art/playersprite.png', pixStep = .075):
-		moveables.Moveable.__init__(self, position, zs, size, img, pixStep)
+	def __init__(self, GI, position, z, size= (1,1), img='art/playersprite.png', pixStep = .075):
+		moveables.Moveable.__init__(self, position, z, size, img, pixStep)
 
 		self.GI = GI
 		self.targetTile = None
@@ -174,7 +174,7 @@ class Enemy(moveables.Moveable):
 									return False
 							#blocked
 							# if self.GI.collisionWithBlockedTile(new, self.getZs(), player = False, ignoreEnemy=self):
-							if self.GI.collisionWithBlockedTile(new, self.getZs(), player = False, enemies = False):
+							if self.GI.collisionWithBlockedTile(new, self.getZ(), player = False, enemies = False):
 							 	closed.append(new)
 							 	return False
 							
@@ -309,7 +309,7 @@ class Enemy(moveables.Moveable):
 					smallerRect=pg.Rect((0,0),(self.getRect().width*.87, self.getRect().height*.87))
 					smallerRect.center = self.getRect().center
 
-					if self.GI.collisionWithBlockedRect(smallerRect, self.getZs(), player = False, ignoreEnemy=self):
+					if self.GI.collisionWithBlockedRect(smallerRect, self.getZ(), player = True, ignoreEnemy=self):
 						self.undoMove()
 					else:
 						break

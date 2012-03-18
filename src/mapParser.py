@@ -53,12 +53,12 @@ def parse(file_base):
 			posOnTileFile = posOnTileFile.split(":")
 			posOnTileFile = (int(posOnTileFile[0]), int(posOnTileFile[1]))
 
-			blocked, zs = temp.split(")[")
+			blocked, z = temp.split(")[")
 			blocked = True if blocked == "1" else False
 
-			zs=[int(z) for z in zs[:-1].split(",")]
+			z=int(z[:-1])
 
-			setup[posOnMap].append(map.Tile(source, posOnTileFile, blocked, zs, posOnMap))
+			setup[posOnMap].append(map.Tile(source, posOnTileFile, blocked, z, posOnMap))
 		
 	for pos in setup.keys():
 		for each in setup[pos]:

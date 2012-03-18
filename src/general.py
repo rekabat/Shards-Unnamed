@@ -63,7 +63,7 @@ def tile2pix((x, y), center = True): #center pixel
 		return (int(x*TILE_RES[0]), int(y*TILE_RES[1]))
 
 def pix2tile2rect((x,y)):
-	return tile2rect(pix2tile((x,y)), TILE_RES)
+	return tile2rect(pix2tile((x,y)))
 
 def distance(point1, point2):
 	return ((point1[0]-point2[0])**2+(point1[1]-point2[1])**2)**.5

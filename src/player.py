@@ -4,8 +4,8 @@ import general as g
 import moveables
 
 class Player(moveables.Moveable):
-	def __init__(self, position, zs, font, screenwidth, size= (1,1), img='art/playersprite.png'): #font is used for belt
-		moveables.Moveable.__init__(self, position, zs, size, img)
+	def __init__(self, position, z, font, screenwidth, size= (1,1), img='art/playersprite.png'): #font is used for belt
+		moveables.Moveable.__init__(self, position, z, size, img)
 
 		#####################################
 		# Character info ####################

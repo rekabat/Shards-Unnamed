@@ -1,12 +1,9 @@
-from copy import deepcopy as dc
-from copy import copy as cpy
-
 import pygame as pg
 
 import general as g
 
 class Moveable:
-	def __init__(self, position, zs, size, img, pixStep=.20):
+	def __init__(self, position, z, size, img, pixStep=.20):
 		self.size = (size[0]*g.TILE_RES[0], size[1]*g.TILE_RES[1]) #given in tile size, convert to pixel size 
 
 		#make a rect for where it is
@@ -16,9 +13,9 @@ class Moveable:
 		# self.fourCorners = None
 		
 		#what floor "level" is the player on
-		self.zs = None #zs
+		self.z = None #zs
 
-		self.setPlace(position, zs) #sets pos,rect,previousrect,zs
+		self.setPlace(position, z) #sets pos,rect,previousrect,zs
 
 		#the image of the player
 		img = pg.image.load(img).convert_alpha()
@@ -69,11 +66,11 @@ class Moveable:
 	def getArt(self, outline = False):
 		if outline: return self.art[1]
 		else: return self.art[0]
-	def getZs(self): return self.zs
+	def getZ(self): return self.z
 	def getDirectionFacing(self): return self.facing
 	def getPosition(self): return self.pos
 
-	def setPlace(self, position, zs):
+	def setPlace(self, position, z):
 		#make a rect for where it is
 		self.pos = g.tile2rect(position).topleft  #given in tile coordinates, convert to topleft pixel
 		self.rect= pg.Rect(self.pos, self.size)
@@ -81,9 +78,9 @@ class Moveable:
 		self.previousRect = self.rect.copy()
 		
 		#what floor "level" is the player on
-		self.zs = zs
+		self.z = z
 
-	def setZ(self, zs): self.zs = zs
+	def setZ(self, z): self.z = z
 
 	def move(self, mv, dt, forceTurn = False):
 		self.previousRect = self.getRect().copy()
@@ -147,19 +144,19 @@ class Moveable:
 			if (d == "U") or (d == "D"):
 				break
 
-
 		while self.pixStepped >= self.pixStepSize:
 			self.pixStepped -= self.pixStepSize
 			self.currentImg = 0 if (self.currentImg == 3) else self.currentImg+1
-			self.previousArt = cpy(self.art)
+			self.previousArt = (self.art[0], self.art[1])
 			self.art = (self.udlrFacing[self.facing][self.currentImg], self.udlrFacing_outline[self.facing][self.currentImg])
 	
 	def undoMove(self):
 		self.rect = self.previousRect.copy()
+		# self.z = self.oldZ
 		# self.fourCorners = (self.rect.topleft, self.rect.topright, self.rect.bottomleft, self.rect.bottomright)
 		self.pos = self.rect.topleft
 		if self.previousPixStepped > self.pixStepped:
-			self.art = cpy(self.previousArt)
+			self.art = (self.previousArt[0], self.previousArt[1])
 			self.currentImg = 3 if (self.currentImg == 0) else self.currentImg-1
 		self.pixStepped = self.previousPixStepped
 		
