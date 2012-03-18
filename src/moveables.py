@@ -1,3 +1,6 @@
+from copy import deepcopy as dc
+from copy import copy as cpy
+
 import pygame as pg
 
 import general as g
@@ -46,7 +49,7 @@ class Moveable:
 		self.facing = "D"
 		# The number of pixels stepped since last change in image
 		self.pixStepped = 0
-		self.oldPixStepped = 0
+		self.previousPixStepped = 0
 		#the number of pixels before the image is changed
 		self.pixStepSize = 20
 		#the number of pixels traversed in a millisecond
@@ -56,6 +59,7 @@ class Moveable:
 
 		#the player defaulted to face forward
 		self.art = (self.udlrFacing[self.facing][self.currentImg], self.udlrFacing_outline[self.facing][self.currentImg])
+		self.previousArt = self.art
 
 		#the directions the player is currently going
 		self.udlr = [False, False, False, False]
@@ -113,7 +117,7 @@ class Moveable:
 
 		self.pos = (self.pos[0]+xmove, self.pos[1]+ymove)
 
-		self.oldPixStepped = self.pixStepped+0
+		self.previousPixStepped = self.pixStepped+0
 		self.pixStepped += g.distance(self.pos, self.rect.topleft)
 
 		self.rect =  pg.Rect(self.pos, self.size)
@@ -147,14 +151,18 @@ class Moveable:
 		while self.pixStepped >= self.pixStepSize:
 			self.pixStepped -= self.pixStepSize
 			self.currentImg = 0 if (self.currentImg == 3) else self.currentImg+1
-
+			self.previousArt = cpy(self.art)
 			self.art = (self.udlrFacing[self.facing][self.currentImg], self.udlrFacing_outline[self.facing][self.currentImg])
 	
 	def undoMove(self):
 		self.rect = self.previousRect.copy()
 		# self.fourCorners = (self.rect.topleft, self.rect.topright, self.rect.bottomleft, self.rect.bottomright)
 		self.pos = self.rect.topleft
-		self.pixStepped = self.oldPixStepped
+		if self.previousPixStepped > self.pixStepped:
+			self.art = cpy(self.previousArt)
+			self.currentImg = 3 if (self.currentImg == 0) else self.currentImg-1
+		self.pixStepped = self.previousPixStepped
+		
 		
 	def forgetMovement(self):
 		self.udlr = [False, False, False, False]

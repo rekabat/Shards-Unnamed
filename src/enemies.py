@@ -344,7 +344,7 @@ class Enemy(moveables.Moveable):
 			return False, True
 		return False, False
 
-
+	'''
 	def tick1(self, dt, foundOnePathAlready):
 		player = self.GI.player
 
@@ -417,6 +417,7 @@ class Enemy(moveables.Moveable):
 				return self.spells[0].cast(self.getRect(), self.facing)
 
 		return False
+	'''
 
 	def takeHP(self, amt):
 		self.currentHP -= amt

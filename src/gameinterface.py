@@ -401,14 +401,10 @@ class GameInterface:
 			############################################
 			#handle enemies
 			rectInFrontOfPlayer = self.player.getRect().copy()
-			if self.player.facing == "U":
-				rectInFrontOfPlayer.top -= g.TILE_RES[1]
-			elif self.player.facing == "D":
-				rectInFrontOfPlayer.top += g.TILE_RES[1]
-			elif self.player.facing == "L":
-				rectInFrontOfPlayer.left -= g.TILE_RES[0]
-			else:
-				rectInFrontOfPlayer.left += g.TILE_RES[0]
+			if self.player.facing == "U": rectInFrontOfPlayer.top -= g.TILE_RES[1]
+			elif self.player.facing == "D": rectInFrontOfPlayer.top += g.TILE_RES[1]
+			elif self.player.facing == "L": rectInFrontOfPlayer.left -= g.TILE_RES[0]
+			else: rectInFrontOfPlayer.left += g.TILE_RES[0]
 
 			for e in self.curEnemies:
 				atk, found = e.tick(dt, self.foundOnePathAlready)
