@@ -72,6 +72,9 @@ class Map:
 	def getDrawingSize(self): return self.drawingSize
 	def getMapDrawingDif(self): return self.mapDrawingDif
 	# def getDict_Z_Pos_gives_Blocked(self): return self.zsetup2_blocked
+
+	def getTotalImg(self):
+		return self.layersOfAndBelow[max(self.zsetup.keys())]
 	
 	def makeLayersOfAndBelow(self):
 		ret = {}

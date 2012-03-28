@@ -58,6 +58,9 @@ class GameInterface:
 			
 	def createWorld(self, mapfile):
 		self.map = map.Map(mapfile, self.display.getWH())
+
+		self.staticMap = self.map.getTotalImg()
+
 		self.eventForeground = worldEvents.EventForeground(mapfile)
 		self.player = player.Player((12,10), 0, self.font, self.display.getWH()[0])
 
@@ -70,7 +73,7 @@ class GameInterface:
 		self.player.equip(8, self.player.focuses[2])
 
 		self.player.giveItem(item.Item("weapon", "weapon", 3))
-	
+
 	def flipOutlines(self, events):
 		copy = self.outlinedEvents[:]
 		for each in events:
@@ -502,7 +505,7 @@ class GameInterface:
 
 				#cause damage to player
 				# if a.getAlignment() != self.player.getAlignment() and a.getRect().colliderect(self.player.getRect()):
-				if a.getRect().colliderect(self.player.getRect()):
+				if a.getRect().colliderect(self.player.getRect()) and (a.getZ() == self.player.getZ()):
 					a.hit(self.player)
 					if self.player.getCurStat('hp') <= 0:
 						print "dead!!!!"
@@ -511,7 +514,7 @@ class GameInterface:
 				#cause damage to enemies
 				for e in self.curEnemies:
 					# if a.getAlignment() != e.getAlignment() and a.getRect().colliderect(e.getRect()):
-					if a.getRect().colliderect(e.getRect()):
+					if a.getRect().colliderect(e.getRect()) and (a.getZ() == e.getZ()):
 						a.hit(e)
 						if e.getCurrentHP() <= 0:
 							self.curEnemies.remove(e)
@@ -552,6 +555,7 @@ class GameInterface:
 		else:
 			return True
 
+	'''
 	def renderView(self):
 		if self.state == "main-menu":
 			pass
@@ -643,6 +647,108 @@ class GameInterface:
 			if evtsToDisplay:
 				for each in evtsToDisplay:
 					blitRelRect(each.getRect(), each.getArt())
+
+			# then the players belt is blitted
+			# belt = self.player.getBelt().getImg()
+			self.display.get().blit(belt, (0,h))
+
+			#blits the window to the display over everything else (top layer)
+			self.display.get().blit(self.window, (0,0))
+			
+			pg.display.flip()
+
+			self.view = view
+		
+		elif self.state == "pause":
+			self.display.get().blit(self.pmenu.getDisp(), (0,0))
+			pg.display.flip()
+	'''
+
+
+	def renderView(self):
+		if self.state == "main-menu":
+			pass
+
+		elif self.state == "play" or self.state == "WE":
+			belt = self.player.getBelt().getImg()
+
+			#gets optimal view frame based on player
+			
+			mapx, mapy = self.map.getDrawingSize()
+
+			# mapx, mapy = self.map.getMapSizePx()
+			x, y = self.player.getRect().center
+			w = self.display.getWH()[0]
+			h = self.display.getWH()[1] - belt.get_height()
+			viewx, viewy = x+0, y+0
+			
+			if (x < (w*.5)):
+				viewx = w*.5
+			elif (x > (mapx - (w*.5))):
+				viewx = mapx - (w*.5)
+			if (y < (h*.5)):
+				viewy = h*.5
+			elif (y > (mapy - (h*.5))):
+				viewy = mapy - (h*.5)
+
+			view = pg.Rect((0, 0), (w, h))
+			view.center = viewx, viewy
+
+			#get rect relactive to view assuming it's also relative to map (like view is) and blit it to the screen with the art
+			mapdifx, mapdify = self.map.getMapDrawingDif()
+			def blitRelRect(rect, art):
+				relRect = rect.copy()
+				relRect.center = (w*.5)+(relRect.centerx-viewx)+mapdifx, (h*.5)+(relRect.centery-viewy)+mapdify
+				self.display.get().blit(art, relRect)
+
+			#blits a subsurface of the map to the display (lowest layer)
+			self.display.get().blit(self.staticMap.subsurface(view), (0,0))
+			
+
+			def doStuffForThisZ(z):
+				#events first
+				evtsToDisplay = self.eventForeground.getEventsOf(z, view)
+				if evtsToDisplay:
+					for each in evtsToDisplay:
+						blitRelRect(each.getRect(), each.getArt())
+
+				#enemies second
+				for e in self.curEnemies:
+					if e.getZ() == z:
+						blitRelRect(e.getRect(), e.getArt(outline = (e is self.lockedOntoEnemy)))
+						#hp bar if they're aggroed
+						if e.getAggro():
+							blitRelRect(e.getHPBarRect(), e.getHPBar())
+
+				for a in self.curAttacks:
+					if (a.getZ() == z) and (a.getRect().colliderect(view)):
+						blitRelRect(a.getRect(), a.getImg())
+
+
+			
+			playerOnZ = self.player.getZ()
+
+			#deal with stuff below player
+			for z in range(playerOnZ+1):
+				doStuffForThisZ(z)
+
+			#blit player to screen
+			blitRelRect(self.player.getRect(), self.player.getArt())
+
+			#deal with stuff above player
+			for z in range(5)[playerOnZ+1:]:
+				doStuffForThisZ(z)
+
+			# surf = pg.Surface(g.TILE_RES)
+			# surf.fill(g.GREEN)
+			# surf.set_alpha(50)
+			# for e in self.curEnemies:
+			# 	blitRelRect(e.getRect(), e.getArt())
+			# 	temp = e.currentPath
+			# 	while temp != None:
+			# 		rect = g.tile2rect(temp.tile)
+			# 		blitRelRect(rect, surf)
+			# 		temp = temp.parent
 
 			# then the players belt is blitted
 			# belt = self.player.getBelt().getImg()

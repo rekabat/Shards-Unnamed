@@ -17,6 +17,7 @@ class Attack:
 	def getImg(self): return self.img
 	def getIcon(self): return self.img_icon
 	def getAlignment(self): return self.alignment
+	def getZ(self): return self.z
 
 	def cast(self):
 		if self.timeSinceLastCast is None:
@@ -62,13 +63,15 @@ class sword(Attack):
 		if Attack.cast(self):
 				return sword_cast(
 					self.user,
+					self.user.getZ(),
 					self.duration,
 					self.img,
 					self.alignment
 					)
 class sword_cast(sword):
-	def __init__(self, user, duration, img, alignment):
+	def __init__(self, user, z, duration, img, alignment):
 		self.user = user
+		self.z = z
 		self.duration = duration
 		self.img = img
 		self.alignment = alignment
@@ -124,7 +127,8 @@ class icefield(Attack):
 	
 	def cast(self, *args): #playerRect, direction
 		if Attack.cast(self):
-				return icefield_cast(	
+				return icefield_cast(
+					self.user.getZ(),
 					self.user.getRect().topleft,	#start at player's center
 					self.duration,
 					self.shift_rate,
@@ -135,7 +139,8 @@ class icefield(Attack):
 
 
 class icefield_cast(icefield):
-	def __init__(self, start, duration, shift_rate, size, img, alignment):
+	def __init__(self, z, start, duration, shift_rate, size, img, alignment):
+		self.z = z
 		self.dur = duration
 		self.shift_rate = shift_rate
 		self.size = size
@@ -180,6 +185,7 @@ class fireball(Attack):
 	def cast(self, *args): #playerRect, direction):
 		if Attack.cast(self):
 				return fireball_cast(	
+					self.user.getZ(),
 					self.user.getRect().topleft,	#start at player's center
 					self.user.facing,			#the direction it travels
 					self.speed,
@@ -188,7 +194,8 @@ class fireball(Attack):
 					self.alignment
 					)
 class fireball_cast(fireball):
-	def __init__(self, start, dir, speed, distance, img, alignment):
+	def __init__(self, z, start, dir, speed, distance, img, alignment):
+		self.z = z
 		self.loc = start
 		self.dir = dir
 		self.speed = speed

@@ -26,6 +26,13 @@ class EventForeground:
 				ret.append(each)
 		return ret
 
+	def getEventsOf(self, z, partial = False):
+		ret=[]
+		for each in self.eventList:
+			if each.getZ() == z:
+				ret.append(each)
+		return ret
+
 	def immediates(self):
 		ret = []
 		for e in self.eventList:
@@ -280,7 +287,7 @@ class teleport(WorldEvent):
 	
 	def execute(self, GI):
 		tileTo = tuple([int(each) for each in self.extra[1].split(":")])
-		zTo = [int(each) for each in self.extra[2].split(",")]
+		zTo = int(self.extra[2])
 
 		GI.player.setPlace(tileTo, zTo)
 
