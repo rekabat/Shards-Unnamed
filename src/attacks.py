@@ -9,6 +9,7 @@ class Attack:
 		# self.img_icon = None
 		self.alignment = kwargs["alignment"]
 		self.user = kwargs["user"]
+		self.map = kwargs["map"]
 
 		self.cooldown = 1000	#ms before the spell can be re-cast
 		self.timeSinceLastCast = None
@@ -191,10 +192,11 @@ class fireball(Attack):
 					self.speed,
 					self.distance,
 					self.img,
-					self.alignment
+					self.alignment,
+					self.map
 					)
 class fireball_cast(fireball):
-	def __init__(self, z, start, dir, speed, distance, img, alignment):
+	def __init__(self, z, start, dir, speed, distance, img, alignment, map):
 		self.z = z
 		self.loc = start
 		self.dir = dir
@@ -202,6 +204,7 @@ class fireball_cast(fireball):
 		self.distance = distance
 		self.img = img
 		self.alignment = alignment
+		self.map = map
 		self.rect = None
 		self.tick(0)
 
@@ -224,6 +227,20 @@ class fireball_cast(fireball):
 			self.loc = (self.loc[0]+self.speed*dt, self.loc[1])
 		
 		self.rect = pg.Rect(self.loc, g.TILE_RES)
+
+		tile = self.map.getTile(self.rect.center, self.z)
+		if not tile:
+			for z in range(self.z)[::-1]:
+				tile = self.map.getTile(self.rect.center, z)
+				if tile:
+					return True
+			return False
+		elif tile.blocked():
+			return False
+		else:
+			return True
+		
+			
 
 		return True
 

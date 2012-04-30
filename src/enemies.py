@@ -58,7 +58,7 @@ class Enemy(moveables.Moveable):
 		self.origin = self.rect.topleft
 
 		self.alignment = 1
-		self.spells = [attacks.fireball(alignment = self.alignment, user = self)]
+		self.spells = [attacks.fireball(alignment = self.alignment, user = self, map = GI.map)]
 		self.atkRate = 1000 #how many ms between attacks
 		self.secondSinceAtk = 0
 

@@ -64,9 +64,9 @@ class GameInterface:
 		self.eventForeground = worldEvents.EventForeground(mapfile)
 		self.player = player.Player((12,10), 0, self.font, self.display.getWH()[0])
 
-		self.player.giveFocus(attacks.fireball(alignment = 0, user = self.player))
-		self.player.giveFocus(attacks.icefield(alignment = 0, user = self.player))
-		self.player.giveFocus(attacks.sword(alignment = 0, user = self.player))
+		self.player.giveFocus(attacks.fireball(alignment = 0, user = self.player, map = self.map))
+		self.player.giveFocus(attacks.icefield(alignment = 0, user = self.player, map = self.map))
+		self.player.giveFocus(attacks.sword(alignment = 0, user = self.player, map = self.map))
 
 		self.player.equip(0, self.player.focuses[0])
 		self.player.equip(1, self.player.focuses[1])

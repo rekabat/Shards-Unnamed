@@ -124,11 +124,12 @@ class Map:
 		ret = []
 
 		i = tl[0]
-		while i<=br[0] and i<self.mapSizeTiles[0] and i>=0:
+		while i<=br[0]:
 			j = tl[1]
-			while j<=br[1] and j<self.mapSizeTiles[1] and j>=0:
-				for z in self.pos_z_tile[(i,j)]:
-					ret.append(self.pos_z_tile[(i,j)][z])
+			while j<=br[1]:
+				if (i<self.mapSizeTiles[0]) and (i>=0) and (j<self.mapSizeTiles[1]) and (j>=0):
+					for z in self.pos_z_tile[(i,j)]:
+						ret.append(self.pos_z_tile[(i,j)][z])
 				j+=1
 			i+=1
 				
