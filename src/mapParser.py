@@ -37,6 +37,7 @@ def parse(file_base):
 	onward = line
 
 	setup={}
+	maxZ = 0
 	for line in theMap[onward:]:
 		posOnMap, tiles = line.split("+")
 		posOnMap = posOnMap.split(":")
@@ -44,30 +45,33 @@ def parse(file_base):
 
 		tiles = tiles.split("|")
 
-		setup[posOnMap] = []
+		setup[posOnMap] = {}
 		for each in tiles:
+			#source -> the file the tile img is coming from
 			source, temp = each.split("->")
 			source = int(source)
 
+			#posOnTileFile -> the x,y coords of the img on source
 			posOnTileFile, temp = temp.split("(")
 			posOnTileFile = posOnTileFile.split(":")
 			posOnTileFile = (int(posOnTileFile[0]), int(posOnTileFile[1]))
 
+			#blocked -> whether or not the tile can be walked on
 			blocked, z = temp.split(")[")
 			blocked = True if blocked == "1" else False
 
+			#z -> the z the tile is on
 			z=int(z[:-1])
+			if z > maxZ: maxZ = z+0
 
-			setup[posOnMap].append(map.Tile(source, posOnTileFile, blocked, z, posOnMap))
-		
-	for pos in setup.keys():
-		for each in setup[pos]:
-			each.setArt(tileFiles[each.source()].get(each.type()))
+			'''
+			setup[posOnMap][z] = map.Tile(source, posOnTileFile, tileFiles[source].get(posOnTileFile), posOnMap, z, blocked)
+			'''
+			setup[posOnMap][z] = map.Tile(tileFiles[source].get(posOnTileFile), blocked, posOnMap, z)
 
 	mapSizePx = (mapSize[0]*g.TILE_RES[0], mapSize[1]*g.TILE_RES[1])
 
-	return {'mapSize':mapSize, 'mapSizePx': mapSizePx, 'setup':setup}
-
+	return {'mapSize': mapSize, 'mapSizePx': mapSizePx, 'maxZ': maxZ, 'setup': setup}
 	
 class TileMap:
 	def __init__(self, tileFile, squareSize):

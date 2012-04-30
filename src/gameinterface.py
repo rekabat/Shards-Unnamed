@@ -703,14 +703,19 @@ class GameInterface:
 
 			#blits a subsurface of the map to the display (lowest layer)
 			self.display.get().blit(self.staticMap.subsurface(view), (0,0))
-			
 
-			def doStuffForThisZ(z):
-				#events first
+			maxZ = self.map.maxZ
+			playerOnZ = self.player.getZ()
+			for z in range(maxZ+1):
+				tilesOccupied = set()
+
 				evtsToDisplay = self.eventForeground.getEventsOf(z, view)
 				if evtsToDisplay:
 					for each in evtsToDisplay:
 						blitRelRect(each.getRect(), each.getArt())
+
+						for t0 in self.map.getTilesInRect(each.getRect()):
+							tilesOccupied.add(t0)
 
 				#enemies second
 				for e in self.curEnemies:
@@ -720,24 +725,26 @@ class GameInterface:
 						if e.getAggro():
 							blitRelRect(e.getHPBarRect(), e.getHPBar())
 
+						for t0 in self.map.getTilesInRect(e.getRect()):
+							tilesOccupied.add(t0)
+
+				#blit player to screen
+				if z == playerOnZ:
+					blitRelRect(self.player.getRect(), self.player.getArt())
+
+					for t0 in self.map.getTilesInRect(self.player.getRect()):
+						tilesOccupied.add(t0)
+
 				for a in self.curAttacks:
 					if (a.getZ() == z) and (a.getRect().colliderect(view)):
 						blitRelRect(a.getRect(), a.getImg())
 
+						for t0 in self.map.getTilesInRect(a.getRect()):
+							tilesOccupied.add(t0)
 
-			
-			playerOnZ = self.player.getZ()
-
-			#deal with stuff below player
-			for z in range(playerOnZ+1):
-				doStuffForThisZ(z)
-
-			#blit player to screen
-			blitRelRect(self.player.getRect(), self.player.getArt())
-
-			#deal with stuff above player
-			for z in range(5)[playerOnZ+1:]:
-				doStuffForThisZ(z)
+				for t0 in tilesOccupied:
+					if t0.getZ() > z:
+						blitRelRect(t0.getRect(), t0.getImg())
 
 			# surf = pg.Surface(g.TILE_RES)
 			# surf.fill(g.GREEN)
