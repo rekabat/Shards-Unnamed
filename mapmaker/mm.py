@@ -188,47 +188,55 @@ class Box:
 		# the width of the scroll bar in pixels
 		self.SB_WIDTH = 17
 
+		# the colors of the scroll bar
+		self.SB_COLOR = (240,240,240)
+		self.B_COLOR  = (150,150,150)
+		self.BR_COLOR = (180,180,180)
+
 		# surface minus what belongs to SBs
 		# relative to box
 		self.surf_rect = pg.Rect((0,0), (surf.get_width()-self.SB_WIDTH, surf.get_height()-self.SB_WIDTH))
 		self.surf = surf.subsurface(self.surf_rect)
 
-		# SB surfaces
-		#relative to box
-		self.vSB_rect = pg.Rect((self.get_width(), 0), (self.SB_WIDTH, self.get_height()))
-		self.vSB_surf = surf.subsurface(self.vSB_rect)
-		#relative to vSB
-		self.vB1_rect = pg.Rect((0,0), (self.SB_WIDTH, self.SB_WIDTH))
-		self.vB1_surf = self.vSB_surf.subsurface(self.vB1_rect)
-		self.vB2_rect = pg.Rect((0, self.vSB_rect.height-self.SB_WIDTH), (self.SB_WIDTH, self.SB_WIDTH))
-		self.vB2_surf = self.vSB_surf.subsurface(self.vB2_rect)
-		self.vBR_rect = None
-		self.vBR_surf = None
-
-		self.vSB_surf.fill(WHITE)
-		self.vB1_surf.fill(RED)
-		self.vB2_surf.fill(GREEN)
-
+		# hSB surfaces
+		# relative to box
 		self.hSB_rect = pg.Rect((0, self.get_height()), (self.get_width(), self.SB_WIDTH))
 		self.hSB_surf = surf.subsurface(self.hSB_rect)
-		#relative to vSB
+		# relative to vSB
 		self.hB1_rect = pg.Rect((0,0), (self.SB_WIDTH, self.SB_WIDTH))
 		self.hB1_surf = self.hSB_surf.subsurface(self.hB1_rect)
 		self.hB2_rect = pg.Rect((self.hSB_rect.width-self.SB_WIDTH, 0), (self.SB_WIDTH, self.SB_WIDTH))
 		self.hB2_surf = self.hSB_surf.subsurface(self.hB2_rect)
 		self.hBR_rect = None
 		self.hBR_surf = None
+		self.h_imgpx_per_barpx = None
 
-		self.hSB_surf.fill(WHITE)
-		self.hB1_surf.fill(RED)
-		self.hB2_surf.fill(GREEN)
+		self.hSB_surf.fill(self.SB_COLOR)
+		self.hB1_surf.fill(self.B_COLOR)
+		self.hB2_surf.fill(self.B_COLOR)
+
+		# vSB surfaces
+		# relative to box
+		self.vSB_rect = pg.Rect((self.get_width(), 0), (self.SB_WIDTH, self.get_height()))
+		self.vSB_surf = surf.subsurface(self.vSB_rect)
+		# relative to vSB
+		self.vB1_rect = pg.Rect((0,0), (self.SB_WIDTH, self.SB_WIDTH))
+		self.vB1_surf = self.vSB_surf.subsurface(self.vB1_rect)
+		self.vB2_rect = pg.Rect((0, self.vSB_rect.height-self.SB_WIDTH), (self.SB_WIDTH, self.SB_WIDTH))
+		self.vB2_surf = self.vSB_surf.subsurface(self.vB2_rect)
+		self.vBR_rect = None
+		self.vBR_surf = None
+		self.v_imgpx_per_barpx = None
+
+		self.vSB_surf.fill(self.SB_COLOR)
+		self.vB1_surf.fill(self.B_COLOR)
+		self.vB2_surf.fill(self.B_COLOR)
 
 		# self.vSB_surf.fill(RED)
 		# self.hSB_surf.fill(GREEN)
 
 		self.img = None
-		self.img_tl = None
-		self.img_wh = None
+		self.img_rect = None
 
 		self.holdingBar = None
 
@@ -243,33 +251,46 @@ class Box:
 	def setImg(self, img):
 		self.img = img
 
-		self.img_tl = (0,0)
-		self.img_wh = (img.get_width(), img.get_height())
+		w = img.get_width()
+		if img.get_width() > self.surf_rect.width:
+			w = self.surf_rect.width
+		h = img.get_height()
+		if img.get_height() > self.surf_rect.height:
+			h = self.surf_rect.height
+
+		self.img_rect = pg.Rect((0,0), (w, h))
+
+		self.blit(self.img.subsurface(self.img_rect), (0,0))
 
 		h_fraction = float(self.get_width()) / img.get_width()
 		if h_fraction < 1:
+			if h_fraction < 0.05:
+				h_fraction = 0.05
+
 			h_maxbarsize = (self.hSB_rect.width - self.hB1_rect.width - self.hB2_rect.width)
 			h_barsize = int(h_maxbarsize * h_fraction)
 
 			self.hBR_rect = pg.Rect((self.SB_WIDTH, 0), (h_barsize, self.SB_WIDTH))
 			self.hBR_surf = self.hSB_surf.subsurface(self.hBR_rect)
 
-			self.hBR_surf.fill(BLUE)
+			self.hBR_surf.fill(self.BR_COLOR)
 
-			imgh_per_pixel = img.get_height() / (h_maxbarsize - h_barsize)
+			self.h_imgpx_per_barpx = img.get_width() / (h_maxbarsize - h_barsize)
 
 
 		v_fraction = float(self.get_height()) / img.get_height()
 		if v_fraction < 1:
+			if v_fraction < 0.05:
+				v_fraction = 0.05
 			v_maxbarsize = (self.vSB_rect.height - self.vB1_rect.height - self.vB2_rect.height)
 			v_barsize = int(v_maxbarsize * v_fraction)
 
 			self.vBR_rect = pg.Rect((0, self.SB_WIDTH), (self.SB_WIDTH, v_barsize))
 			self.vBR_surf = self.vSB_surf.subsurface(self.vBR_rect)
 
-			self.vBR_surf.fill(BLUE)
+			self.vBR_surf.fill(self.BR_COLOR)
 
-			imgh_per_pixel = img.get_height() / (v_maxbarsize - v_barsize)
+			self.v_imgpx_per_barpx = img.get_height() / (v_maxbarsize - v_barsize)
 
 	def left_click_at(self, pos):
 		if self.hSB_rect:
@@ -284,12 +305,53 @@ class Box:
 	def left_hold_at(self, pos):
 		if not self.holdingBar:
 			return
+
 		elif self.holdingBar[0] == "h":
 			pixChange = pos[0] - self.holdingBar[1]
+
+			if not (self.hBR_rect.left + pixChange > self.hB1_rect.width):
+				pixChange = self.hB1_rect.width - self.hBR_rect.left
+			elif not (self.hBR_rect.right + pixChange <= self.hSB_rect.width - self.hB2_rect.width):
+				pixChange = (self.hSB_rect.width - self.hB2_rect.width) - self.hBR_rect.right
+
+			self.hBR_rect = pg.Rect((self.hBR_rect.left + pixChange, self.hBR_rect.top), self.hBR_rect.size)
+			self.hBR_surf = self.hSB_surf.subsurface(self.hBR_rect)
+
+			self.hSB_surf.fill(self.SB_COLOR)
+			self.hB1_surf.fill(self.B_COLOR)
+			self.hB2_surf.fill(self.B_COLOR)
+			self.hBR_surf.fill(self.BR_COLOR)
+
+			self.holdingBar = (self.holdingBar[0], pos[0])
+
+			imgShift = int(pixChange * self.h_imgpx_per_barpx)
+			self.img_rect = pg.Rect((self.img_rect.left + imgShift, self.img_rect.top), self.img_rect.size)
+			print self.img_rect, self.img.get_width()
+			self.fill(GRAY)
+			self.blit(self.img.subsurface(self.img_rect), (0,0))
+
 		elif self.holdingBar[0] == "v":
 			pixChange = pos[1] - self.holdingBar[1]
 
-		print pixChange
+			if not (self.vBR_rect.top + pixChange > self.vB1_rect.height):
+				pixChange = self.vB1_rect.height - self.vBR_rect.top
+			elif not (self.vBR_rect.bottom + pixChange <= self.vSB_rect.height - self.vB2_rect.height):
+				pixChange = (self.vSB_rect.height - self.vB2_rect.height) - self.vBR_rect.bottom
+
+			self.vBR_rect = pg.Rect((self.vBR_rect.left, self.vBR_rect.top + pixChange), self.vBR_rect.size)
+			self.vBR_surf = self.vSB_surf.subsurface(self.vBR_rect)
+
+			self.vSB_surf.fill(self.SB_COLOR)
+			self.vB1_surf.fill(self.B_COLOR)
+			self.vB2_surf.fill(self.B_COLOR)
+			self.vBR_surf.fill(self.BR_COLOR)
+
+			self.holdingBar = (self.holdingBar[0], pos[1])
+
+			imgShift = int(pixChange * self.v_imgpx_per_barpx)
+			self.img_rect = pg.Rect((self.img_rect.left, self.img_rect.top + imgShift), self.img_rect.size)
+			self.fill(GRAY)
+			self.blit(self.img.subsurface(self.img_rect), (0,0))
 
 	def left_release_at(self, pos):
 		self.holdingBar = None
