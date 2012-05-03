@@ -368,11 +368,6 @@ class Box:
 
 
 
-
-
-
-
-
 class TS(Box):
 	def __init__(self, surf):
 		Box.__init__(self, surf)
@@ -438,8 +433,8 @@ class TS(Box):
 
 		# highlight the new tile
 		surf = pg.Surface(TILE_RES)
-		surf.fill(GREEN)
-		surf.set_alpha(50)
+		surf.fill(BLACK)
+		surf.set_alpha(100)
 		self.img.blit(surf, rect.topleft)
 
 		self.refreshRelImg()
@@ -457,6 +452,10 @@ class MP(Box):
 
 		self.tileSize_selected = False
 		self.tileSize = None
+
+		self.currentZ = 0
+
+		self.pos_z_tile = {}
 
 	def setSize(self):
 		if self.tileSize_selected:
@@ -513,6 +512,11 @@ class MP(Box):
 
 			self.blit(self.img, (0,0))
 
+			#fill up the tile dict
+			for i in range(x):
+				for j in range(y):
+					self.pos_z_tile[(i,j)] = {}
+
 		submit_button = Tkinter.Button(frame, text='Submit', fg='black', command=submit)
 		submit_button.grid(row=r,column=0,columnspan=2, sticky = Tkinter.W+Tkinter.E)
 
@@ -537,10 +541,12 @@ class MP(Box):
 
 		# blit the tile to the img
 		pos = self.rel2abs_pos(pos)
-		# print pix2tile(pos)
 		self.img.blit(tile_img, pix2tile2rect(pos))
 
 		self.refreshRelImg()
+
+		# put it in the tile dict
+		# self.pos_z_tile[pix2tile(pos)][self.currentZ] = Tile()
 
 	# def left_hold_at(self, pos):
 	# 	if self.surf_rect.collidepoint(pos):
@@ -548,8 +554,13 @@ class MP(Box):
 	# 	else:
 	# 		Box.left_hold_at(pos)
 
-
-
+class Tile:
+	def __init__(self, tilesource, xy, img, blocked = False, z = 0):
+		self.ts = tilesource
+		self.tile_xy = tile
+		self.tile_img = img
+		self.blocked = blocked
+		self.z = z
 
 
 if __name__ == '__main__': runMaker()
