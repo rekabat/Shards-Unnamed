@@ -2,7 +2,7 @@
 1 -> select tileset
 2 -> set map dimension
 
-~f -> fill
+f -> fill
 
 ~left -> down z level
 ~right -> up z level
@@ -17,7 +17,7 @@ right click -> select a tile (blocked)
 (on map)
 left click -> place a tile
 right click -> remove a tile
-~left click and drag -> place tiles
+left click and drag -> place tiles
 '''
 
 import pygame as pg
@@ -193,7 +193,7 @@ def runMaker():
 				thingsChanged = True
 
 			elif mp_rect.collidepoint(pos):
-				mp.left_hold_at(pos_rel_to_mp(pos))
+				mp.left_hold_at(pos_rel_to_mp(pos), ts.selectedTile())
 				thingsChanged = True
 		#############################
 		#############################
@@ -498,6 +498,8 @@ class MP(Box):
 
 		self.pos_z_tile = {}
 
+		self.leftClickOnMap = False
+
 	def setSize(self):
 		if self.tileSize_selected:
 			print "Can't change size once you've begun."
@@ -564,16 +566,22 @@ class MP(Box):
 		master.mainloop()
 
 	def left_click_at(self, pos, tile, automated_clicking = False):
+		# the x/y has not been set
 		if not self.tileSize_selected:
 			return
-
-		if (not self.surf_rect.collidepoint(pos)) and (not automated_clicking): #automated_clicking bypasses boundaries (for function fillWith)
+		# the click was on the scroll bars BUT automated_clicking bypasses boundaries (for function fillWith)
+		elif (not self.surf_rect.collidepoint(pos)) and (not automated_clicking):
 			Box.left_click_at(self, pos)
 			return
-		elif not ((pos[0] < self.img.get_width()) and (pos[1] < self.img.get_height())):
-			return
+		#turn click on
+		else:
+			self.leftClickOnMap = True
 
-		if tile is None:
+		#click is outside of map but not on scroll bars (small map)
+		if not ((pos[0] < self.img.get_width()) and (pos[1] < self.img.get_height())):
+			return
+		#no tile has been selected yet
+		elif tile is None:
 			return
 
 		tile_img = tile.img.copy()
@@ -598,6 +606,20 @@ class MP(Box):
 		# put it in the tile dict
 		tile.setCoords(pix2tile(pos), self.currentZ)
 		self.pos_z_tile[pix2tile(pos)][self.currentZ] = tile
+
+	def left_hold_at(self, pos, tile):
+		if not self.leftClickOnMap:
+			Box.left_hold_at(self, pos)
+			return
+
+		self.left_click_at(pos, tile)
+
+	def left_release_at(self, pos):
+		if not self.leftClickOnMap:
+			Box.left_hold_at(self, pos)
+			return
+
+		self.leftClickOnMap = False
 
 	def right_click_at(self, pos):
 		if not self.tileSize_selected:
@@ -634,6 +656,8 @@ class MP(Box):
 		for i in range(self.tileSize[0]):
 			for j in range(self.tileSize[1]):
 				self.left_click_at((i*TILE_RES[0], j*TILE_RES[1]), tile, automated_clicking = True)
+
+		self.left_release_at((0,0))
 
 
 
