@@ -2,11 +2,13 @@
 1 -> select tileset
 2 -> set map dimension
 3 -> save map
+4 -> load map
 
 f -> fill
+~d -> demo mode
 
-~left -> down z level
-~right -> up z level
+left/down -> down z level
+right/up -> up z level
 
 ESC -> exit
 
@@ -14,6 +16,7 @@ ESC -> exit
 (on tileset)
 left click ->  select a tile (unblocked)
 right click -> select a tile (blocked)
+~left click and drag -> select multiple tiles where a left click on map places them all down from topleft
 
 (on map)
 left click -> place a tile
@@ -26,8 +29,12 @@ THINGS TO ADD:
 ) loading maps
 ) deleting tiles needs to leave the image from lower zs instead of erasing it too
 		(but it will come back as soon as you change zs again)
+) Undo moves (keep a log/stack of all the actions and then code how to undo actions)
 ) make z levels below you slightly transparent
 ) exiting should prompt to save more intelligently (asks if you scroll on map)
+) only save an image to z-img when switching from a z with something on it (just check pos_z_tile)
+) add an indicator for your z on the bottom left
+) Add a demo mode where you choose where to start then you can walk around it.
 '''
 
 import pygame as pg
@@ -142,7 +149,7 @@ def runMaker():
 				elif key == K_3:
 					saved = mp.saveMap()
 
-				elif key = K_4:
+				elif key == K_4:
 					mp.loadMap()
 					thingsChanged = True
 
