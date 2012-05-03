@@ -48,7 +48,7 @@ def runMaker():
 	#############################
 	#############################
 	#############################
-	WH = (1000, 800)
+	WH = (700, 500)
 
 	screen = pg.display.set_mode(WH)
 
@@ -275,7 +275,7 @@ class Box:
 
 			self.hBR_surf.fill(self.BR_COLOR)
 
-			self.h_imgpx_per_barpx = img.get_width() / (h_maxbarsize - h_barsize)
+			self.h_imgpx_per_barpx = (img.get_width()-self.get_width()) / float(h_maxbarsize - h_barsize)
 
 
 		v_fraction = float(self.get_height()) / img.get_height()
@@ -290,7 +290,17 @@ class Box:
 
 			self.vBR_surf.fill(self.BR_COLOR)
 
-			self.v_imgpx_per_barpx = img.get_height() / (v_maxbarsize - v_barsize)
+			self.v_imgpx_per_barpx = (img.get_height()-self.get_height()) / float(v_maxbarsize - v_barsize)
+
+	def rel2abs_pos(self, pos): #relative to where it's scrolled to
+		return (pos[0] + self.img_rect.left, pos[1] + self.img_rect.top)
+
+	def abs2rel_pos(self, pos):
+		return (pos[0] - self.img_rect.left, pos[1] - self.img_rect.top)
+
+	def refreshRelImg(self):
+		self.fill(GRAY)
+		self.blit(self.img.subsurface(self.img_rect), (0,0))
 
 	def left_click_at(self, pos):
 		if self.hSB_rect:
@@ -324,11 +334,11 @@ class Box:
 
 			self.holdingBar = (self.holdingBar[0], pos[0])
 
-			imgShift = int(pixChange * self.h_imgpx_per_barpx)
-			self.img_rect = pg.Rect((self.img_rect.left + imgShift, self.img_rect.top), self.img_rect.size)
-			print self.img_rect, self.img.get_width()
-			self.fill(GRAY)
-			self.blit(self.img.subsurface(self.img_rect), (0,0))
+
+			barOver_px = self.hBR_rect.left - self.hB1_rect.width
+			imgShift = int(barOver_px * self.h_imgpx_per_barpx)
+			self.img_rect = pg.Rect((imgShift, self.img_rect.top), self.img_rect.size)
+			self.refreshRelImg()
 
 		elif self.holdingBar[0] == "v":
 			pixChange = pos[1] - self.holdingBar[1]
@@ -348,10 +358,10 @@ class Box:
 
 			self.holdingBar = (self.holdingBar[0], pos[1])
 
-			imgShift = int(pixChange * self.v_imgpx_per_barpx)
-			self.img_rect = pg.Rect((self.img_rect.left, self.img_rect.top + imgShift), self.img_rect.size)
-			self.fill(GRAY)
-			self.blit(self.img.subsurface(self.img_rect), (0,0))
+			barOver_px = self.vBR_rect.top - self.vB1_rect.height
+			imgShift = int(barOver_px * self.v_imgpx_per_barpx)
+			self.img_rect = pg.Rect((self.img_rect.left, imgShift), self.img_rect.size)
+			self.refreshRelImg()
 
 	def left_release_at(self, pos):
 		self.holdingBar = None
@@ -410,18 +420,29 @@ class TS(Box):
 		elif not ((pos[0] < self.img.get_width()) and (pos[1] < self.img.get_height())):
 			return
 
-		self.selected_tile = pix2tile(pos)
+		pos = self.rel2abs_pos(pos)
+		selected_tile = pix2tile(pos)
 
+		if self.selected_tile == selected_tile:
+			return
+
+		# reset the old selected tile (if it's not the first time)
+		if self.selected_tile:
+			rect = tile2rect(self.selected_tile)
+			self.img.blit(self.selected_tile_img, rect.topleft)
+
+		# set the new tile
+		self.selected_tile = selected_tile
+		rect = tile2rect(self.selected_tile)
+		self.selected_tile_img = self.img.subsurface(rect).copy()
+
+		# highlight the new tile
 		surf = pg.Surface(TILE_RES)
 		surf.fill(GREEN)
 		surf.set_alpha(50)
-		rect = tile2rect(self.selected_tile)
+		self.img.blit(surf, rect.topleft)
 
-		self.selected_tile_img = self.img.subsurface(rect).copy()
-
-		self.fill(GRAY)
-		self.blit(self.img, (0,0))
-		self.blit(surf, rect)
+		self.refreshRelImg()
 
 	# def left_hold_at(self, pos):
 	# 	if self.surf_rect.collidepoint(pos):
@@ -508,14 +529,18 @@ class MP(Box):
 			return
 
 		tile_xy = tile[0]
-		tile_img = tile[1]
+		tile_img = tile[1].copy()
 
+		# prepare the image by drawing the graph lines
 		pg.draw.line(tile_img, BLACK, (0, 0), (TILE_RES[0]-1, 0))
 		pg.draw.line(tile_img, BLACK, (0, 0), (0, TILE_RES[1]-1))
 
+		# blit the tile to the img
+		pos = self.rel2abs_pos(pos)
+		# print pix2tile(pos)
 		self.img.blit(tile_img, pix2tile2rect(pos))
 
-		self.blit(self.img, (0,0))
+		self.refreshRelImg()
 
 	# def left_hold_at(self, pos):
 	# 	if self.surf_rect.collidepoint(pos):
