@@ -35,6 +35,8 @@ THINGS TO ADD:
 ) only save an image to z-img when switching from a z with something on it (just check pos_z_tile)
 ) add an indicator for your z on the bottom left
 ) Add a demo mode where you choose where to start then you can walk around it.
+
+)crashed if you press 1 then close the dialog
 '''
 
 import pygame as pg
@@ -559,47 +561,28 @@ class MP(Box):
 
 		self.leftClickOnMap = False
 
-	def setSize(self):
-		if self.tileSize_selected:
-			print "Can't change size once you've begun."
-			return
-
-		master = Tkinter.Tk()
-		master.title("Map Size")
-		frame = Tkinter.Frame(master)
-		frame.pack()
-
-		r = 0
-		Tkinter.Label(frame, text="Choose an x & y:").grid(row=r, column=0, columnspan=2, sticky = Tkinter.W+Tkinter.E)
-
-		r += 1
-		Tkinter.Label(frame, text="X (in tiles):").grid(row=r, column=0, columnspan=1, sticky = Tkinter.W+Tkinter.E)
-		x_entry = Tkinter.Entry(frame)
-		x_entry.grid(row=r,column=1,columnspan=1,stick=Tkinter.W+Tkinter.E)
-
-		r += 1
-		Tkinter.Label(frame, text="Y (in tiles):").grid(row=r, column=0, columnspan=1, sticky = Tkinter.W+Tkinter.E)
-		y_entry = Tkinter.Entry(frame)
-		y_entry.grid(row=r,column=1,columnspan=1,stick=Tkinter.W+Tkinter.E)
-
-		r += 1
+	def setSize(self, automated = False):
 		def submit():
-			failed = False
+			if not automated:
+				failed = False
 
-			try:
-				x = int(x_entry.get())
-				y = int(y_entry.get())
+				try:
+					x = int(x_entry.get())
+					y = int(y_entry.get())
 
-				if x < 1 or y < 1:
+					if x < 1 or y < 1:
+						failed = True
+				except:
 					failed = True
-			except:
-				failed = True
 
-			if failed:
-				tkMessageBox.showerror("X/Y Error", "X and Y must be positive integers.")
-				return
+				if failed:
+					tkMessageBox.showerror("X/Y Error", "X and Y must be positive integers.")
+					return
 
-			master.destroy()
+				master.destroy()
+			else:
+				x = automated[0]
+				y = automated[1]
 
 			self.tileSize = (x, y)
 			self.tileSize_selected = True
@@ -623,11 +606,38 @@ class MP(Box):
 				for j in range(y):
 					self.pos_z_tile[(i,j)] = {}
 
-		submit_button = Tkinter.Button(frame, text='Submit', fg='black', command=submit)
-		submit_button.grid(row=r,column=0,columnspan=2, sticky = Tkinter.W+Tkinter.E)
+		if not automated:
+			if self.tileSize_selected:
+				print "Can't change size once you've begun."
+				return
 
-		master.mainloop()
+			master = Tkinter.Tk()
+			master.title("Map Size")
+			frame = Tkinter.Frame(master)
+			frame.pack()
 
+			r = 0
+			Tkinter.Label(frame, text="Choose an x & y:").grid(row=r, column=0, columnspan=2, sticky = Tkinter.W+Tkinter.E)
+
+			r += 1
+			Tkinter.Label(frame, text="X (in tiles):").grid(row=r, column=0, columnspan=1, sticky = Tkinter.W+Tkinter.E)
+			x_entry = Tkinter.Entry(frame)
+			x_entry.grid(row=r,column=1,columnspan=1,stick=Tkinter.W+Tkinter.E)
+
+			r += 1
+			Tkinter.Label(frame, text="Y (in tiles):").grid(row=r, column=0, columnspan=1, sticky = Tkinter.W+Tkinter.E)
+			y_entry = Tkinter.Entry(frame)
+			y_entry.grid(row=r,column=1,columnspan=1,stick=Tkinter.W+Tkinter.E)
+
+			r += 1
+			submit_button = Tkinter.Button(frame, text='Submit', fg='black', command=submit)
+			submit_button.grid(row=r,column=0,columnspan=2, sticky = Tkinter.W+Tkinter.E)
+
+			master.mainloop()
+
+		else:
+			submit()
+		
 	def left_click_at(self, pos, tile, automated_clicking = False):
 		# the x/y has not been set
 		if not self.tileSize_selected:
@@ -788,7 +798,6 @@ class MP(Box):
 
 		self.refreshRelImg()
 
-
 	def saveMap(self):
 		if not self.tileSize_selected:
 			return True
@@ -863,7 +872,124 @@ class MP(Box):
 		return True
 
 	def loadMap(self):
-		print "working on it"
+		master = Tkinter.Tk()
+		fileName = tkFileDialog.askopenfilename(initialdir = SAVE_DIR)
+		master.destroy()
+
+		# leave if they choose cancel
+		if not fileName:
+			return False
+		
+		class TileMap:
+			def __init__(self, tileFile, squareSize):
+				self.tileFile = tileFile
+				self.tileImg = pg.image.load(self.tileFile).convert()
+				self.tileDict = self.genSubsurfaces(squareSize)
+			
+			def getTile(self, coords):
+				return self.tileDict[coords]
+
+			def getName(self):
+				return self.tileFile
+			
+			def genSubsurfaces(self, squareSize):
+				tileDict = {}
+				imgRect = self.tileImg.get_rect()
+				x, y = 0, 0
+				morey = True
+				while morey:
+					while True:
+						tile = tile2rect((x, y))
+						if imgRect.contains(tile):
+							tileDict[(x, y)] = self.tileImg.subsurface(tile)
+							x += 1
+						else:
+							if x == 0:
+								morey = False
+							else:
+								x = 0
+							break
+					y += 1
+				return tileDict
+
+		theMap = [line.strip() for line in open(fileName, 'r').readlines()]
+		
+		line = 1
+
+		tileFiles = []
+		while not theMap[line].startswith(">>>"):
+			tileFiles.append(theMap[line])
+			line+=1
+		for i in range(len(tileFiles)):
+			number, temp = tileFiles[i].split("-> ")
+			number = int(number)
+			source, xy = temp.split(" [")
+			source = "../" + source
+			xy = xy[:-1].split(":")
+			xy = (int(xy[0]), int(xy[1]))
+			tileFiles[i]=source
+			#check that all tileFiles have same res and that they match the given res
+			if xy != TILE_RES:
+				print "Warning: Tile size inconsistency from tile files"
+				raise KeyboardInterrupt
+		
+		for i in range(len(tileFiles)):
+			tileFiles[i] = TileMap(tileFiles[i], TILE_RES)
+
+		line+=1
+
+		mapSize = tuple([int(i) for i in theMap[line].split(":")])
+
+		line+=2
+
+		onward = line
+
+		setup={}
+		maxZ = 0
+		for line in theMap[onward:]:
+			posOnMap, tiles = line.split("+")
+			posOnMap = posOnMap.split(":")
+			posOnMap = (int(posOnMap[0]), int(posOnMap[1]))
+
+			tiles = tiles.split("|")
+
+			setup[posOnMap] = {}
+			for each in tiles:
+				#source -> the file the tile img is coming from
+				source, temp = each.split("->")
+				source = int(source)
+
+				#posOnTileFile -> the x,y coords of the img on source
+				posOnTileFile, temp = temp.split("(")
+				posOnTileFile = posOnTileFile.split(":")
+				posOnTileFile = (int(posOnTileFile[0]), int(posOnTileFile[1]))
+
+				#blocked -> whether or not the tile can be walked on
+				blocked, z = temp.split(")[")
+				blocked = True if blocked == "1" else False
+
+				#z -> the z the tile is on
+				z=int(z[:-1])
+				if z > maxZ: maxZ = z+0
+
+				setup[posOnMap][z] = Tile(tileFiles[source].getName(), posOnTileFile, tileFiles[source].getTile(posOnTileFile))
+				setup[posOnMap][z].setCoords(posOnMap, z)
+				setup[posOnMap][z].setBlocked(blocked)
+
+		self.setSize(automated = mapSize)
+		self.pos_z_tile = setup
+
+		#place the tiles
+		while self.currentZ != maxZ+1:
+			for pos in self.pos_z_tile:
+				for z in self.pos_z_tile[pos]:
+					if z == self.currentZ:
+						self.left_click_at((pos[0]*TILE_RES[0], pos[1]*TILE_RES[1]), setup[pos][z], automated_clicking = True)
+			self.changeZLevel(1)
+
+		while self.currentZ != 0:
+			self.changeZLevel(-1)
+
 
 
 	# def left_hold_at(self, pos):
@@ -871,6 +997,7 @@ class MP(Box):
 	# 		pass
 	# 	else:
 	# 		Box.left_hold_at(pos)
+
 
 class Tile:
 	def __init__(self, tileset, xy, img):
