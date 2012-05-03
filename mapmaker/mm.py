@@ -22,21 +22,21 @@ right click -> select a tile (blocked)
 left click -> place a tile
 right click -> remove a tile
 left click and drag -> place tiles
+~right click and drag -> delete tiles
 
 
 
 THINGS TO ADD:
-) loading maps
-) deleting tiles needs to leave the image from lower zs instead of erasing it too
-		(but it will come back as soon as you change zs again)
+
 ) Undo moves (keep a log/stack of all the actions and then code how to undo actions)
 ) make z levels below you slightly transparent
 ) exiting should prompt to save more intelligently (asks if you scroll on map)
 ) only save an image to z-img when switching from a z with something on it (just check pos_z_tile)
-) add an indicator for your z on the bottom left
 ) Add a demo mode where you choose where to start then you can walk around it.
+) make the tkinter window not appear when opening dialogs (like save file)
 
-)crashed if you press 1 then close the dialog
+) load mapgen_map.map, and try to place a tile at the blank spots and it crashes... Don't know why
+		(perhaps blank spots don't make a dict entry when loading, so when you try to place something there you get key error)
 '''
 
 import pygame as pg
@@ -283,6 +283,10 @@ class Box:
 		self.surf_rect = pg.Rect((0,0), (surf.get_width()-self.SB_WIDTH, surf.get_height()-self.SB_WIDTH))
 		self.surf = surf.subsurface(self.surf_rect)
 
+		# small bottom right corner for indicator
+		self.indicator_rect = pg.Rect((self.get_width(), self.get_height()), (self.SB_WIDTH, self.SB_WIDTH))
+		self.indicator_surf = surf.subsurface(self.indicator_rect)
+
 		# hSB surfaces
 		# relative to box
 		self.hSB_rect = pg.Rect((0, self.get_height()), (self.get_width(), self.SB_WIDTH))
@@ -467,12 +471,14 @@ class TS(Box):
 
 	def setCurrent(self):
 		master = Tkinter.Tk()
-		t0 = os.path.relpath(tkFileDialog.askopenfilename(initialdir = MAPART_DIR))
+		t0 = tkFileDialog.askopenfilename(initialdir = MAPART_DIR)
 		master.destroy()
 
 		# leave if they choose cancel
 		if not t0:
 			return
+
+		t0 = os.path.relpath(t0)
 
 		# leave if it isn't a supported file type
 		try:
@@ -637,6 +643,25 @@ class MP(Box):
 
 		else:
 			submit()
+
+		self.updateZIndicator(self.currentZ)
+
+	def updateZIndicator(self, z):
+		w = self.indicator_rect.width - 2
+		h = self.indicator_rect.height - 2
+
+		#first a gray box to mask old number
+		surf = pg.Surface((w,h))
+		surf.fill(GRAY)
+
+		#then make the new number and put it on surf
+		num = pg.font.Font(None, h)
+		num = num.render(str(z), True, BLACK)
+		surf.blit(num, (0,0))
+
+		#then put surf on the image
+		self.indicator_surf.blit(surf, (1,1))
+
 		
 	def left_click_at(self, pos, tile, automated_clicking = False):
 		# the x/y has not been set
@@ -722,15 +747,31 @@ class MP(Box):
 		except:
 			return
 
+		rect = pix2tile2rect(self.rel2abs_pos(pos))
+
 		#make a gray tile with graph lines
-		blank = pg.Surface(TILE_RES)
-		blank.fill(GRAY)
-		pg.draw.line(blank, BLACK, (0, 0), (TILE_RES[0]-1, 0))
-		pg.draw.line(blank, BLACK, (0, 0), (0, TILE_RES[1]-1))
+		tile_img = pg.Surface(TILE_RES)
+		tile_img.fill(GRAY)
+		#put on the zs below images
+		for z in self.z_img:
+		 	if z < self.currentZ:
+		 		temp = self.z_img[z].subsurface(rect)
+		 		tile_img.blit(temp, (0,0))
+		#put the graph lines on
+		tile_img.blit(self.gridlines.subsurface(rect), (0,0))
+		self.img.blit(tile_img, rect)
+
+		#clear the z_img
+		temp = self.currentZ_img.subsurface(rect)
+		temp.fill((0,0,0,0))
+
+
+		# pg.draw.line(blank, BLACK, (0, 0), (TILE_RES[0]-1, 0))
+		# pg.draw.line(blank, BLACK, (0, 0), (0, TILE_RES[1]-1))
 
 		# blit the tile to the img
-		pos = self.rel2abs_pos(pos)
-		self.img.blit(blank, pix2tile2rect(pos))
+		# pos = self.rel2abs_pos(pos)
+		self.img.blit(tile_img, rect)
 
 		self.refreshRelImg()
 
@@ -764,7 +805,7 @@ class MP(Box):
 
 		# go to new z and announce it
 		self.currentZ += ud
-		print "Z level =", self.currentZ
+		self.updateZIndicator(self.currentZ)
 
 		try:
 			#load the old z_img
