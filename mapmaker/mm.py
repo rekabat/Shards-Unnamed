@@ -23,10 +23,11 @@ left click and drag -> place tiles
 
 
 THINGS TO ADD:
-1) different z levels
-2) relative path names for map art in save files
-3) loading maps
-4) exiting should prompt to save
+) loading maps
+) deleting tiles needs to leave the image from lower zs instead of erasing it too
+		(but it will come back as soon as you change zs again)
+) make z levels below you slightly transparent
+) exiting should prompt to save more intelligently (asks if you scroll on map)
 '''
 
 import pygame as pg
@@ -103,6 +104,8 @@ def runMaker():
 	#############################
 	b1_held = False
 	b3_held = False
+
+	saved = True
 	#############################
 	#############################
 	#############################
@@ -120,7 +123,7 @@ def runMaker():
 			#############################
 			#############################
 			if evt.type == QUIT:
-				endMM()
+				endMM(saved)
 			#############################
 			#############################
 			#############################
@@ -134,12 +137,26 @@ def runMaker():
 				elif key == K_2:
 					mp.setSize()
 					thingsChanged = True
+					saved = False
 
 				elif key == K_3:
-					mp.saveMap()
+					saved = mp.saveMap()
+
+				elif key = K_4:
+					mp.loadMap()
+					thingsChanged = True
 
 				elif key == K_f:
 					mp.fillWith(ts.selectedTile())
+					thingsChanged = True
+					saved = False
+
+				elif key == K_RIGHT or key == K_UP:
+					mp.changeZLevel(1)
+					thingsChanged = True
+
+				elif key == K_LEFT or key == K_DOWN:
+					mp.changeZLevel(-1)
 					thingsChanged = True
 				
 				elif key == K_SPACE:
@@ -151,7 +168,7 @@ def runMaker():
 					# 	thingsChanged = True
 
 				elif key == pg.K_ESCAPE:
-					endMM()
+					endMM(saved)
 			#############################
 			#############################
 			#############################
@@ -169,6 +186,7 @@ def runMaker():
 					elif mp_rect.collidepoint(pos):
 						mp.left_click_at(pos_rel_to_mp(pos), ts.selectedTile())
 						thingsChanged = True
+						saved = False
 				
 				elif button == 3:
 					b3_held = True
@@ -180,6 +198,7 @@ def runMaker():
 					elif mp_rect.collidepoint(pos):
 						mp.right_click_at(pos_rel_to_mp(pos))
 						thingsChanged = True
+						saved = False
 			#############################
 			#############################
 			#############################
@@ -213,6 +232,7 @@ def runMaker():
 			elif mp_rect.collidepoint(pos):
 				mp.left_hold_at(pos_rel_to_mp(pos), ts.selectedTile())
 				thingsChanged = True
+				saved = False
 		#############################
 		#############################
 		#############################
@@ -226,8 +246,18 @@ def runMaker():
 		#############################
 		#############################
 
-def endMM():
-	quit()
+def endMM(saved):
+	if not saved:
+		master = Tkinter.Tk()
+		t0 = tkMessageBox.askyesno("Exit", "Are you sure you want to exit without saving?")
+		master.destroy()
+
+		if t0:
+			quit()
+		else:
+			return
+	else:
+		quit()
 
 class Box:
 	def __init__(self, surf):
@@ -513,6 +543,10 @@ class MP(Box):
 		self.tileSize = None
 
 		self.currentZ = 0
+		self.currentZ_img = None
+		self.z_img = {}
+
+		self.gridlines = None
 
 		self.pos_z_tile = {}
 
@@ -566,11 +600,15 @@ class MP(Box):
 			self.setImg(pg.Surface((TILE_RES[0]*x + 1, TILE_RES[1]*y + 1))) # +1 for the last gridline
 			self.img.fill(GRAY)
 
-			for i in range(x+1):
-				pg.draw.line(self.img, BLACK, (i*TILE_RES[0], 0), (i*TILE_RES[0], self.img.get_height()-1))
-			for i in range(y+1):
-				pg.draw.line(self.img, BLACK, (0, i*TILE_RES[1]), (self.img.get_width()-1, i*TILE_RES[1]))
+			self.currentZ_img = pg.Surface(self.img.get_size(), pg.SRCALPHA, 32).convert_alpha()
 
+			self.gridlines = pg.Surface(self.img.get_size(), pg.SRCALPHA, 32).convert_alpha()
+			for i in range(x+1):
+				pg.draw.line(self.gridlines, BLACK, (i*TILE_RES[0], 0), (i*TILE_RES[0], self.img.get_height()-1))
+			for i in range(y+1):
+				pg.draw.line(self.gridlines, BLACK, (0, i*TILE_RES[1]), (self.img.get_width()-1, i*TILE_RES[1]))
+
+			self.img.blit(self.gridlines, (0,0))
 			self.blit(self.img, (0,0))
 
 			#fill up the tile dict
@@ -598,6 +636,9 @@ class MP(Box):
 		#click is outside of map but not on scroll bars (small map)
 		if not ((pos[0] < self.img.get_width()) and (pos[1] < self.img.get_height())):
 			return
+		#clcik is right on the border (the right and bottom gridlines)
+		elif (self.rel2abs_pos(pos)[0] >= self.img.get_width()-1) or (self.rel2abs_pos(pos)[1] >= self.img.get_height()-1):
+			return
 		#no tile has been selected yet
 		elif tile is None:
 			return
@@ -611,13 +652,24 @@ class MP(Box):
 			#put it on the tile img
 			tile_img.blit(surf, (0,0))
 
-		# prepare the image by drawing the graph lines
-		pg.draw.line(tile_img, BLACK, (0, 0), (TILE_RES[0]-1, 0))
-		pg.draw.line(tile_img, BLACK, (0, 0), (0, TILE_RES[1]-1))
+		# # prepare the image by drawing the graph lines
+		# pg.draw.line(tile_img, BLACK, (0, 0), (TILE_RES[0]-1, 0))
+		# pg.draw.line(tile_img, BLACK, (0, 0), (0, TILE_RES[1]-1))
 
-		# blit the tile to the img
+		# blit the tile to the currentZ_img
 		pos = self.rel2abs_pos(pos)
-		self.img.blit(tile_img, pix2tile2rect(pos))
+		rect = pix2tile2rect(pos)
+		self.currentZ_img.blit(tile_img, rect)
+
+		# place on main img: /gray, transparent z's below,/ itself, transparent zs above, gridline
+		
+		# for z in self.z_img:
+		# 	if z > self.currentZ:
+		# 		temp = self.z_img[z].subsurface(rect).convert()
+		# 		temp.set_alpha(100)
+		# 		tile_img.blit(temp, (0,0))
+		tile_img.blit(self.gridlines.subsurface(rect), (0,0))
+		self.img.blit(tile_img, rect)
 
 		self.refreshRelImg()
 
@@ -683,9 +735,56 @@ class MP(Box):
 
 			self.left_release_at((0,0))
 
-	def saveMap(self):
+	def changeZLevel(self, ud):
 		if not self.tileSize_selected:
 			return
+
+		if self.currentZ + ud < 0:
+			return
+
+		# save this z's image
+		self.z_img[self.currentZ] = self.currentZ_img.copy()
+
+		# go to new z and announce it
+		self.currentZ += ud
+		print "Z level =", self.currentZ
+
+		try:
+			#load the old z_img
+			self.currentZ_img = self.z_img[self.currentZ]
+		except:
+			# make new currentZ_img
+			self.currentZ_img = pg.Surface(self.img.get_size(), pg.SRCALPHA, 32).convert_alpha()
+
+		# main img: gray, transparent z's below, itself, transparent zs above, gridline
+		self.img.fill(GRAY)
+		# for z in self.z_img:
+		# 	temp = self.z_img[z] 
+
+		# 	if z != self.currentZ:
+		# 		temp = temp.copy()
+		# 		temp.set_alpha(50)
+
+		# 	self.img.blit(temp, (0,0))
+
+		for z in self.z_img:
+			if z <= self.currentZ:
+				temp = self.z_img[z] 
+
+				if z != self.currentZ:
+					temp = temp.copy()
+					temp.set_alpha(50)
+
+				self.img.blit(temp, (0,0))
+
+		self.img.blit(self.gridlines, (0,0))
+
+		self.refreshRelImg()
+
+
+	def saveMap(self):
+		if not self.tileSize_selected:
+			return True
 
 		master = Tkinter.Tk()
 		fileName = tkFileDialog.asksaveasfilename(initialdir = SAVE_DIR)
@@ -693,7 +792,7 @@ class MP(Box):
 
 		# leave if they choose cancel
 		if not fileName:
-			return
+			return False
 
 		# go through once to get all the unique tile sets
 		tileSets = set() 
@@ -725,37 +824,39 @@ class MP(Box):
 		# go through once more to fill file
 		for i in range(self.tileSize[0]):
 			for j in range(self.tileSize[1]):
-				try:
-					# position on map
-					k = 0
-					line = "\n" + str(i)+":"+str(j)+"+"
-					for z in self.pos_z_tile[(i, j)]:
-						tile = self.pos_z_tile[(i, j)][z]
+				# position on map
+				k = 0
+				line = "\n" + str(i)+":"+str(j)+"+"
+				for z in self.pos_z_tile[(i, j)]:
+					tile = self.pos_z_tile[(i, j)][z]
 
-						#divider if there are more than one zs at this position
-						if k>0:
-							line += "|"
+					#divider if there are more than one zs at this position
+					if k>0:
+						line += "|"
 
-						# file number
-						line += (str(ts_number[tile.ts]))+"->"
-						# tile coord in tileset
-						line += str(tile.xy[0]) + ":" + str(tile.xy[1])
-						# blocked
-						if tile.blocked:
-							line += "(1)"
-						else:
-							line += "(0)"
-						# z
-						line += "[" + str(tile.z) + "]"
+					# file number
+					line += (str(ts_number[tile.ts]))+"->"
+					# tile coord in tileset
+					line += str(tile.xy[0]) + ":" + str(tile.xy[1])
+					# blocked
+					if tile.blocked:
+						line += "(1)"
+					else:
+						line += "(0)"
+					# z
+					line += "[" + str(tile.z) + "]"
 
-						k+=1
+					k+=1
 
+				if k > 0:
 					file.write(line)
-				except:
-					print 'here'
-					pass #no tiles at this pos
 
 		file.close()
+
+		return True
+
+	def loadMap(self):
+		print "working on it"
 
 
 	# def left_hold_at(self, pos):
