@@ -2,17 +2,22 @@
 1 -> select tileset
 2 -> set map dimension
 
-f -> fill
-b -> block
+~f -> fill
 
-left -> down z level
-right -> up z level
+~left -> down z level
+~right -> up z level
 
 ESC -> exit
 
 
-right click -> delete block
-left click and drag -> place blocks
+(on tileset)
+left click ->  select a tile (unblocked)
+right click -> select a tile (blocked)
+
+(on map)
+left click -> place a tile
+right click -> remove a tile
+~left click and drag -> place tiles
 '''
 
 import pygame as pg
@@ -114,7 +119,19 @@ def runMaker():
 				elif key == K_2:
 					mp.setSize()
 					thingsChanged = True
+
+				elif key == K_f:
+					mp.fillWith(ts.selectedTile())
+					thingsChanged = True
 				
+				elif key == K_SPACE:
+					pass
+					# pos = pg.mouse.get_pos()
+
+					# if mp_rect.collidepoint(pos):
+					# 	mp.space_at(pos_rel_to_mp(pos))
+					# 	thingsChanged = True
+
 				elif key == pg.K_ESCAPE:
 					endMM()
 			#############################
@@ -139,12 +156,11 @@ def runMaker():
 					b3_held = True
 
 					if ts_rect.collidepoint(pos):
-						# ts.right_click_at(pos_rel_to_ts(pos))
-						# thingsChanged = True
-						pass
+						ts.right_click_at(pos_rel_to_ts(pos))
+						thingsChanged = True
 
 					elif mp_rect.collidepoint(pos):
-						mp.right_click_at(pos_rel_to_mp(pos), ts.selectedTile())
+						mp.right_click_at(pos_rel_to_mp(pos))
 						thingsChanged = True
 			#############################
 			#############################
@@ -416,7 +432,7 @@ class TS(Box):
 		self.fill(GRAY)
 		self.blit(self.img, (0,0))
 
-	def left_click_at(self, pos):
+	def left_click_at(self, pos, highlight = GREEN):
 		if not self.ts_selected:
 			return
 
@@ -429,28 +445,40 @@ class TS(Box):
 		pos = self.rel2abs_pos(pos)
 		pos = pix2tile(pos)
 
-		
-
 		# reset the old selected tile (if it's not the first time)
 		if self.selected_tile:
-			#if it's the same tile do nothing
-			if self.selected_tile.xy == pos:
-				return
+			# #if it's the same tile do nothing
+			# if self.selected_tile.xy == pos:
+			# 	return
+
+			# not anymore because you can right click to make it blocked
 
 			rect = tile2rect(self.selected_tile.xy)
+			self.img.subsurface(rect).fill(GRAY)
 			self.img.blit(self.selected_tile.img, rect.topleft)
 
 		# set the new tile
 		rect = tile2rect(pos)
 		self.selected_tile = Tile(self.ts_file, pos, self.img.subsurface(rect).copy())
 
+		if highlight is GREEN:
+			self.selected_tile.setBlocked(False)
+		elif highlight is RED:
+			self.selected_tile.setBlocked(True)
+		else:
+			print "invalid color choice for highlight/block"
+
+
 		# highlight the new tile
 		surf = pg.Surface(TILE_RES)
-		surf.fill(BLACK)
-		surf.set_alpha(100)
+		surf.fill(highlight)
+		surf.set_alpha(75)
 		self.img.blit(surf, rect.topleft)
 
 		self.refreshRelImg()
+
+	def right_click_at(self, pos):
+		self.left_click_at(pos, highlight = RED)
 
 	# def left_hold_at(self, pos):
 	# 	if self.surf_rect.collidepoint(pos):
@@ -535,11 +563,11 @@ class MP(Box):
 
 		master.mainloop()
 
-	def left_click_at(self, pos, tile):
+	def left_click_at(self, pos, tile, automated_clicking = False):
 		if not self.tileSize_selected:
 			return
 
-		if not self.surf_rect.collidepoint(pos):
+		if (not self.surf_rect.collidepoint(pos)) and (not automated_clicking): #automated_clicking bypasses boundaries (for function fillWith)
 			Box.left_click_at(self, pos)
 			return
 		elif not ((pos[0] < self.img.get_width()) and (pos[1] < self.img.get_height())):
@@ -549,6 +577,13 @@ class MP(Box):
 			return
 
 		tile_img = tile.img.copy()
+		if tile.blocked:
+			#make red square
+			surf = pg.Surface(TILE_RES)
+			surf.fill(RED)
+			surf.set_alpha(50)
+			#put it on the tile img
+			tile_img.blit(surf, (0,0))
 
 		# prepare the image by drawing the graph lines
 		pg.draw.line(tile_img, BLACK, (0, 0), (TILE_RES[0]-1, 0))
@@ -561,24 +596,44 @@ class MP(Box):
 		self.refreshRelImg()
 
 		# put it in the tile dict
-		tile.place(pix2tile(pos), self.currentZ, False)
+		tile.setCoords(pix2tile(pos), self.currentZ)
 		self.pos_z_tile[pix2tile(pos)][self.currentZ] = tile
 
-	def right_click_at(self, pos, tile):
-		originalImg = tile.img.copy()
+	def right_click_at(self, pos):
+		if not self.tileSize_selected:
+			return
 
-		#make red square
-		surf = pg.Surface(TILE_RES)
-		surf.fill(RED)
-		surf.set_alpha(50)
-		#put it on the tile img
-		tile.img.blit(surf, (0,0))
+		if not self.surf_rect.collidepoint(pos):
+			return
+		elif not ((pos[0] < self.img.get_width()) and (pos[1] < self.img.get_height())):
+			return
 
-		self.left_click_at(pos, tile)
+		try:
+			del(self.pos_z_tile[pix2tile(pos)][self.currentZ])
+		except:
+			return
 
-		tile.blocked = True
-		tile.img = originalImg
-		print self.pos_z_tile[pix2tile(pos)][self.currentZ].blocked
+		#make a gray tile with graph lines
+		blank = pg.Surface(TILE_RES)
+		blank.fill(GRAY)
+		pg.draw.line(blank, BLACK, (0, 0), (TILE_RES[0]-1, 0))
+		pg.draw.line(blank, BLACK, (0, 0), (0, TILE_RES[1]-1))
+
+		# blit the tile to the img
+		pos = self.rel2abs_pos(pos)
+		self.img.blit(blank, pix2tile2rect(pos))
+
+		self.refreshRelImg()
+
+	def fillWith(self, tile):
+		if not tile:
+			return
+		elif not self.tileSize_selected:
+			return
+
+		for i in range(self.tileSize[0]):
+			for j in range(self.tileSize[1]):
+				self.left_click_at((i*TILE_RES[0], j*TILE_RES[1]), tile, automated_clicking = True)
 
 
 
@@ -598,9 +653,11 @@ class Tile:
 		self.z = None #what z the tile is on
 		self.blocked = None #whether or not the tile is blocked
 
-	def place(self, pos, z, blocked):
+	def setCoords(self, pos, z):
 		self.pos = pos
 		self.z = z
+
+	def setBlocked(self, blocked):
 		self.blocked = blocked
 
 
