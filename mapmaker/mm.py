@@ -72,12 +72,17 @@ def runMaker():
 	#############################
 	#############################
 	#############################
+	def pos_rel_to_ts(pos): return (pos[0]-1, pos[1]-1)
+	def pos_rel_to_mp(pos): return (pos[0]-ts.get_box_width()-4, pos[1]-1)
+	#############################
+	#############################
+	#############################
 	clock = pg.time.Clock()
 	#############################
 	#############################
 	#############################
 	b1_held = False
-	b2_held = False
+	b3_held = False
 	#############################
 	#############################
 	#############################
@@ -123,17 +128,24 @@ def runMaker():
 					b1_held = True
 
 					if ts_rect.collidepoint(pos):
-						ts.left_click_at((pos[0]-1, pos[1]-1))
+						ts.left_click_at(pos_rel_to_ts(pos))
 						thingsChanged = True
 
-					#CANT MOVE THE BAR UNLESS TS IS SLECETED AND A SPECIFIC TILE
 					elif mp_rect.collidepoint(pos):
-						if ts.tsSelected() and ts.selectedTile()[0]:
-							mp.left_click_at((pos[0]-ts.get_box_width()-4, pos[1]-1), ts.selectedTile())
-							thingsChanged = True
+						mp.left_click_at(pos_rel_to_mp(pos), ts.selectedTile())
+						thingsChanged = True
 				
-				elif button == 2:
-					b2_held = True
+				elif button == 3:
+					b3_held = True
+
+					if ts_rect.collidepoint(pos):
+						# ts.right_click_at(pos_rel_to_ts(pos))
+						# thingsChanged = True
+						pass
+
+					elif mp_rect.collidepoint(pos):
+						mp.right_click_at(pos_rel_to_mp(pos), ts.selectedTile())
+						thingsChanged = True
 			#############################
 			#############################
 			#############################
@@ -145,15 +157,15 @@ def runMaker():
 					b1_held = False
 
 					if ts_rect.collidepoint(pos):
-						ts.left_release_at(pos)
+						ts.left_release_at(pos_rel_to_ts(pos))
 						thingsChanged = True
 
 					elif mp_rect.collidepoint(pos):
-						mp.left_release_at(pos)
+						mp.left_release_at(pos_rel_to_mp(pos))
 						thingsChanged = True
 				
-				elif button == 2:
-					b2_held = False
+				elif button == 3:
+					b3_held = False
 			#############################
 			#############################
 			#############################
@@ -161,16 +173,16 @@ def runMaker():
 			pos = pg.mouse.get_pos()
 
 			if ts_rect.collidepoint(pos):
-				ts.left_hold_at((pos[0]-1, pos[1]-1))
+				ts.left_hold_at(pos_rel_to_ts(pos))
 				thingsChanged = True
 
 			elif mp_rect.collidepoint(pos):
-				mp.left_hold_at((pos[0]-ts.get_box_width()-4, pos[1]-1))
+				mp.left_hold_at(pos_rel_to_mp(pos))
 				thingsChanged = True
 		#############################
 		#############################
 		#############################
-		if b2_held:
+		if b3_held:
 			pass
 		#############################
 		#############################
@@ -376,10 +388,9 @@ class TS(Box):
 		self.ts_file = None
 
 		self.selected_tile = None
-		self.selected_tile_img = None
 
 	def tsSelected(self): return self.ts_selected
-	def selectedTile(self): return (self.selected_tile, self.selected_tile_img)
+	def selectedTile(self): return self.selected_tile
 
 	def setCurrent(self):
 		master = Tkinter.Tk()
@@ -416,20 +427,22 @@ class TS(Box):
 			return
 
 		pos = self.rel2abs_pos(pos)
-		selected_tile = pix2tile(pos)
+		pos = pix2tile(pos)
 
-		if self.selected_tile == selected_tile:
-			return
+		
 
 		# reset the old selected tile (if it's not the first time)
 		if self.selected_tile:
-			rect = tile2rect(self.selected_tile)
-			self.img.blit(self.selected_tile_img, rect.topleft)
+			#if it's the same tile do nothing
+			if self.selected_tile.xy == pos:
+				return
+
+			rect = tile2rect(self.selected_tile.xy)
+			self.img.blit(self.selected_tile.img, rect.topleft)
 
 		# set the new tile
-		self.selected_tile = selected_tile
-		rect = tile2rect(self.selected_tile)
-		self.selected_tile_img = self.img.subsurface(rect).copy()
+		rect = tile2rect(pos)
+		self.selected_tile = Tile(self.ts_file, pos, self.img.subsurface(rect).copy())
 
 		# highlight the new tile
 		surf = pg.Surface(TILE_RES)
@@ -532,8 +545,10 @@ class MP(Box):
 		elif not ((pos[0] < self.img.get_width()) and (pos[1] < self.img.get_height())):
 			return
 
-		tile_xy = tile[0]
-		tile_img = tile[1].copy()
+		if tile is None:
+			return
+
+		tile_img = tile.img.copy()
 
 		# prepare the image by drawing the graph lines
 		pg.draw.line(tile_img, BLACK, (0, 0), (TILE_RES[0]-1, 0))
@@ -546,7 +561,26 @@ class MP(Box):
 		self.refreshRelImg()
 
 		# put it in the tile dict
-		# self.pos_z_tile[pix2tile(pos)][self.currentZ] = Tile()
+		tile.place(pix2tile(pos), self.currentZ, False)
+		self.pos_z_tile[pix2tile(pos)][self.currentZ] = tile
+
+	def right_click_at(self, pos, tile):
+		originalImg = tile.img.copy()
+
+		#make red square
+		surf = pg.Surface(TILE_RES)
+		surf.fill(RED)
+		surf.set_alpha(50)
+		#put it on the tile img
+		tile.img.blit(surf, (0,0))
+
+		self.left_click_at(pos, tile)
+
+		tile.blocked = True
+		tile.img = originalImg
+		print self.pos_z_tile[pix2tile(pos)][self.currentZ].blocked
+
+
 
 	# def left_hold_at(self, pos):
 	# 	if self.surf_rect.collidepoint(pos):
@@ -555,12 +589,19 @@ class MP(Box):
 	# 		Box.left_hold_at(pos)
 
 class Tile:
-	def __init__(self, tilesource, xy, img, blocked = False, z = 0):
-		self.ts = tilesource
-		self.tile_xy = tile
-		self.tile_img = img
-		self.blocked = blocked
+	def __init__(self, tileset, xy, img):
+		self.ts = tileset #the files the tile comes from
+		self.xy = xy #the xy tile coord of the tile img
+		self.img = img #th surface (image) of the tile
+
+		self.pos = None #the location on the map
+		self.z = None #what z the tile is on
+		self.blocked = None #whether or not the tile is blocked
+
+	def place(self, pos, z, blocked):
+		self.pos = pos
 		self.z = z
+		self.blocked = blocked
 
 
 if __name__ == '__main__': runMaker()
