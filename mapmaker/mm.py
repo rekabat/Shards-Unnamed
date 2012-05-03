@@ -428,7 +428,7 @@ class TS(Box):
 
 	def setCurrent(self):
 		master = Tkinter.Tk()
-		t0 = tkFileDialog.askopenfilename(initialdir = MAPART_DIR)
+		t0 = os.path.relpath(tkFileDialog.askopenfilename(initialdir = MAPART_DIR))
 		master.destroy()
 
 		# leave if they choose cancel
@@ -714,7 +714,7 @@ class MP(Box):
 		ts_number = {}
 		i = 0
 		for ts in tileSets:
-			file.write(str(i) + "-> " + ts + " [32:32]\n")
+			file.write(str(i) + "-> " + ts[3:] + " [32:32]\n") #[3:] to remove ../
 			ts_number[ts] = i
 			i+=1
 		#give intermediate stuff
