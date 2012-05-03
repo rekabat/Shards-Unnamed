@@ -1,6 +1,7 @@
 '''
 1 -> select tileset
 2 -> set map dimension
+3 -> save map
 
 f -> fill
 
@@ -18,6 +19,14 @@ right click -> select a tile (blocked)
 left click -> place a tile
 right click -> remove a tile
 left click and drag -> place tiles
+
+
+
+THINGS TO ADD:
+1) different z levels
+2) relative path names for map art in save files
+3) loading maps
+4) exiting should prompt to save
 '''
 
 import pygame as pg
@@ -46,6 +55,10 @@ BLUE =	(0,		0,		255)
 BLACK = (0,		0,		0)
 GRAY =	(200,	200,	200)
 
+#some folder constants
+MAPART_DIR 	= "../art/map/"
+SAVE_DIR	= "../maps/"
+
 pg.init()
 pg.display.init()
 
@@ -56,6 +69,8 @@ def runMaker():
 	WH = (700, 500)
 
 	screen = pg.display.set_mode(WH)
+	# pg.display.set_icon(pg.image.load('icon.png').convert())
+	pg.display.set_caption('Shattered Map Maker (ShaMM)')
 
 	screen.fill(GRAY)
 
@@ -119,6 +134,9 @@ def runMaker():
 				elif key == K_2:
 					mp.setSize()
 					thingsChanged = True
+
+				elif key == K_3:
+					mp.saveMap()
 
 				elif key == K_f:
 					mp.fillWith(ts.selectedTile())
@@ -410,7 +428,7 @@ class TS(Box):
 
 	def setCurrent(self):
 		master = Tkinter.Tk()
-		t0 = tkFileDialog.askopenfilename(initialdir = os.getcwd())
+		t0 = tkFileDialog.askopenfilename(initialdir = MAPART_DIR)
 		master.destroy()
 
 		# leave if they choose cancel
@@ -653,12 +671,91 @@ class MP(Box):
 		elif not self.tileSize_selected:
 			return
 
+
+		master = Tkinter.Tk()
+		t0 = tkMessageBox.askyesno("Fill", "Are you sure you want to fill the entire map with this? It will overwrite all spots, not just empty ones.")
+		master.destroy()
+
+		if t0:
+			for i in range(self.tileSize[0]):
+				for j in range(self.tileSize[1]):
+					self.left_click_at((i*TILE_RES[0], j*TILE_RES[1]), tile, automated_clicking = True)
+
+			self.left_release_at((0,0))
+
+	def saveMap(self):
+		if not self.tileSize_selected:
+			return
+
+		master = Tkinter.Tk()
+		fileName = tkFileDialog.asksaveasfilename(initialdir = SAVE_DIR)
+		master.destroy()
+
+		# leave if they choose cancel
+		if not fileName:
+			return
+
+		# go through once to get all the unique tile sets
+		tileSets = set() 
 		for i in range(self.tileSize[0]):
 			for j in range(self.tileSize[1]):
-				self.left_click_at((i*TILE_RES[0], j*TILE_RES[1]), tile, automated_clicking = True)
+				try:
+					for z in self.pos_z_tile[(i, j)]:
+						tile = self.pos_z_tile[(i, j)][z]
+						tileSets.add(tile.ts)
+				except:
+					pass #no tiles at this pos
 
-		self.left_release_at((0,0))
+		#open file
+		file = open(fileName, "w")
+		#give header
+		file.write(">>> Tile Source [size x:y]\n")
+		#add the tilesets and make a dict
+		ts_number = {}
+		i = 0
+		for ts in tileSets:
+			file.write(str(i) + "-> " + ts + " [32:32]\n")
+			ts_number[ts] = i
+			i+=1
+		#give intermediate stuff
+		file.write(">>> Map Size in Tiles (x/y)\n" + \
+			str(self.tileSize[0])+":"+str(self.tileSize[1])+"\n" + \
+			">>> Setup (Source-> Map col:row/Tile col:row)")
 
+		# go through once more to fill file
+		for i in range(self.tileSize[0]):
+			for j in range(self.tileSize[1]):
+				try:
+					# position on map
+					k = 0
+					line = "\n" + str(i)+":"+str(j)+"+"
+					for z in self.pos_z_tile[(i, j)]:
+						tile = self.pos_z_tile[(i, j)][z]
+
+						#divider if there are more than one zs at this position
+						if k>0:
+							line += "|"
+
+						# file number
+						line += (str(ts_number[tile.ts]))+"->"
+						# tile coord in tileset
+						line += str(tile.xy[0]) + ":" + str(tile.xy[1])
+						# blocked
+						if tile.blocked:
+							line += "(1)"
+						else:
+							line += "(0)"
+						# z
+						line += "[" + str(tile.z) + "]"
+
+						k+=1
+
+					file.write(line)
+				except:
+					print 'here'
+					pass #no tiles at this pos
+
+		file.close()
 
 
 	# def left_hold_at(self, pos):

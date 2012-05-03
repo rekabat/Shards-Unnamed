@@ -1,0 +1,10 @@
+>>> Tile Source [size x:y]
+0-> D:/Users/Troy/Desktop/Programme/~Python/Game/Shards-Unnamed/art/map/floors.png [32:32]
+1-> D:/Users/Troy/Desktop/Programme/~Python/Game/Shards-Unnamed/art/map/stairs2.jpg [32:32]
+>>> Map Size in Tiles (x/y)
+2:2
+>>> Setup (Source-> Map col:row/Tile col:row)
+0:0+0->3:1(0)[0]
+0:1+0->3:1(1)[0]
+1:0+1->0:1(0)[0]
+1:1+1->0:1(0)[0]
