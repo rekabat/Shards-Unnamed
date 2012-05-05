@@ -44,7 +44,7 @@ class GameInterface:
 		self.curEnemies = []
 		self.foundOnePathAlready = False #used to prevent the pathfinding algorithm from being run more than once per cycle
 
-		self.createWorld('maps/mapgen_map')
+		self.createWorld('maps/room1', (10,10), 0)
 		self.renderView()
 
 		self.view = None #primarily used to determine if player is on top or bottom half of the screen for events
@@ -56,13 +56,12 @@ class GameInterface:
 		##########
 		self.pmenu = pm.PMenu(self)
 			
-	def createWorld(self, mapfile):
-		self.map = map.Map(mapfile, self.display.getWH())
+	def createWorld(self, mapfile, playerPos, playerZ):
+		# self.loadMap(mapfile, playerPos, playerZ)
+		self.player = player.Player(playerPos, playerZ, self.font, self.display.getWH()[0])
 
-		self.staticMap = self.map.getTotalImg()
-
-		self.eventForeground = worldEvents.EventForeground(mapfile)
-		self.player = player.Player((12,10), 0, self.font, self.display.getWH()[0])
+		# self.player = player.Player(self.font, self.display.getWH()[0])
+		self.loadMap(mapfile, playerPos, playerZ)
 
 		self.player.giveFocus(attacks.fireball(alignment = 0, user = self.player, map = self.map))
 		self.player.giveFocus(attacks.icefield(alignment = 0, user = self.player, map = self.map))
@@ -73,6 +72,20 @@ class GameInterface:
 		self.player.equip(8, self.player.focuses[2])
 
 		self.player.giveItem(item.Item("weapon", "weapon", 3))
+
+	def loadMap(self, mapfile, playerPos, playerZ):
+		self.map = map.Map(mapfile, self.display.getWH())
+		self.staticMap = self.map.getTotalImg()
+		self.eventForeground = worldEvents.EventForeground(mapfile)
+
+		self.outlinedEvents = []
+		self.curAttacks = []
+		self.curEnemies = []
+
+		self.lockedOntoEnemy = None
+
+		self.player.setPlace(playerPos, playerZ)
+
 
 	def flipOutlines(self, events):
 		copy = self.outlinedEvents[:]

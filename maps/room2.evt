@@ -1,0 +1,181 @@
+EVENT_ID: changemap
+ART: ''
+ART_TILE: ''
+ON: 0:3
+Z: 0
+BLOCKED: 0
+ENTER: 0
+ONE_TIME: 0
+LOCKED: 0
+IMMEDIATE: 0
+> Change Map
+maps/room1
+18:14
+0
+}}}
+>>>
+EVENT_ID: changemap
+ART: ''
+ART_TILE: ''
+ON: 0:4
+Z: 0
+BLOCKED: 0
+ENTER: 0
+ONE_TIME: 0
+LOCKED: 0
+IMMEDIATE: 0
+> Change Map
+maps/room1
+18:15
+0
+}}}
+>>>
+EVENT_ID: changemap
+ART: ''
+ART_TILE: ''
+ON: 0:5
+Z: 0
+BLOCKED: 0
+ENTER: 0
+ONE_TIME: 0
+LOCKED: 0
+IMMEDIATE: 0
+> Change Map
+maps/room1
+18:16
+0
+}}}
+>>>
+EVENT_ID: dialog
+ART: 'art/items1.png'
+ART_TILE: '3:0'
+ON: 4:28
+Z: 0
+BLOCKED: 1
+ENTER: 1
+ONE_TIME: 1
+LOCKED: 0
+IMMEDIATE: 0
+> Dialog
+Clothing:] I am a tunic. Also, 1 is the loneliest 234567890.
+%PLAYER:] Holy shit, a talking tunic! Now this dialog is purely to demonstrate whether or not the textbox system is working. I sure hope it is.
+Clothing:] Indeed.
+}}}
+EVENT_ID: dialog
+ART: 'art/items1.png'
+ART_TILE: '2:1'
+ON: 11:14
+Z: 0
+BLOCKED: 0
+ENTER: 1
+ONE_TIME: 1
+LOCKED: 0
+IMMEDIATE: 0
+> Dialog
+Das Boot:] Boot, I say.
+%PLAYER:] Indubitably.
+}}}
+>>>
+EVENT_ID: dialog
+ART: 'art/items1.png'
+ART_TILE: '4:0'
+ON: 11:15
+Z: 0
+BLOCKED: 0
+ENTER: 0
+ONE_TIME: 1
+LOCKED: 0
+IMMEDIATE: 0
+> Dialog
+%PLAYER:] Hey potion, I be illin'.
+Potion:] Well, my good friend, have a swig.
+%PLAYER:] Thanks, dawg.
+}}}
+EVENT_ID: dialog
+ART: 'art/items1.png'
+ART_TILE: '4:0'
+ON: 12:17
+Z: 0
+BLOCKED: 1
+ENTER: 1
+ONE_TIME: 0
+LOCKED: 0
+IMMEDIATE: 0
+> Dialog
+%PLAYER:] Hey it's you again!
+Slightly Evil-er Potion:] Nope, I'm the slightly evil-er twin.
+%PLAYER:] That explains the goatee.
+Slightly Evil-er Potion:] By the way, ! @ # $ % ^ & * ( ) - _ + = [ ] { } | \ : ; " " ' ' < > , . ? /
+}}}
+>>>
+EVENT_ID: teleport
+ART: 'art/items1.png'
+ART_TILE: '1:1'
+ON: 13:19
+Z: 0
+BLOCKED: 0
+ENTER: 0
+ONE_TIME: 0
+LOCKED: 0
+IMMEDIATE: 0
+> Teleport
+2:1
+0
+}}}
+>>>
+EVENT_ID: enemy
+ART: ''
+ART_TILE: ''
+ON: 15:14
+Z: 0
+BLOCKED: 0
+ENTER: 0
+ONE_TIME: 1
+LOCKED: 1
+IMMEDIATE: 1
+> Enemy
+Tom
+}}}
+>>>
+EVENT_ID: enemy
+ART: ''
+ART_TILE: ''
+ON: 17:14
+Z: 0
+BLOCKED: 0
+ENTER: 0
+ONE_TIME: 1
+LOCKED: 1
+IMMEDIATE: 1
+> Enemy
+Tom
+}}}
+>>>
+EVENT_ID: enemy
+ART: ''
+ART_TILE: ''
+ON: 19:14
+Z: 0
+BLOCKED: 0
+ENTER: 0
+ONE_TIME: 1
+LOCKED: 1
+IMMEDIATE: 1
+> Enemy
+Tom
+}}}
+>>>
+EVENT_ID: enemy
+ART: ''
+ART_TILE: ''
+ON: 21:14
+Z: 0
+BLOCKED: 0
+ENTER: 0
+ONE_TIME: 1
+LOCKED: 1
+IMMEDIATE: 1
+> Enemy
+Tom
+}}}
+>>>

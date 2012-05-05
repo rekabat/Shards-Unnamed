@@ -7,7 +7,9 @@ ctrl + o -> load map
 ~ctrl + n -> new map
 
 f -> fill
+~g -> turn on/off gridlines
 ~d -> demo mode
+~b -> fill borders
 
 left/down -> down z level
 right/up -> up z level
@@ -36,6 +38,8 @@ THINGS TO ADD:
 ) only save an image to z-img when switching from a z with something on it (just check pos_z_tile)
 ) Add a demo mode where you choose where to start then you can walk around it.
 ) Make a "new map" button, so you don't have to exit out of the program
+) be able to toggle grphics on and off
+) fill borders button
 '''
 
 import pygame as pg
@@ -800,6 +804,7 @@ class MP(Box):
 
 
 		master = Tkinter.Tk()
+		master.withdraw()
 		t0 = tkMessageBox.askyesno("Fill", "Are you sure you want to fill the entire map with this? It will overwrite all spots, not just empty ones.")
 		master.destroy()
 

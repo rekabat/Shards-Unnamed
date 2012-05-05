@@ -291,6 +291,18 @@ class teleport(WorldEvent):
 
 		GI.player.setPlace(tileTo, zTo)
 
+class changemap(WorldEvent):
+	def __init__(self, **kwargs):
+		WorldEvent.__init__(self, **kwargs)
+	
+	def execute(self, GI):
+		mapTo = self.extra[1]
+		tileTo = tuple([int(each) for each in self.extra[2].split(":")])
+		zTo = int(self.extra[3])
+
+		GI.loadMap(mapTo, tileTo, zTo)
+		# GI.player.setPlace(tileTo, zTo)
+
 class enemy(WorldEvent):
 	def __init__(self, **kwargs):
 		WorldEvent.__init__(self, **kwargs)
@@ -305,6 +317,7 @@ class enemy(WorldEvent):
 
 EVENT_IDS = {	'dialog': dialog,
 				'teleport': teleport, 
+				'changemap': changemap,
 				'enemy': enemy} #,
 	  # 2: PickUpItem,
 	  # 3: DeathByBurning }

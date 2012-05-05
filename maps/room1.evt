@@ -1,0 +1,48 @@
+EVENT_ID: changemap
+ART: ''
+ART_TILE: ''
+ON: 19:14
+Z: 0
+BLOCKED: 0
+ENTER: 0
+ONE_TIME: 0
+LOCKED: 0
+IMMEDIATE: 0
+> Change Map
+maps/room2
+1:3
+0
+}}}
+>>>
+EVENT_ID: changemap
+ART: ''
+ART_TILE: ''
+ON: 19:15
+Z: 0
+BLOCKED: 0
+ENTER: 0
+ONE_TIME: 0
+LOCKED: 0
+IMMEDIATE: 0
+> Change Map
+maps/room2
+1:4
+0
+}}}
+>>>
+EVENT_ID: changemap
+ART: ''
+ART_TILE: ''
+ON: 19:16
+Z: 0
+BLOCKED: 0
+ENTER: 0
+ONE_TIME: 0
+LOCKED: 0
+IMMEDIATE: 0
+> Change Map
+maps/room2
+1:5
+0
+}}}
+>>>
