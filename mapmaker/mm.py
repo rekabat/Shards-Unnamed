@@ -1,8 +1,10 @@
 '''
 1 -> select tileset
 2 -> set map dimension
-3 -> save map
-4 -> load map
+
+ctrl + s -> save map
+ctrl + o -> load map
+~ctrl + n -> new map
 
 f -> fill
 ~d -> demo mode
@@ -33,6 +35,7 @@ THINGS TO ADD:
 ) exiting should prompt to save more intelligently (asks if you scroll on map)
 ) only save an image to z-img when switching from a z with something on it (just check pos_z_tile)
 ) Add a demo mode where you choose where to start then you can walk around it.
+) Make a "new map" button, so you don't have to exit out of the program
 '''
 
 import pygame as pg
@@ -72,7 +75,7 @@ def runMaker():
 	#############################
 	#############################
 	#############################
-	WH = (700, 500)
+	WH = (1000, 700)
 
 	screen = pg.display.set_mode(WH)
 	# pg.display.set_icon(pg.image.load('icon.png').convert())
@@ -110,6 +113,8 @@ def runMaker():
 	b1_held = False
 	b3_held = False
 
+	ctrl_held = False
+
 	saved = True
 	#############################
 	#############################
@@ -135,6 +140,9 @@ def runMaker():
 			elif evt.type == KEYDOWN:
 				key = evt.dict['key']
 
+				if key == K_LCTRL or key == K_RCTRL:
+					ctrl_held = True
+
 				if key == K_1: #prompt the user for the tile file and open it up
 					ts.setCurrent()
 					thingsChanged = True
@@ -144,10 +152,10 @@ def runMaker():
 					thingsChanged = True
 					saved = False
 
-				elif key == K_3:
+				elif key == K_s and ctrl_held:
 					saved = mp.saveMap()
 
-				elif key == K_4:
+				elif key == K_o and ctrl_held:
 					mp.loadMap()
 					thingsChanged = True
 
@@ -174,6 +182,14 @@ def runMaker():
 
 				elif key == pg.K_ESCAPE:
 					endMM(saved)
+			#############################
+			#############################
+			#############################
+			elif evt.type == KEYUP:
+				key = evt.dict['key']
+
+				if key == K_LCTRL or key == K_RCTRL:
+					ctrl_held = False
 			#############################
 			#############################
 			#############################
@@ -612,7 +628,9 @@ class MP(Box):
 
 		if not automated:
 			if self.tileSize_selected:
-				print "Can't change size once you've begun."
+				master = Tkinter.Tk()
+				master.withdraw()
+				tkMessageBox.showwarning("Map Size", "You can't change the size once you've begun. Try saving (ctrl+S) and creating a new file (ctrl+N).")
 				return
 
 			master = Tkinter.Tk()
