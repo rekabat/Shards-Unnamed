@@ -33,10 +33,6 @@ THINGS TO ADD:
 ) exiting should prompt to save more intelligently (asks if you scroll on map)
 ) only save an image to z-img when switching from a z with something on it (just check pos_z_tile)
 ) Add a demo mode where you choose where to start then you can walk around it.
-) make the tkinter window not appear when opening dialogs (like save file)
-
-) load mapgen_map.map, and try to place a tile at the blank spots and it crashes... Don't know why
-		(perhaps blank spots don't make a dict entry when loading, so when you try to place something there you get key error)
 '''
 
 import pygame as pg
@@ -258,6 +254,7 @@ def runMaker():
 def endMM(saved):
 	if not saved:
 		master = Tkinter.Tk()
+		master.withdraw()
 		t0 = tkMessageBox.askyesno("Exit", "Are you sure you want to exit without saving?")
 		master.destroy()
 
@@ -471,6 +468,7 @@ class TS(Box):
 
 	def setCurrent(self):
 		master = Tkinter.Tk()
+		master.withdraw()
 		t0 = tkFileDialog.askopenfilename(initialdir = MAPART_DIR)
 		master.destroy()
 
@@ -662,7 +660,6 @@ class MP(Box):
 		#then put surf on the image
 		self.indicator_surf.blit(surf, (1,1))
 
-		
 	def left_click_at(self, pos, tile, automated_clicking = False):
 		# the x/y has not been set
 		if not self.tileSize_selected:
@@ -742,12 +739,14 @@ class MP(Box):
 		elif not ((pos[0] < self.img.get_width()) and (pos[1] < self.img.get_height())):
 			return
 
+		pos = self.rel2abs_pos(pos)
+
 		try:
 			del(self.pos_z_tile[pix2tile(pos)][self.currentZ])
 		except:
 			return
 
-		rect = pix2tile2rect(self.rel2abs_pos(pos))
+		rect = pix2tile2rect(pos)
 
 		#make a gray tile with graph lines
 		tile_img = pg.Surface(TILE_RES)
@@ -844,6 +843,7 @@ class MP(Box):
 			return True
 
 		master = Tkinter.Tk()
+		master.withdraw()
 		fileName = tkFileDialog.asksaveasfilename(initialdir = SAVE_DIR)
 		master.destroy()
 
@@ -914,6 +914,7 @@ class MP(Box):
 
 	def loadMap(self):
 		master = Tkinter.Tk()
+		master.withdraw()
 		fileName = tkFileDialog.askopenfilename(initialdir = SAVE_DIR)
 		master.destroy()
 
@@ -980,12 +981,12 @@ class MP(Box):
 		line+=1
 
 		mapSize = tuple([int(i) for i in theMap[line].split(":")])
+		self.setSize(automated = mapSize)
 
 		line+=2
 
 		onward = line
 
-		setup={}
 		maxZ = 0
 		for line in theMap[onward:]:
 			posOnMap, tiles = line.split("+")
@@ -994,7 +995,7 @@ class MP(Box):
 
 			tiles = tiles.split("|")
 
-			setup[posOnMap] = {}
+			# self.pos_z_tile[posOnMap] = {}
 			for each in tiles:
 				#source -> the file the tile img is coming from
 				source, temp = each.split("->")
@@ -1013,19 +1014,16 @@ class MP(Box):
 				z=int(z[:-1])
 				if z > maxZ: maxZ = z+0
 
-				setup[posOnMap][z] = Tile(tileFiles[source].getName(), posOnTileFile, tileFiles[source].getTile(posOnTileFile))
-				setup[posOnMap][z].setCoords(posOnMap, z)
-				setup[posOnMap][z].setBlocked(blocked)
-
-		self.setSize(automated = mapSize)
-		self.pos_z_tile = setup
+				self.pos_z_tile[posOnMap][z] = Tile(tileFiles[source].getName(), posOnTileFile, tileFiles[source].getTile(posOnTileFile))
+				self.pos_z_tile[posOnMap][z].setCoords(posOnMap, z)
+				self.pos_z_tile[posOnMap][z].setBlocked(blocked)
 
 		#place the tiles
 		while self.currentZ != maxZ+1:
 			for pos in self.pos_z_tile:
 				for z in self.pos_z_tile[pos]:
 					if z == self.currentZ:
-						self.left_click_at((pos[0]*TILE_RES[0], pos[1]*TILE_RES[1]), setup[pos][z], automated_clicking = True)
+						self.left_click_at((pos[0]*TILE_RES[0], pos[1]*TILE_RES[1]), self.pos_z_tile[pos][z], automated_clicking = True)
 			self.changeZLevel(1)
 
 		while self.currentZ != 0:

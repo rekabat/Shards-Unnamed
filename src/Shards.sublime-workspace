@@ -4,6 +4,18 @@
 		"selected_items":
 		[
 			[
+				"select",
+				"selected_tile_img"
+			],
+			[
+				"selec",
+				"selected_tile"
+			],
+			[
+				"selle",
+				"selected_tile_img"
+			],
+			[
 				"getImage",
 				"getImageOfAndAboveZ"
 			],
@@ -115,9 +127,17 @@
 			"file": "/C/Users/Troy/Desktop/Game/Shards/Shards-Unnamed/mapmaker/mm.py",
 			"settings":
 			{
-				"buffer_size": 1487,
+				"buffer_size": 15640,
 				"line_ending": "Windows",
 				"name": "import pygame as pg"
+			}
+		},
+		{
+			"file": "/C/Users/Troy/Desktop/Game/Shards/Shards-Unnamed/maps/mapgen_map.map",
+			"settings":
+			{
+				"buffer_size": 16685,
+				"line_ending": "Windows"
 			}
 		},
 		{
@@ -205,14 +225,6 @@
 			"settings":
 			{
 				"buffer_size": 1823,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "/C/Users/Troy/Desktop/Game/Shards/Shards-Unnamed/maps/mapgen_map.map",
-			"settings":
-			{
-				"buffer_size": 16685,
 				"line_ending": "Windows"
 			}
 		},
@@ -428,15 +440,15 @@
 					"file": "/C/Users/Troy/Desktop/Game/Shards/Shards-Unnamed/mapmaker/mm.py",
 					"settings":
 					{
-						"buffer_size": 1487,
+						"buffer_size": 15640,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								479,
-								479
+								10868,
+								10868
 							]
 						],
 						"settings":
@@ -447,13 +459,39 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 2662.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
 				},
 				{
 					"buffer": 1,
+					"file": "/C/Users/Troy/Desktop/Game/Shards/Shards-Unnamed/maps/mapgen_map.map",
+					"settings":
+					{
+						"buffer_size": 16685,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 2,
 					"file": "display.py",
 					"settings":
 					{
@@ -480,7 +518,7 @@
 					"type": "text"
 				},
 				{
-					"buffer": 2,
+					"buffer": 3,
 					"file": "/C/Users/Troy/Desktop/Game/Shards/Shards-Unnamed/run.py",
 					"settings":
 					{
@@ -508,7 +546,7 @@
 					"type": "text"
 				},
 				{
-					"buffer": 3,
+					"buffer": 4,
 					"file": "gameinterface.py",
 					"settings":
 					{
@@ -535,7 +573,7 @@
 					"type": "text"
 				},
 				{
-					"buffer": 4,
+					"buffer": 5,
 					"file": "map.py",
 					"settings":
 					{
@@ -563,7 +601,7 @@
 					"type": "text"
 				},
 				{
-					"buffer": 5,
+					"buffer": 6,
 					"file": "worldEvents.py",
 					"settings":
 					{
@@ -590,7 +628,7 @@
 					"type": "text"
 				},
 				{
-					"buffer": 6,
+					"buffer": 7,
 					"file": "attacks.py",
 					"settings":
 					{
@@ -617,7 +655,7 @@
 					"type": "text"
 				},
 				{
-					"buffer": 7,
+					"buffer": 8,
 					"file": "enemies.py",
 					"settings":
 					{
@@ -645,7 +683,7 @@
 					"type": "text"
 				},
 				{
-					"buffer": 8,
+					"buffer": 9,
 					"file": "player.py",
 					"settings":
 					{
@@ -672,7 +710,7 @@
 					"type": "text"
 				},
 				{
-					"buffer": 9,
+					"buffer": 10,
 					"file": "moveables.py",
 					"settings":
 					{
@@ -699,7 +737,7 @@
 					"type": "text"
 				},
 				{
-					"buffer": 10,
+					"buffer": 11,
 					"file": "mapParser.py",
 					"settings":
 					{
@@ -726,7 +764,7 @@
 					"type": "text"
 				},
 				{
-					"buffer": 11,
+					"buffer": 12,
 					"file": "/C/Users/Troy/Desktop/Game/Shards/Shards-Unnamed/maps/mapgen_map.evt",
 					"settings":
 					{
@@ -746,33 +784,7 @@
 							"syntax": "Packages/Text/Plain text.tmLanguage"
 						},
 						"translation.x": 0.0,
-						"translation.y": 630.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 12,
-					"file": "/C/Users/Troy/Desktop/Game/Shards/Shards-Unnamed/maps/mapgen_map.map",
-					"settings":
-					{
-						"buffer_size": 16685,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Text/Plain text.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 704.0,
+						"translation.y": 45.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
