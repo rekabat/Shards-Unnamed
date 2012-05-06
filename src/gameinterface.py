@@ -54,7 +54,7 @@ class GameInterface:
 		##########
 		# Stuff for "pause"
 		##########
-		self.pmenu = pm.PMenu(self)
+		self.pmenu = pm.PMenu_general(self, pg.Surface(self.display.getWH()))
 			
 	def createWorld(self, mapfile, playerPos, playerZ):
 		# self.loadMap(mapfile, playerPos, playerZ)
@@ -63,9 +63,9 @@ class GameInterface:
 		# self.player = player.Player(self.font, self.display.getWH()[0])
 		self.loadMap(mapfile, playerPos, playerZ)
 
-		self.player.giveFocus(attacks.fireball(alignment = 0, user = self.player, map = self.map))
-		self.player.giveFocus(attacks.icefield(alignment = 0, user = self.player, map = self.map))
-		self.player.giveFocus(attacks.sword(alignment = 0, user = self.player, map = self.map))
+		self.player.giveFocus(attacks.fireball(alignment = 0, user = self.player, GI = self))
+		self.player.giveFocus(attacks.icefield(alignment = 0, user = self.player, GI = self))
+		self.player.giveFocus(attacks.sword(alignment = 0, user = self.player, GI = self))
 
 		self.player.equip(0, self.player.focuses[0])
 		self.player.equip(1, self.player.focuses[1])
@@ -234,7 +234,7 @@ class GameInterface:
 						#release player from any movements
 						self.player.forgetMovement()
 						#launches the menu into its last opened state (or player state if this is the first time opening it)
-						self.pmenu.changeState(self.pmenu.getState())
+						# self.pmenu.changeState(self.pmenu.getState())
 						return 0, True
 					
 					#movement control
@@ -540,15 +540,23 @@ class GameInterface:
 				
 
 		elif self.state == "pause":
+			if not self.cursr.visible:
+				self.cursr.flipVisible()
+
+
 			for event in events:
 				if event.type == pg.KEYDOWN:
 					key = event.dict['key']
 					if key == pg.K_ESCAPE:
 						self.state = "play"
-						self.pmenu.clearall()
+						# self.pmenu.clearall()
+
+						if self.cursr.visible:
+							self.cursr.flipVisible()
+
 						return 0, True
-					else:
-						self.pmenu.dispatch(key)
+			
+			self.pmenu.dispatch(events)
 				
 				# elif event.type == pg.KEYUP:
 			

@@ -1,6 +1,6 @@
 >>> Tile Source [size x:y]
-0-> art\floor-RHPWub.gif [32:32]
-1-> art\floor-RHPWub.gif [32:32]
+0-> art\map\floor-RHPWub.gif [32:32]
+1-> art\map\floor-RHPWub.gif [32:32]
 >>> Map Size in Tiles (x/y)
 30:30
 >>> Setup (Source-> Map col:row/Tile col:row)

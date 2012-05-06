@@ -40,6 +40,10 @@ THINGS TO ADD:
 ) Make a "new map" button, so you don't have to exit out of the program
 ) be able to toggle grphics on and off
 ) fill borders button
+
+Known Bugs
+
+) makes a second entry for the same tileset if you save, exit, then load the map then open the same tileset and use it
 '''
 
 import pygame as pg
