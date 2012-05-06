@@ -25,8 +25,8 @@ class Display:
 		pg.display.set_icon(pg.image.load('art/icon.png').convert())
 		pg.display.set_caption('Shattered')
 
-		icon = pg.image.load("art/shattered.png").convert_alpha()
-		self.screen.blit(icon, ((self.width - icon.get_width())/2,(self.height - icon.get_height())/2))
+		splash = pg.image.load("art/shattered.png").convert_alpha()
+		self.screen.blit(splash, ((self.width - splash.get_width())/2,(self.height - splash.get_height())/2))
 		pg.display.flip()
 	
 	def toggleFull(self):

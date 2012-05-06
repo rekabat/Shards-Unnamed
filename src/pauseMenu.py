@@ -25,14 +25,19 @@ self.states = ("general", self.generalDispatch, {
 
 player
 	inventory
-	belt
 	stats
+save/load
+	save
+	load
 options
-	screen
+	graphics
 		togglefs
-		resolution
-	sound
-		mute
+		~resolution
+	audio
+		~mute
+exit
+	really leave
+	oops
 """
 
 class PMenu:
@@ -88,17 +93,35 @@ class PMenu_general(PMenu):
 
 		self.parent_surf.fill((100,100,100))
 
-		button_list = self.makeButtons(["Player"], 30)
+		button_list = self.makeButtons(["Player", "Save/Load", "Options", "Exit"], 30)
 
 		self.player_b_rect = pg.Rect((0,0), button_list[0].get_size())
 		self.player_b_surf = self.parent_surf.subsurface(self.player_b_rect)
 		self.player_b_surf.blit(button_list[0], (0,0))
 
+		self.saveload_b_rect = pg.Rect((200,0), button_list[1].get_size())
+		self.saveload_b_surf = self.parent_surf.subsurface(self.saveload_b_rect)
+		self.saveload_b_surf.blit(button_list[1], (0,0))
+
+		self.options_b_rect = pg.Rect((400,0), button_list[2].get_size())
+		self.options_b_surf = self.parent_surf.subsurface(self.options_b_rect)
+		self.options_b_surf.blit(button_list[2], (0,0))
+
+		self.exit_b_rect = pg.Rect((600,0), button_list[3].get_size())
+		self.exit_b_surf = self.parent_surf.subsurface(self.exit_b_rect)
+		self.exit_b_surf.blit(button_list[3], (0,0))
+
 	def getDisp(self): return self.whole_surf
 
 	def left_click_at_action(self, pos):
 		if self.player_b_rect.collidepoint(pos):
-			print "go to playa'?"
+			self.child = PMenu_player(self.GI, self.child_surf)
+		elif self.saveload_b_rect.collidepoint(pos):
+			self.child = PMenu_saveload(self.GI, self.child_surf)
+		elif self.options_b_rect.collidepoint(pos):
+			self.child = PMenu_options(self.GI, self.child_surf)
+		elif self.exit_b_rect.collidepoint(pos):
+			self.child = PMenu_exit(self.GI, self.child_surf)
 		else:
 			print "oh yeah! general!", pos
 
@@ -144,7 +167,124 @@ class PMenu_stats(PMenu):
 	def left_click_at_action(self, pos):
 		print "oh yeah! stats!", pos
 
+class PMenu_saveload(PMenu):
+	def __init__(self, GI, surfaceToUse):
+		PMenu.__init__(self, GI, surfaceToUse, PMenu_save)
 
+		self.parent_surf.fill((100,100,200))
+
+		button_list = self.makeButtons(["Save", "Load"], 30)
+
+		self.save_b_rect = pg.Rect((0,0), button_list[0].get_size())
+		self.save_b_surf = self.parent_surf.subsurface(self.save_b_rect)
+		self.save_b_surf.blit(button_list[0], (0,0))
+
+		self.load_b_rect = pg.Rect((200,0), button_list[1].get_size())
+		self.load_b_surf = self.parent_surf.subsurface(self.load_b_rect)
+		self.load_b_surf.blit(button_list[1], (0,0))
+
+	def left_click_at_action(self, pos):
+		if self.save_b_rect.collidepoint(pos):
+			self.child = PMenu_save(self.GI, self.child_surf)
+		elif self.load_b_rect.collidepoint(pos):
+			self.child = PMenu_load(self.GI, self.child_surf)
+		else:
+			print "oh yeah! saveload!", pos
+
+class PMenu_save(PMenu):
+	def __init__(self, GI, surfaceToUse):
+		PMenu.__init__(self, GI, surfaceToUse, None)
+
+		self.whole_surf.fill((200,100,100))
+
+	def left_click_at_action(self, pos):
+		print "oh yeah! save!", pos
+
+class PMenu_load(PMenu):
+	def __init__(self, GI, surfaceToUse):
+		PMenu.__init__(self, GI, surfaceToUse, None)
+
+		self.whole_surf.fill((200,200,100))
+
+	def left_click_at_action(self, pos):
+		print "oh yeah! load!", pos
+
+class PMenu_options(PMenu):
+	def __init__(self, GI, surfaceToUse):
+		PMenu.__init__(self, GI, surfaceToUse, PMenu_graphics)
+
+		self.parent_surf.fill((100,200,200))
+
+		button_list = self.makeButtons(["Graphics", "Audio"], 30)
+
+		self.graphics_b_rect = pg.Rect((0,0), button_list[0].get_size())
+		self.graphics_b_surf = self.parent_surf.subsurface(self.graphics_b_rect)
+		self.graphics_b_surf.blit(button_list[0], (0,0))
+
+		self.audio_b_rect = pg.Rect((200,0), button_list[1].get_size())
+		self.audio_b_surf = self.parent_surf.subsurface(self.audio_b_rect)
+		self.audio_b_surf.blit(button_list[1], (0,0))
+
+	def left_click_at_action(self, pos):
+		if self.graphics_b_rect.collidepoint(pos):
+			self.child = PMenu_graphics(self.GI, self.child_surf)
+		elif self.audio_b_rect.collidepoint(pos):
+			self.child = PMenu_audio(self.GI, self.child_surf)
+		else:
+			print "oh yeah! options!", pos
+
+class PMenu_graphics(PMenu):
+	def __init__(self, GI, surfaceToUse):
+		PMenu.__init__(self, GI, surfaceToUse, None)
+
+		self.whole_surf.fill((200,100,100))
+
+		self.button_list = self.makeButtons(["Fullscreen On", "Fullscreen Off"], 30)
+
+		self.fullscreen_b_rect = pg.Rect((0,0), self.button_list[0].get_size())
+		self.fullscreen_b_surf = self.parent_surf.subsurface(self.fullscreen_b_rect)
+
+		if self.GI.display.isFull:
+			self.fullscreen_b_surf.blit(self.button_list[1], (0,0))
+		else:
+			self.fullscreen_b_surf.blit(self.button_list[0], (0,0))
+
+	def left_click_at_action(self, pos):
+		if self.fullscreen_b_rect.collidepoint(pos):
+			self.GI.display.toggleFull()
+			if self.GI.display.isFull:
+				self.fullscreen_b_surf.blit(self.button_list[1], (0,0))
+			else:
+				self.fullscreen_b_surf.blit(self.button_list[0], (0,0))
+		else:
+			print "oh yeah! graphics!", pos
+
+class PMenu_audio(PMenu):
+	def __init__(self, GI, surfaceToUse):
+		PMenu.__init__(self, GI, surfaceToUse, None)
+
+		self.whole_surf.fill((200,200,100))
+
+	def left_click_at_action(self, pos):
+		print "oh yeah! audio!", pos
+
+class PMenu_exit(PMenu):
+	def __init__(self, GI, surfaceToUse):
+		PMenu.__init__(self, GI, surfaceToUse, None)
+
+		self.whole_surf.fill((100,100,200))
+
+		button_list = self.makeButtons(["Confirm"], 30)
+
+		self.confirm_b_rect = pg.Rect((0,0), button_list[0].get_size())
+		self.confirm_b_surf = self.parent_surf.subsurface(self.confirm_b_rect)
+		self.confirm_b_surf.blit(button_list[0], (0,0))
+
+	def left_click_at_action(self, pos):
+		if self.confirm_b_rect.collidepoint(pos):
+			quit()
+		else:
+			print "oh yeah! exit!", pos
 
 def makeAButton(width, height, text):
 	width = int(width)
