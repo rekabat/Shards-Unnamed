@@ -309,7 +309,7 @@ class enemy(WorldEvent):
 
 	def execute(self, GI):
 		# moveables.Moveable(enemyCatalog[self.extra[1]])
-		GI.addEnemy(enemies.Enemy(GI, self.on, self.getZ(), (1,1), 'art/playersprite.png', .125))
+		GI.addEnemy(enemies.Enemy(GI, self.on, self.getZ(), (1,1), 'art/sprites/Weirdo1.png', .125))
 		
 
 

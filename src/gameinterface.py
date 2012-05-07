@@ -742,9 +742,6 @@ class GameInterface:
 				for e in self.curEnemies:
 					if e.getZ() == z:
 						blitRelRect(e.getRect(), e.getArt(outline = (e is self.lockedOntoEnemy)))
-						#hp bar if they're aggroed
-						if e.getAggro():
-							blitRelRect(e.getHPBarRect(), e.getHPBar())
 
 						for t0 in self.map.getTilesInRect(e.getRect()):
 							tilesOccupied.add(t0)
@@ -766,6 +763,12 @@ class GameInterface:
 				for t0 in tilesOccupied:
 					if t0.getZ() > z:
 						blitRelRect(t0.getRect(), t0.getImg())
+
+			#then all the enemies' hp bars
+			for e in self.curEnemies:
+				if e.getAggro():
+					blitRelRect(e.getHPBarRect(), e.getHPBar())
+
 
 			# surf = pg.Surface(g.TILE_RES)
 			# surf.fill(g.GREEN)
