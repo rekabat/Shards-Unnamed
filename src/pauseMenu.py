@@ -4,40 +4,19 @@ from pygame.locals import *
 BAR_FRACT = 0.2
 
 """
-self.states = ("general", self.generalDispatch, { 
-	pg.K_1: ("player", self.playerDispatch, {
-		pg.K_q: ("inventory", self.inventoryDispatch, {} ),
-		pg.K_w: ("equipped", self.equippedDispatch, {} ),
-		pg.K_e: ("stats", self.statsDispatch, {} )
-	} ),
-	pg.K_2: ("saveload", self.saveloadDispatch, {
-		pg.K_q: ("save", self.saveDispatch, {} ),
-		pg.K_w: ("load", self.loadDispatch, {} )
-	} ),
-	pg.K_3: ("options", self.optionsDispatch, {
-		pg.K_q: ("screen", self.screenDispatch, {} ), #togglefs, resolution
-		pg.K_w: ("sound", self.soundDispatch, {} ) #mute
-	} )
-} )
-
-
-
-
 player
 	inventory
+	~equipped
 	stats
 save/load
 	save
 	load
 options
 	graphics
-		togglefs
-		~resolution
 	audio
-		~mute
+resume
 exit
-	really leave
-	oops
+	confirm
 """
 
 class PMenu:

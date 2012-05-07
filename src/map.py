@@ -38,11 +38,16 @@ class Map:
 
 		#dictionary where key = z, gives dict where key = pos, gives tile
 		self.z_pos_tile = {}
+		#dictionary where key = z, gives dict where key = pos, gives whether tile is blocked or not
+		self.z_pos_tileblocked = {}
+		#
 		for z in range(self.maxZ+1):
 			self.z_pos_tile[z] = {}
+			self.z_pos_tileblocked[z] = {}
 		for pos in self.pos_z_tile:
 			for z in self.pos_z_tile[pos]:
 				self.z_pos_tile[z][pos] = self.pos_z_tile[pos][z]
+				self.z_pos_tileblocked[z][pos] = self.pos_z_tile[pos][z].blocked()
 
 
 	def getMapSizePx(self): return self.mapSizePx

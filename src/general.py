@@ -4,6 +4,7 @@ import pygame as pg
 TILE_RES = (32, 32) #the width and hight of tiles in pixels
 # PX_STEP = 200 #pixels/second
 FRAME_RATE = 60 #Frames per second
+PF_REFRESH_RATE = 30 # how oftenpaths are found
 
 #easy references
 WHITE=(255,255,255)

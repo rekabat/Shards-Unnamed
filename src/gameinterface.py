@@ -1,6 +1,8 @@
 import pygame as pg
 from pygame.locals import *
 
+import multiprocessing as mp
+
 import display
 import map
 import worldEvents
@@ -15,6 +17,26 @@ import enemies
 import pauseMenu as pm
 
 import general as g
+
+def pf(pipe):
+	import pathFinder
+	pf = pathFinder.PathFinder()
+
+	clock = pg.time.Clock()
+
+	while 1:
+		clock.tick(g.PF_REFRESH_RATE)
+
+		if pipe.poll(0):
+			delivery = pipe.recv() #always expects tuple ("purpose", stuff to use)
+			if delivery[0] == "loadmap":
+				pf.loadMap(delivery[1])
+			elif delivery[0] == "pathfind":
+				# self.pipe_to_pathFinder.send(("pathfind", ((1,1,0), (16,3,0), None)))
+				path = pf.findPath_from_to(delivery[1])
+				print path
+			else:
+				print "error:", delivery
 
 class GameInterface:
 	def __init__(self, state="main-menu"):
@@ -44,6 +66,11 @@ class GameInterface:
 		self.curEnemies = []
 		self.foundOnePathAlready = False #used to prevent the pathfinding algorithm from being run more than once per cycle
 
+		#set up ai in a another thread/processor
+		self.pipe_to_pathFinder, recv_pipe_pathFinder = mp.Pipe()
+		self.pathFinder = mp.Process(target = pf, args = (recv_pipe_pathFinder,))
+		self.pathFinder.start()
+
 		self.createWorld('maps/room1', (10,10), 0)
 		self.renderView()
 
@@ -55,7 +82,7 @@ class GameInterface:
 		# Stuff for "pause"
 		##########
 		self.pmenu = pm.PMenu_general(self, pg.Surface(self.display.getWH()))
-			
+
 	def createWorld(self, mapfile, playerPos, playerZ):
 		# self.loadMap(mapfile, playerPos, playerZ)
 		self.player = player.Player(playerPos, playerZ, self.font, self.display.getWH()[0])
@@ -77,6 +104,9 @@ class GameInterface:
 		self.map = map.Map(mapfile, self.display.getWH())
 		self.staticMap = self.map.getTotalImg()
 		self.eventForeground = worldEvents.EventForeground(mapfile)
+
+		self.pipe_to_pathFinder.send(("loadmap", (self.map.z_pos_tileblocked, self.map.getMapSizeTiles())))
+		self.pipe_to_pathFinder.send(("pathfind", ((1,1,0), (16,3,0), None)))
 
 		self.outlinedEvents = []
 		self.curAttacks = []
@@ -186,7 +216,9 @@ class GameInterface:
 		#some things are handled the same way in all states:
 		for event in events:
 			if event.type == pg.QUIT:
+				self.pathFinder.terminate()
 				quit()
+
 			# elif event.type == pg.KEYDOWN:
 			# 	key = event.dict['key']
 
