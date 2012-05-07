@@ -93,7 +93,7 @@ class PMenu_general(PMenu):
 
 		self.parent_surf.fill((100,100,100))
 
-		button_list = self.makeButtons(["Player", "Save/Load", "Options", "Exit"], 30)
+		button_list = self.makeButtons(["Player", "Save/Load", "Options", "Resume", "Quit"], 30)
 
 		self.player_b_rect = pg.Rect((0,0), button_list[0].get_size())
 		self.player_b_surf = self.parent_surf.subsurface(self.player_b_rect)
@@ -107,9 +107,13 @@ class PMenu_general(PMenu):
 		self.options_b_surf = self.parent_surf.subsurface(self.options_b_rect)
 		self.options_b_surf.blit(button_list[2], (0,0))
 
-		self.exit_b_rect = pg.Rect((600,0), button_list[3].get_size())
-		self.exit_b_surf = self.parent_surf.subsurface(self.exit_b_rect)
-		self.exit_b_surf.blit(button_list[3], (0,0))
+		self.resume_b_rect = pg.Rect((600,0), button_list[3].get_size())
+		self.resume_b_surf = self.parent_surf.subsurface(self.resume_b_rect)
+		self.resume_b_surf.blit(button_list[3], (0,0))
+
+		self.quit_b_rect = pg.Rect((800,0), button_list[3].get_size())
+		self.quit_b_surf = self.parent_surf.subsurface(self.quit_b_rect)
+		self.quit_b_surf.blit(button_list[4], (0,0))
 
 	def getDisp(self): return self.whole_surf
 
@@ -120,8 +124,10 @@ class PMenu_general(PMenu):
 			self.child = PMenu_saveload(self.GI, self.child_surf)
 		elif self.options_b_rect.collidepoint(pos):
 			self.child = PMenu_options(self.GI, self.child_surf)
-		elif self.exit_b_rect.collidepoint(pos):
-			self.child = PMenu_exit(self.GI, self.child_surf)
+		elif self.resume_b_rect.collidepoint(pos):
+			self.GI.dispatch([pg.event.Event(KEYDOWN, {'key': K_ESCAPE})])
+		elif self.quit_b_rect.collidepoint(pos):
+			self.child = PMenu_quit(self.GI, self.child_surf)
 		else:
 			print "oh yeah! general!", pos
 
@@ -268,7 +274,7 @@ class PMenu_audio(PMenu):
 	def left_click_at_action(self, pos):
 		print "oh yeah! audio!", pos
 
-class PMenu_exit(PMenu):
+class PMenu_quit(PMenu):
 	def __init__(self, GI, surfaceToUse):
 		PMenu.__init__(self, GI, surfaceToUse, None)
 
@@ -284,7 +290,7 @@ class PMenu_exit(PMenu):
 		if self.confirm_b_rect.collidepoint(pos):
 			quit()
 		else:
-			print "oh yeah! exit!", pos
+			print "oh yeah! quit!", pos
 
 def makeAButton(width, height, text):
 	width = int(width)
