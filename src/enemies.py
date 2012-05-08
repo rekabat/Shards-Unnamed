@@ -9,40 +9,7 @@ import pygame as pg
 import general as g
 import moveables
 import attacks
-
-
-class nodule:
-	def __init__(self, tile, g, h, parent, cameFrom):
-		self.tile = tile
-		
-		self.cost = g+h
-		self.movementcost = g
-		# self.heuristiccost = h
-
-		self.parent = parent
-		self.cameFrom = cameFrom
-		if self.parent is None:
-			self.tilesOnPath = 1
-		else:
-			self.tilesOnPath = self.parent.tilesOnPath + 1
 	
-def bottomNodule(nod):
-	while nod.parent != None:
-		nod = nod.parent
-	return nod
-
-def deleteBottomNodule(nod):
-	if nod.parent == None:
-		return False
-	else:
-		while nod.parent != None:
-			if nod.parent.parent != None:
-				nod = nod.parent
-			else:
-				nod.parent = None
-		return True
-
-
 class Enemy(moveables.Moveable):
 	def __init__(self, GI, position, z, size= (1,1), img='art/playersprite.png', pixStep = .075):
 		moveables.Moveable.__init__(self, position, z, size, img, pixStep)
@@ -89,335 +56,110 @@ class Enemy(moveables.Moveable):
 
 	def useShards(self, amt): return True
 
-	def Astar(self, currentTile, targetTile, limit = None):
-		current = nodule(currentTile, 0, 10*(abs(currentTile[0]-targetTile[0])+abs(currentTile[1]-targetTile[1])), None, (0,0))
-			
-		open = {current.tile: current}
-		openByCost = {current.cost: [current]}
-		closed = []
-
-		while 1:
-			# mincost = nodule(None, 999999999999999999999, None)
-			# for each in open.keys():
-			# 	if open[each].cost < mincost.cost:
-			# 		mincost = open[each]
-
-			# if mincost.tile == targetTile or len(open.keys()) == 0:
-			# 	break
-
-
-			#it should only need open!!!!!
-			#it should only need open!!!!!
-			#it should only need open!!!!!
-			#it should only need open!!!!!
-			#it should only need open!!!!!
-			#it should only need open!!!!!
-			#it should only need open!!!!!
-			#it should only need open!!!!!
-			#it should only need open!!!!!
-			if len(open) == 0 or len(openByCost) == 0:
-				mincost = None
-				break
-
-			mincost = openByCost[min(openByCost)][0]
-
-			if mincost.tile == targetTile:
-				break
-
-			#remove from open
-			del(open[mincost.tile])
-			#remove from openByCost
-			openByCost[mincost.cost].remove(mincost)
-			if len(openByCost[mincost.cost]) == 0:
-				del(openByCost[mincost.cost])
-			#add to closed
-			closed.append(mincost.tile)
-
-			tooFar = False
-			if limit:
-				if mincost.tilesOnPath > limit:
-					tooFar = True
-			if not tooFar:
-				def makeRelNode((x,y), cost):
-					new = (mincost.tile[0]+x, mincost.tile[1]+y)
-					
-					if new not in closed: #not rejected yet
-						g = mincost.movementcost + cost
-						h = 10*(abs(new[0]-targetTile[0])+abs(new[1]-targetTile[1]))
-
-						cost = g+h
-						
-						if new in open: #already tested on another route
-							oldcost = open[new].cost
-							if cost < oldcost: #it's a better route than the last one found to get here
-								#remove from openByCost
-								openByCost[oldcost].remove(open[new])
-								if len(openByCost[oldcost]) == 0:
-									del(openByCost[oldcost])
-								#replace in open
-								open[new].cost = cost
-								open[new].movementcost = g
-								# open[new].heuristiccost = h
-								open[new].parent = mincost
-								open[new].cameFrom = (x,y)
-								#put in openByCost
-								if cost not in openByCost.keys():
-									openByCost[cost] = []
-								openByCost[cost].append(open[new])
-
-						else: #not tested yet
-							
-							# if self.GI.collisionWithBlockedRect(g.tile2rect(new), self.getZs(), player = False, ignoreEnemy=self):
-							
-							#off of the map\
-							if new[0]<0 or new[1]<0 or new[0]>=self.GI.map.getMapSizeTiles()[0] or new[1]>=self.GI.map.getMapSizeTiles()[1]:
-									return False
-							#blocked
-							# if self.GI.collisionWithBlockedTile(new, self.getZs(), player = False, ignoreEnemy=self):
-							if self.GI.collisionWithBlockedTile(new, self.getZ(), player = False, enemies = False):
-							 	closed.append(new)
-							 	return False
-							
-							#add to open
-							nod = nodule(new, g, h, mincost, (x,y))
-							open[new] = nod
-							#add to openByCost
-							if cost not in openByCost.keys():
-								openByCost[cost] = []
-							openByCost[cost].append(nod)
-					return True
-
-				# if you can't go up or left, an up-left movement (even if it was valid)
-				# would clip through blocked tiles, so those need to be avoided
-
-
-				#original
-				# up = makeRelNode((0,-1), 10) #u
-				# down = makeRelNode((0,+1), 10) #d
-
-				# if makeRelNode((-1,0), 10): #l
-				# 	if up: #u
-				# 		makeRelNode((-1,-1), 14)#ul
-				# 	if down: #d
-				# 		makeRelNode((-1,+1), 14)#dl
-				# if makeRelNode((+1,0), 10): #r
-				# 	if up: #u
-				# 		makeRelNode((+1,-1), 14)#ur
-				# 	if down: #d
-				# 		makeRelNode((+1,+1), 14)#dr
-
-
-				#seems to be working
-				# up = (mincost.cameFrom != (0,+1)) and makeRelNode((0,-1), 10) #u
-				# down = (mincost.cameFrom != (0,-1)) and makeRelNode((0,+1), 10) #d
-				# left =(mincost.cameFrom != (+1,0)) and  makeRelNode((-1,0), 10)
-				# right =(mincost.cameFrom != (-1,0)) and  makeRelNode((+1,0), 10)
-
-				# if left: #l
-				# 	if up: #u
-				# 		makeRelNode((-1,-1), 14)#ul
-				# 	if down: #d
-				# 		makeRelNode((-1,+1), 14)#dl
-				# if right: #r
-				# 	if up: #u
-				# 		makeRelNode((+1,-1), 14)#ur
-				# 	if down: #d
-				# 		makeRelNode((+1,+1), 14)#dr
-
-				#seems best
-				# cameFrom                     ``up``                         ``down``                         ``left``                        ``right``
-				up    = (mincost.cameFrom != (0,+1))                                  and (mincost.cameFrom != (+1,0)) and (mincost.cameFrom != (-1,0)) and makeRelNode((0,-1), 10)
-				down  =                                  (mincost.cameFrom != (0,-1)) and (mincost.cameFrom != (+1,0)) and (mincost.cameFrom != (-1,0)) and makeRelNode((0,+1), 10)
-				left  = (mincost.cameFrom != (0,+1)) and (mincost.cameFrom != (0,-1)) and (mincost.cameFrom != (+1,0))                                  and makeRelNode((-1,0), 10)
-				right = (mincost.cameFrom != (0,+1)) and (mincost.cameFrom != (0,-1))                                  and (mincost.cameFrom != (-1,0)) and makeRelNode((+1,0), 10)
-
-				if left or up: #l
-					makeRelNode((-1,-1), 14)#ul
-				if left or down: #d
-					makeRelNode((-1,+1), 14)#dl
-				if right or up: #u
-					makeRelNode((+1,-1), 14)#ur
-				if right or down: #d
-					makeRelNode((+1,+1), 14)#dr
-
-		return mincost
-
-	def tick(self, dt, foundOnePathAlready):
+	def tick(self, dt):
 		player = self.GI.player
 
+		#deal with spells
 		for each in self.spells:
 			each.tick(dt)
 
-		#touching the player
-		#only casts the first spell on the enemy's list!!!!!!!!
-		if self.getRect().colliderect(player.getRect()):
-			self.undoMove()
-			return self.spells[0].cast(self.getRect(), self.facing), False
+		self.currentTile = g.pix2tile(self.getRect().center)
 
-		currentTile = g.pix2tile(self.getRect().center)
-		# currentTile = g.pix2tile(self.getRect().bottomright)
-
+		# if player is in aggro range, target player
 		if g.distance(player.getRect().center, self.getRect().center) < self.aggroRange*g.TILE_RES[0]:
-			targetTile = g.pix2tile(player.getRect().center)
-			# if self.aggro:
-			# 	if targetTile != self.targetTile:
-			# 		self.player_changedTiles += 1
-			# else:
-			# 	self.aggro = True
-			# 	self.player_changedTiles = 0 
+			self.targetTile = g.pix2tile(player.getRect().center)
 			self.aggro = True
 			toOrigin = False
+		# if player is out of aggro, target origin
 		else:
-			targetTile = g.pix2tile(self.origin)
+			self.targetTile = g.pix2tile(self.origin)
 			self.aggro = False
 			toOrigin = True
 		
-		if currentTile[0] == targetTile[0] and currentTile[1] == targetTile[1]:
+		#if the target has been reached, end movement
+		if self.currentTile == self.targetTile:
 			self.currentPath = None
-			return False, False
+			return False
 
-		if self.targetTile == targetTile and self.currentPath != None:
-			bottom = bottomNodule(self.currentPath).tile
-			if bottom != currentTile:
-				xp, yp = g.tile2pix(bottom, center = True)
-				xs, ys = self.getRect().center
-
-				mv = ""
-
-				if xp-xs<0:
-					mv += "L"
-				elif xp-xs>0:
-					mv += "R"
-
-				if yp-ys<0:
-					mv += "U"
-				elif yp-ys>0:
-					mv += "D"
-
-				self.forgetMovement()
-				for m in mv:
-					self.movingDirection(m)
-
-				if len(mv) == 2:
-					mv = [mv, mv[0], mv[1]]
-				else:
-					mv = [mv]
-				for each in mv:
-					self.move(each, dt)
-
-					# Check if the movement is valid by making a smaller rectangle and seeing
-					smallerRect=pg.Rect((0,0),(self.getRect().width*.87, self.getRect().height*.87))
-					smallerRect.center = self.getRect().center
-
-					if self.GI.collisionWithBlockedRect(smallerRect, self.getZ(), player = True, ignoreEnemy=self):
-						self.undoMove()
-					else:
-						break
-
-				self.placeHPBar()
-
-				return False, False
-				
-			else:
-				if not deleteBottomNodule(self.currentPath):
+		#if you're still targeting the same tile as before (what you found the path for), and a apth is found...
+		if (self.currentPath != None):
+			if self.currentPath[0] == self.currentTile:
+				del(self.currentPath[0])
+				if len(self.currentPath) == 0:
 					self.currentPath = None
-					return False, False
-		elif not foundOnePathAlready:
-			# self.targetTile = targetTile	
-			# self.currentTile = currentTile
+					return False
 
-			# if toOrigin:
-			# 	self.Astar(currentTile, targetTile)
-			# else:
-			# 	self.Astar(currentTile, targetTile, limit = 1.5*self.aggroRange)
+			#the coords you're heading to this tick
+			xp, yp = g.tile2pix(self.currentPath[0], center = True)
+			#the coords you're on now
+			xs, ys = self.getRect().center
 
-			self.targetTile = targetTile	
-			self.currentTile = currentTile
+			# #the coords you're heading to this tick
+			# xp, yp = self.currentPath[0]
+			# #the coords you're on now
+			# xs, ys = self.currentTile
 
+			mv = ""
 
-			if toOrigin:
-				self.currentPath = self.Astar(currentTile, targetTile)
-			else: 
-				self.currentPath = self.Astar(currentTile, targetTile, limit = 1.5*self.aggroRange)
+			if xp-xs<0:
+				mv += "L"
+			elif xp-xs>0:
+				mv += "R"
 
-			
-			return False, True
-		return False, False
+			if yp-ys<0:
+				mv += "U"
+			elif yp-ys>0:
+				mv += "D"
 
-	'''
-	def tick1(self, dt, foundOnePathAlready):
-		player = self.GI.player
+			self.forgetMovement()
+			for m in mv:
+				self.movingDirection(m)
 
-		if g.distance(player.getRect().center, self.getRect().center) >= self.aggroRange*g.TILE_RES[0]:
-			self.aggro = False
-			if g.distance(self.origin, self.getRect().center) > 5: #tolerance of 5 pixels from the origin
-				xp, yp = self.origin
+			if len(mv) == 2:
+				mv = [mv, mv[0], mv[1]]
 			else:
-				return
-		else:
-			self.aggro = True
-			xp, yp = player.getRect().center
+				mv = [mv]
+			for each in mv:
+				self.move(each, dt, forceTurn = g.tile2pix(self.targetTile))
 
-		xs, ys = self.getRect().center
+				# Check if the movement is valid by making a smaller rectangle and seeing
+				smallerRect=pg.Rect((0,0),(self.getRect().width*.87, self.getRect().height*.87))
+				smallerRect.center = self.getRect().center
 
-		rel = (xp-xs, yp-ys)
+				if self.GI.collisionWithBlockedRect(smallerRect, self.getZ(), player = True, ignoreEnemy=self):
+					self.undoMove()
+				else:
+					break
 
+			# self.currentPath[0] = g.pix2tile(self.getRect().center)
 
-		#distance between a point (x0, y0) and line (ax+by+c=0)
-			# |a*x0 + b*y0 + c| / sqrt(a^2 + b^2)
-		
-		u_d = abs(xs-xp)
-		l_r = abs(ys-yp)
-		#y =  x + (ys-xs)   ->  (-x) + y + (-ys+xs) = 0
-		ul_dr = abs(-xp+yp+(xs-ys)) / 1.41421356 #sqrt(2)
-		#y = -x + (ys+xs)   ->   x   + y + (-ys-xs) = 0
-		dl_ur = abs(xp+yp-(ys+xs)) / 1.41421356 #sqrt(2)
+			self.placeHPBar()
+				
+		if (self.currentPath == None) or (self.targetTile != self.currentPath[-1]):
+			if toOrigin:
+				t0 = None
+			else: 
+				t0 = 1.5*self.aggroRange
 
-		mv = ""
+			path = self.GI.findPath_from_to(self, (self.currentTile[0], self.currentTile[1], self.z), (self.targetTile[0], self.targetTile[1], self.z), limit = t0)
 
-		if u_d <= ul_dr and u_d <= dl_ur and u_d<=l_r:
-			if rel[1]<0:
-				mv = "U"
-			elif rel[1]>0:
-				mv = "D"
-		elif l_r <= ul_dr and l_r <= dl_ur:
-			if rel[0]<0:
-				mv = "L"
-			elif rel[0]>0:
-				mv = "R"
-		elif ul_dr <= dl_ur:
-			if rel[1]<0:
-				mv = "UL"
-			elif rel[1]>0:
-				mv = "DR"
-		else:
-			if rel[1]<0:
-				mv = "UR"
-			elif rel[1]>0:
-				mv = "DL"
-
-		self.forgetMovement()
-		for m in mv:
-			self.movingDirection(m)
-
-		self.move(mv, dt)
-
-		self.placeHPBar()
-
-		if self.secondSinceAtk != 0:
-			self.secondSinceAtk += dt
-			if self.secondSinceAtk >= self.atkRate:
-				self.secondSinceAtk = 0
+			if path:
+				self.currentPath = path
 
 		#touching the player
-		if self.getRect().colliderect(player.getRect()):
-			self.undoMove()
-			if self.secondSinceAtk == 0:
-				self.secondSinceAtk+=.001
-				return self.spells[0].cast(self.getRect(), self.facing)
+		#only casts the first spell on the enemy's list!!!!!!!!
+		#the coords you're heading to this tick
+		xp, yp = g.pix2tile(player.getRect().center)
+		#the coords you're on now
+		xs, ys = self.currentTile
+		x = abs(xp-xs)
+		y = abs(yp-ys)
+		if (self.aggro) and (x==0 or y==0) and (x<self.spells[0].distance or y<self.spells[0].distance):
+			return self.spells[0].cast(self.getRect(), self.facing)
+		else:
+			return False
 
-		return False
-	'''
+		# return False
 
 	def takeHP(self, amt):
 		self.currentHP -= amt

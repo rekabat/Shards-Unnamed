@@ -267,7 +267,7 @@ class PMenu_quit(PMenu):
 
 	def left_click_at_action(self, pos):
 		if self.confirm_b_rect.collidepoint(pos):
-			quit()
+			self.GI.dispatch([pg.event.Event(QUIT, {})])
 		else:
 			print "oh yeah! quit!", pos
 

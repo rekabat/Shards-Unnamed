@@ -33,8 +33,7 @@ def pf(pipe):
 				pf.loadMap(delivery[1])
 			elif delivery[0] == "pathfind":
 				# self.pipe_to_pathFinder.send(("pathfind", ((1,1,0), (16,3,0), None)))
-				path = pf.findPath_from_to(delivery[1])
-				print path
+				pipe.send(pf.findPath_from_to(delivery[1]))
 			else:
 				print "error:", delivery
 
@@ -64,12 +63,14 @@ class GameInterface:
 		self.curAttacks = []
 
 		self.curEnemies = []
-		self.foundOnePathAlready = False #used to prevent the pathfinding algorithm from being run more than once per cycle
 
 		#set up ai in a another thread/processor
 		self.pipe_to_pathFinder, recv_pipe_pathFinder = mp.Pipe()
 		self.pathFinder = mp.Process(target = pf, args = (recv_pipe_pathFinder,))
 		self.pathFinder.start()
+
+		self.findingPathFor = []
+		self.pathsFound = []
 
 		self.createWorld('maps/room1', (10,10), 0)
 		self.renderView()
@@ -106,7 +107,9 @@ class GameInterface:
 		self.eventForeground = worldEvents.EventForeground(mapfile)
 
 		self.pipe_to_pathFinder.send(("loadmap", (self.map.z_pos_tileblocked, self.map.getMapSizeTiles())))
-		self.pipe_to_pathFinder.send(("pathfind", ((1,1,0), (16,3,0), None)))
+		# self.pipe_to_pathFinder.send(("pathfind", ((1,1,0), (16,3,0), None)))
+		self.findingPathFor = []
+		self.pathsFound = []
 
 		self.outlinedEvents = []
 		self.curAttacks = []
@@ -210,6 +213,23 @@ class GameInterface:
 			# print "event"
 			return True
 
+	def findPath_from_to(self, whoWantsToKnow, current, target, limit = None):
+		if whoWantsToKnow in self.findingPathFor:
+			while self.pipe_to_pathFinder.poll():
+				self.pathsFound.append(self.pipe_to_pathFinder.recv())
+			i = self.findingPathFor.index(whoWantsToKnow)
+			if i<len(self.pathsFound):
+				del(self.findingPathFor[i])
+				ret = self.pathsFound[i]
+				del(self.pathsFound[i])
+				return ret
+			else:
+				return False
+		else:
+			self.findingPathFor.append(whoWantsToKnow)
+			self.pipe_to_pathFinder.send(("pathfind", (current, target, limit)))
+			return False
+
 	def dispatch(self, events, dt=0):
 		froze = False
 
@@ -236,7 +256,6 @@ class GameInterface:
 		elif self.state == "play":
 			
 			enterPressed = False
-			self.foundOnePathAlready = False
 			
 			for event in events:
 				if event.type == pg.KEYDOWN:
@@ -512,8 +531,7 @@ class GameInterface:
 			else: rectInFrontOfPlayer.left += g.TILE_RES[0]
 
 			for e in self.curEnemies:
-				atk, found = e.tick(dt, self.foundOnePathAlready)
-				self.foundOnePathAlready = self.foundOnePathAlready or found
+				atk = e.tick(dt)
 				if atk:
 					self.curAttacks.append(atk)
 
@@ -554,7 +572,7 @@ class GameInterface:
 					a.hit(self.player)
 					if self.player.getCurStat('hp') <= 0:
 						print "dead!!!!"
-						quit()
+						self.dispatch([pg.event.Event(QUIT, {})])
 
 				#cause damage to enemies
 				for e in self.curEnemies:
