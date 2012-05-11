@@ -1,6 +1,9 @@
 # Import pygame, locals, and initialize
 import pygame as pg
 from pygame.locals import *
+import pygame._view #purely for py2exe
+
+from multiprocessing import freeze_support #purely for py2exe
 
 pg.init()
 
@@ -92,4 +95,6 @@ def runGame():
 # #         dt = clock.tick(.6)
 # #         print "hello"
 
-if __name__ == '__main__': runGame()
+if __name__ == '__main__':
+    freeze_support() #purely for py2exe
+    runGame()

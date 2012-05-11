@@ -2,6 +2,7 @@ import pygame as pg
 from pygame.locals import *
 
 import multiprocessing as mp
+import sys
 
 import display
 import map
@@ -237,7 +238,7 @@ class GameInterface:
 		for event in events:
 			if event.type == pg.QUIT:
 				self.pathFinder.terminate()
-				quit()
+				sys.exit()
 
 			# elif event.type == pg.KEYDOWN:
 			# 	key = event.dict['key']

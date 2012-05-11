@@ -57,8 +57,6 @@ class Enemy(moveables.Moveable):
 	def useShards(self, amt): return True
 
 	def tick(self, dt):
-		player = self.GI.player
-
 		#deal with spells
 		for each in self.spells:
 			each.tick(dt)
@@ -66,8 +64,8 @@ class Enemy(moveables.Moveable):
 		self.currentTile = g.pix2tile(self.getRect().center)
 
 		# if player is in aggro range, target player
-		if g.distance(player.getRect().center, self.getRect().center) < self.aggroRange*g.TILE_RES[0]:
-			self.targetTile = g.pix2tile(player.getRect().center)
+		if g.distance(self.GI.player.getRect().center, self.getRect().center) < self.aggroRange*g.TILE_RES[0]:
+			self.targetTile = g.pix2tile(self.GI.player.getRect().center)
 			self.aggro = True
 			toOrigin = False
 		# if player is out of aggro, target origin
@@ -81,13 +79,21 @@ class Enemy(moveables.Moveable):
 			self.currentPath = None
 			return False
 
-		#if you're still targeting the same tile as before (what you found the path for), and a apth is found...
+		#if you're still targeting the same tile as before (what you found the path for), and a path is found...
 		if (self.currentPath != None):
-			if self.currentPath[0] == self.currentTile:
-				del(self.currentPath[0])
+			# if self.currentPath[0] == self.currentTile:
+			# 	del(self.currentPath[0])
+			# 	if len(self.currentPath) == 0:
+			# 		self.currentPath = None
+			# 		return False
+			try:
+				i = self.currentPath.index(self.currentTile)
+				del(self.currentPath[:i+1])
 				if len(self.currentPath) == 0:
-					self.currentPath = None
+			 		self.currentPath = None
 					return False
+			except: pass
+
 
 			#the coords you're heading to this tick
 			xp, yp = g.tile2pix(self.currentPath[0], center = True)
@@ -146,10 +152,15 @@ class Enemy(moveables.Moveable):
 			if path:
 				self.currentPath = path
 
+				#it could be that pathfinding took long enough that the enemy has left the tile he initially requested the path from
+				if not (self.currentTile in self.currentPath):
+					#assume only one tile has passed
+					self.currentPath = self.currentPath[1:]
+
 		#touching the player
 		#only casts the first spell on the enemy's list!!!!!!!!
 		#the coords you're heading to this tick
-		xp, yp = g.pix2tile(player.getRect().center)
+		xp, yp = g.pix2tile(self.GI.player.getRect().center)
 		#the coords you're on now
 		xs, ys = self.currentTile
 		x = abs(xp-xs)
