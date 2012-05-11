@@ -26,7 +26,7 @@ class Enemy(moveables.Moveable):
 
 		self.alignment = 1
 		self.spells = [attacks.fireball(alignment = self.alignment, user = self, GI = GI)]
-		self.atkRate = 1000 #how many ms between attacks
+		self.atkRate = 1500 #how many ms between attacks
 		self.secondSinceAtk = 0
 
 		self.stats = {	'lvl': 	0,	\

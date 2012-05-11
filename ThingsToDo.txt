@@ -1,11 +1,12 @@
+Experience:
+ - perhaps give it when you damage something with that affiliation. The problem is, if cosmic regenerates, you can't get exp for using shards, that's very much broken because you can spam it to max level
+
 Things to add (near future):
  - Event linking (not added) and un/locked states (added). So world events can be present but not active until another event is activated.
 
 Things to change:
- - PROBABLY NOT GOING TO DO THIS, NEW SYSTEM SEEMS GOOD. Make tiles just floating rects that collide with the view to be printed (in ascending z order)
  - make one "get" function for WE so you just say WE.get("z") and it returns the z. Also, store all attributes as a dictionary stuff.
  - Make font thicker so that it can be visible at 10 pixels height
- - While hanging partly off a tile and gooing up stairs, it'll freeze because your z changed and now there's no tile at the z where you're hanging off... ugh
 
 Known bugs:
  - It's possible to step onto an event that chains to another event that appears partly under you. If this new event is blocked, you can't move. Maybe not a problem, you just shouldn't be able to make chains that make blocked events under or around the previous event (since even if it's not under you it could be under one of your 4 corners).
@@ -14,12 +15,10 @@ Known bugs:
 Things to consider:
  - 
 
- - You stay locked onto to an enemy even after they die, so that you face ot where they died. I need to take enemies off of the curEnemy list and set lockedOnto to None
-
 
 
 Things to know about WorldEvents:
- - If one_time is 0, blocked must be 1
+ - If one_time is 0 and enter is 0, blocked must be 1
  - If blocked is 1, enter must be 1
  - art and art_tile must be surrounded by quotes so that if it's empty it's invisible (if one's empty, so must be the other)
  - a blocked event can't chain to an unblocked event that's only one tile away

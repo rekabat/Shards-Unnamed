@@ -117,7 +117,7 @@ class icefield(Attack):
 	def __init__(self, **kwargs):
 		Attack.__init__(self, **kwargs)
 
-		self.cost		= (10,0,0,0)
+		self.cost		= (0,10,0,0)
 		self.duration 	= 3000			#how long it lasts (ms)
 		self.shift_rate = .004				#how often it shifts (ms^-1)
 		self.size 		= 2 			#size of the square ((size*2+1)^2 tiles)
@@ -174,7 +174,7 @@ class fireball(Attack):
 	def __init__(self, **kwargs):
 		Attack.__init__(self, **kwargs)
 		
-		self.cost		= (4,0,0,0)
+		self.cost		= (0,4,0,0)
 
 		self.speed 		= .4 			#how fast it moves forward (pixels/ms)
 		self.distance 	= 5*g.TILE_RES[0] 	#how many tiles it goes forward
