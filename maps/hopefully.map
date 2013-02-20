@@ -1,5 +1,5 @@
 >>> Tile Source [size x:y]
-0-> art\map\floors.png [32:32]
+0-> art/map/floors.png [32:32]
 >>> Map Size in Tiles (x/y)
 12:12
 >>> Setup (Source-> Map col:row/Tile col:row)

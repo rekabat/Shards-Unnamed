@@ -1,7 +1,7 @@
 # Import pygame, locals, and initialize
 import pygame as pg
 from pygame.locals import *
-import pygame._view #purely for py2exe
+#import pygame._view #purely for py2exe
 
 from multiprocessing import freeze_support #purely for py2exe
 

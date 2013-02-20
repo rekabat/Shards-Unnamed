@@ -1,3 +1,9 @@
+Linux problems:
+ - can't handle backslashes in path names (does the map maker default to them?)
+ - changing from fullscreen crashes
+ - hitting quit->confirm hangs the game
+ - similarly dying gives you the "dead!!!" but then hangs
+
 Experience:
  - perhaps give it when you damage something with that affiliation. The problem is, if cosmic regenerates, you can't get exp for using shards, that's very much broken because you can spam it to max level
 

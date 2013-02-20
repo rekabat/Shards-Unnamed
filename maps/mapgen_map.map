@@ -1,8 +1,8 @@
 >>> Tile Source [size x:y]
 0-> art/map/dark brick.png [32:32]
-1-> art\map\floors.png [32:32]
+1-> art/map/floors.png [32:32]
 2-> art/map/floors.png [32:32]
-3-> art\map\dark brick.png [32:32]
+3-> art/map/dark brick.png [32:32]
 >>> Map Size in Tiles (x/y)
 30:30
 >>> Setup (Source-> Map col:row/Tile col:row)
