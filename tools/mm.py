@@ -49,20 +49,25 @@ Known Bugs
 import pygame as pg
 from pygame.locals import *
 
-import Tkinter
-import tkFileDialog
-import tkMessageBox
+import tkinter as tk
+from tkinter import messagebox, filedialog
 
 import os
 
 # the width.height of tiles in pixels
 TILE_RES = (32, 32)
-def tile2rect((x, y)):
-	return pg.Rect((x * TILE_RES[0], y * TILE_RES[1]), TILE_RES)
-def pix2tile((x,y)):
-	return (int(x/TILE_RES[0]), int(y/TILE_RES[1]))
-def pix2tile2rect((x,y)):
-	return tile2rect(pix2tile((x,y)))
+
+
+def tile2rect(x_y):
+	return pg.Rect((x_y[0] * TILE_RES[0], x_y[1] * TILE_RES[1]), TILE_RES)
+
+
+def pix2tile(x_y):
+	return int(x_y[0]/TILE_RES[0]), int(x_y[1]/TILE_RES[1])
+
+
+def pix2tile2rect(x_y):
+	return tile2rect(pix2tile(x_y))
 
 # some color constants
 WHITE =	(255,	255,	255)
@@ -277,9 +282,9 @@ def runMaker():
 
 def endMM(saved):
 	if not saved:
-		master = Tkinter.Tk()
+		master = tk.Tk()
 		master.withdraw()
-		t0 = tkMessageBox.askyesno("Exit", "Are you sure you want to exit without saving?")
+		t0 = messagebox.askyesno("Exit", "Are you sure you want to exit without saving?")
 		master.destroy()
 
 		if t0:
@@ -491,9 +496,9 @@ class TS(Box):
 	def selectedTile(self): return self.selected_tile
 
 	def setCurrent(self):
-		master = Tkinter.Tk()
+		master = tk.Tk()
 		master.withdraw()
-		t0 = tkFileDialog.askopenfilename(initialdir = MAPART_DIR)
+		t0 = filedialog.askopenfilename(initialdir = MAPART_DIR)
 		master.destroy()
 
 		# leave if they choose cancel
@@ -551,7 +556,7 @@ class TS(Box):
 		elif highlight is RED:
 			self.selected_tile.setBlocked(True)
 		else:
-			print "invalid color choice for highlight/block"
+			print("invalid color choice for highlight/block")
 
 
 		# highlight the new tile
@@ -604,7 +609,7 @@ class MP(Box):
 					failed = True
 
 				if failed:
-					tkMessageBox.showerror("X/Y Error", "X and Y must be positive integers.")
+					messagebox.showerror("X/Y Error", "X and Y must be positive integers.")
 					return
 
 				master.destroy()
@@ -636,32 +641,32 @@ class MP(Box):
 
 		if not automated:
 			if self.tileSize_selected:
-				master = Tkinter.Tk()
+				master = tk.Tk()
 				master.withdraw()
-				tkMessageBox.showwarning("Map Size", "You can't change the size once you've begun. Try saving (ctrl+S) and creating a new file (ctrl+N).")
+				messagebox.showwarning("Map Size", "You can't change the size once you've begun. Try saving (ctrl+S) and creating a new file (ctrl+N).")
 				return
 
-			master = Tkinter.Tk()
+			master = tk.Tk()
 			master.title("Map Size")
-			frame = Tkinter.Frame(master)
+			frame = tk.Frame(master)
 			frame.pack()
 
 			r = 0
-			Tkinter.Label(frame, text="Choose an x & y:").grid(row=r, column=0, columnspan=2, sticky = Tkinter.W+Tkinter.E)
+			tk.Label(frame, text="Choose an x & y:").grid(row=r, column=0, columnspan=2, sticky = tk.W+tk.E)
 
 			r += 1
-			Tkinter.Label(frame, text="X (in tiles):").grid(row=r, column=0, columnspan=1, sticky = Tkinter.W+Tkinter.E)
-			x_entry = Tkinter.Entry(frame)
-			x_entry.grid(row=r,column=1,columnspan=1,stick=Tkinter.W+Tkinter.E)
+			tk.Label(frame, text="X (in tiles):").grid(row=r, column=0, columnspan=1, sticky = tk.W+tk.E)
+			x_entry = tk.Entry(frame)
+			x_entry.grid(row=r,column=1,columnspan=1,stick=tk.W+tk.E)
 
 			r += 1
-			Tkinter.Label(frame, text="Y (in tiles):").grid(row=r, column=0, columnspan=1, sticky = Tkinter.W+Tkinter.E)
-			y_entry = Tkinter.Entry(frame)
-			y_entry.grid(row=r,column=1,columnspan=1,stick=Tkinter.W+Tkinter.E)
+			tk.Label(frame, text="Y (in tiles):").grid(row=r, column=0, columnspan=1, sticky = tk.W+tk.E)
+			y_entry = tk.Entry(frame)
+			y_entry.grid(row=r,column=1,columnspan=1,stick=tk.W+tk.E)
 
 			r += 1
-			submit_button = Tkinter.Button(frame, text='Submit', fg='black', command=submit)
-			submit_button.grid(row=r,column=0,columnspan=2, sticky = Tkinter.W+Tkinter.E)
+			submit_button = tk.Button(frame, text='Submit', fg='black', command=submit)
+			submit_button.grid(row=r,column=0,columnspan=2, sticky = tk.W+tk.E)
 
 			master.mainloop()
 
@@ -807,9 +812,9 @@ class MP(Box):
 			return
 
 
-		master = Tkinter.Tk()
+		master = tk.Tk()
 		master.withdraw()
-		t0 = tkMessageBox.askyesno("Fill", "Are you sure you want to fill the entire map with this? It will overwrite all spots, not just empty ones.")
+		t0 = messagebox.askyesno("Fill", "Are you sure you want to fill the entire map with this? It will overwrite all spots, not just empty ones.")
 		master.destroy()
 
 		if t0:
@@ -869,9 +874,9 @@ class MP(Box):
 		if not self.tileSize_selected:
 			return True
 
-		master = Tkinter.Tk()
+		master = tk.Tk()
 		master.withdraw()
-		fileName = tkFileDialog.asksaveasfilename(initialdir = SAVE_DIR)
+		fileName = filedialog.asksaveasfilename(initialdir = SAVE_DIR)
 		master.destroy()
 
 		# leave if they choose cancel
@@ -940,9 +945,9 @@ class MP(Box):
 		return True
 
 	def loadMap(self):
-		master = Tkinter.Tk()
+		master = tk.Tk()
 		master.withdraw()
-		fileName = tkFileDialog.askopenfilename(initialdir = SAVE_DIR)
+		fileName = filedialog.askopenfilename(initialdir = SAVE_DIR)
 		master.destroy()
 
 		# leave if they choose cancel
@@ -999,7 +1004,7 @@ class MP(Box):
 			tileFiles[i]=source
 			#check that all tileFiles have same res and that they match the given res
 			if xy != TILE_RES:
-				print "Warning: Tile size inconsistency from tile files"
+				print("Warning: Tile size inconsistency from tile files")
 				raise KeyboardInterrupt
 		
 		for i in range(len(tileFiles)):
