@@ -1,6 +1,5 @@
 import pygame as pg
-from pygame.locals import *
-from random import randint
+
 
 class SoundEffects:
 
@@ -8,26 +7,25 @@ class SoundEffects:
         self.filelist = soundfiles
         self.pgSoundDict = self._genSoundDict(soundfiles)
         self.sounds = self.pgSoundDict.keys()
-    
+
     def _genSoundDict(self, soundfiles):
         pgSoundDict = {}
         for sound in soundfiles:
             pgSoundDict[sound.split(".")[0]] = pg.mixer.Sound(sound)
         return pgSoundDict
-    
+
     def play(self, sound):
         try:
             self.pgSoundDict[sound].play()
         except KeyError:
-            print "Invalid sound: " + sound
-    
+            print("Invalid sound: " + sound)
+
     def randPlay(self):
         self.play(self.sounds[randint(0, len(self.sounds) - 1)])
 
 
 if __name__ == '__main__':
     import os
-    import time
     from random import randint
 
     pg.init()

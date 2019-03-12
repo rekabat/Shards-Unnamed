@@ -1,10 +1,3 @@
-import pygame as pg
-from pygame.locals import *
-
-from copy import deepcopy as dc
-
-import general as g
-
 def getDict(evtList):
     rDict = {}
     for i, line in enumerate(evtList):
@@ -19,14 +12,14 @@ def getDict(evtList):
     rDict['art'] = rDict['art'].replace("'", "")
     if len(rDict['art']) == 0:
         rDict['art'] = None
-    
+
     # art tile as tile coords (tuple)
     rDict['art_tile'] = rDict['art_tile'].replace("'", "")
     if rDict['art_tile'] == "":
         rDict['art_tile'] = None
     else:
         rDict['art_tile'] = tuple([int(i) for i in rDict['art_tile'].split(":")])
-    
+
     # on as a list of tuples
     rDict['on'] = tuple([int(i) for i in rDict['on'].split(':')])
 
@@ -48,8 +41,6 @@ def getDict(evtList):
     # immediate as bool
     rDict['immediate'] = bool(int(rDict['immediate']))
 
-
-
     # # on as a list of tuples
     # rDict['on'] = rDict['on'].split(', ')
     # rDict['on'] = [tuple([int(i) for i in each.split(':')]) for each in rDict['on']]
@@ -63,10 +54,11 @@ def getDict(evtList):
 
     return rDict
 
+
 def parse(evtfile, EVENT_IDS):
     eventDict = {}
     file = [line.strip() for line in open(evtfile, 'r').readlines()]
-    
+
     eventChains = []
     chain = []
     for line in file:
@@ -76,19 +68,19 @@ def parse(evtfile, EVENT_IDS):
             eventChains.append(chain)
             chain = []
 
-    event=[]
-    chain=[]
-    chainList=[]
+    event = []
+    chain = []
+    chainList = []
     for listOfStringsOfChain in eventChains:
         for line in listOfStringsOfChain:
             if not line.startswith("}}}"):
                 event.append(line)
             else:
                 chain.append(event)
-                event=[]
+                event = []
         chainList.append(chain)
         chain = []
-    
+
     eventList = []
     for chain in chainList:
         j = 0
@@ -97,7 +89,7 @@ def parse(evtfile, EVENT_IDS):
 
             # for r in ret:
             #     eventObj = EVENT_IDS[r['event_id']]
-            
+
             #     if j == 0:
             #         eventList.append(eventObj(**r))
             #     else:
@@ -109,6 +101,6 @@ def parse(evtfile, EVENT_IDS):
                 eventList.append(eventObj(**ret))
             else:
                 eventList[-1].setDeepest(eventObj(**ret))
-            j+=1
-    
+            j += 1
+
     return eventList

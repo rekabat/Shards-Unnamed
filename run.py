@@ -1,28 +1,27 @@
 # Import pygame, locals, and initialize
 import pygame as pg
 from pygame.locals import *
-#import pygame._view #purely for py2exe
+# import pygame._view #purely for py2exe
 
-from multiprocessing import freeze_support #purely for py2exe
+from multiprocessing import freeze_support  # purely for py2exe
 
 pg.init()
 
-import src.general as g
-import src.gameinterface
-
+from src.general import Utils as g
+from src.gameinterface import GameInterface
 
 
 def runGame():
     clock = pg.time.Clock()
 
-    GI = src.gameinterface.GameInterface('play')
-    
+    GI = GameInterface('play')
+
     froze = False
 
     while True:
         dt = clock.tick(g.FRAME_RATE)
         if froze:
-            dt = 1./g.FRAME_RATE
+            dt = 1. / g.FRAME_RATE
 
         events = pg.event.get()
 
@@ -45,7 +44,6 @@ def runGame():
 #     r = mp.Process(target = rendering, args = (recv_pipe,))
 
 
-
 #     d.start()
 #     r.start()
 #     send_pipe.send([GI])
@@ -59,7 +57,7 @@ def runGame():
 #     GI = pipe.recv()
 
 #     clock = pg.time.Clock()
-    
+
 #     froze = False
 
 #     while 1:
@@ -96,5 +94,5 @@ def runGame():
 # #         print "hello"
 
 if __name__ == '__main__':
-    freeze_support() #purely for py2exe
+    freeze_support()  # purely for py2exe
     runGame()
