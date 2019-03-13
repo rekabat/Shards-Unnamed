@@ -35,7 +35,7 @@ def pf(pipe):
                 pf.loadMap(delivery[1][0], delivery[1][1])
             elif delivery[0] == "pathfind":
                 # self.pipe_to_pathFinder.send(("pathfind", ((1,1,0), (16,3,0), None)))
-                pipe.send(pf.findPath_from_to(delivery[1]))
+                pipe.send(pf.findPath_from_to(delivery[1][0], delivery[1][1], delivery[1][2]))
             else:
                 print("error:", delivery)
 
